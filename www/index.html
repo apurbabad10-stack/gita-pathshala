@@ -1,0 +1,958 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1565C0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>গীতা পাঠশালা</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@500;600;700;800&family=Hind+Siliguri:wght@400;500;600&display=swap">
+<style>
+/* Layout: phone game shell — welcome screen → 3 swipeable pages (Home · Journey · Rewards) with bottom nav; lessons open as a full-screen swipeable story sheet. Single bright theme by choice. */
+:root{
+  --sky:#EAF5FF; --sky2:#FFF4E2; --ink:#1E2A4A; --muted:#5B6787; --card:#FFFFFF; --line:#DCE6F2;
+  --peacock:#1565C0; --teal:#0FA3A3; --marigold:#FFB020; --lotus:#FF5E98; --leaf:#2FA866; --sindoor:#E8572C;
+  --display:"Baloo Da 2","Hind Siliguri","Noto Sans Bengali",sans-serif;
+  --body:"Hind Siliguri","Noto Sans Bengali",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{height:100%;background:var(--sky);color:var(--ink)}
+body{font-family:var(--body);font-size:16px;line-height:1.6;overflow:hidden;
+  background:linear-gradient(180deg,var(--sky) 0%,var(--sky2) 100%)}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible{outline:3px solid var(--marigold);outline-offset:2px}
+.disp{font-family:var(--display)}
+
+/* shell */
+.app{height:100%;display:flex;flex-direction:column}
+.pages{flex:1;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+.pages::-webkit-scrollbar{display:none}
+.page{flex:0 0 100%;scroll-snap-align:start;overflow-y:auto;overflow-x:hidden;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 110px}
+.page>.in{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:8px calc(10px + env(safe-area-inset-bottom,0px))}
+.navin{display:flex;gap:6px;background:var(--card);border-radius:24px;padding:6px;box-shadow:0 8px 24px rgba(21,101,192,.18)}
+.nb{display:flex;flex-direction:column;align-items:center;gap:0;padding:6px 12px;border-radius:18px;font-family:var(--display);font-weight:600;font-size:.82rem;color:var(--muted)}
+.nb svg{width:24px;height:24px}
+.nb[aria-current="true"]{background:var(--peacock);color:#fff}
+
+/* top bar */
+.top{display:flex;align-items:center;gap:10px}
+.hello{flex:1;min-width:0}
+.hello b{font-family:var(--display);font-size:1.35rem;display:block;line-height:1.2}
+.hello span{color:var(--muted);font-size:.9rem}
+.chip{display:flex;align-items:center;gap:4px;background:var(--card);border-radius:999px;padding:4px 10px;font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums;box-shadow:0 2px 8px rgba(30,42,74,.08)}
+.chip svg{width:20px;height:20px}
+
+/* rank card */
+.rank{background:linear-gradient(135deg,var(--peacock),var(--teal));color:#fff;border-radius:22px;padding:16px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;position:relative;overflow:hidden}
+.rank::after{content:"";position:absolute;right:-30px;top:-30px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.1)}
+.badge-lvl{width:64px;height:64px;border-radius:50%;background:var(--marigold);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.7rem;color:var(--ink);box-shadow:inset 0 -4px 0 rgba(0,0,0,.15)}
+.rank .t{min-width:0;position:relative;z-index:1}
+.rank .t b{font-family:var(--display);font-size:1.2rem;display:block}
+.xpbar{height:12px;background:rgba(255,255,255,.25);border-radius:99px;margin-top:6px;overflow:hidden}
+.xpbar i{display:block;height:100%;background:var(--marigold);border-radius:99px;transition:width .6s}
+.rank small{opacity:.9;font-variant-numeric:tabular-nums}
+
+/* progress */
+.panel{background:var(--card);border-radius:22px;padding:16px;box-shadow:0 4px 16px rgba(30,42,74,.06)}
+.panel h3{font-family:var(--display);margin:0 0 8px;font-size:1.1rem}
+.prog{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center}
+.ring text{font-family:var(--display)}
+.bars text{font-family:var(--body);font-size:10px;fill:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stat{background:var(--sky);border-radius:14px;padding:8px;text-align:center}
+.stat b{font-family:var(--display);font-size:1.3rem;display:block;line-height:1.1;font-variant-numeric:tabular-nums}
+.stat span{font-size:.75rem;color:var(--muted)}
+
+/* section head */
+.sh{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.sh h2{font-family:var(--display);font-size:1.3rem;margin:0}
+.sh span{font-size:.85rem;color:var(--muted)}
+
+/* swipe cards */
+.deck{position:relative;height:300px;touch-action:none;user-select:none}
+.vcard{position:absolute;inset:0;border-radius:26px;padding:20px;color:#fff;display:flex;flex-direction:column;gap:8px;
+  box-shadow:0 10px 24px rgba(30,42,74,.18);transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s;overflow:hidden}
+.vcard.drag{transition:none}
+.vcard .no{font-family:var(--display);font-weight:700;font-size:.85rem;background:rgba(255,255,255,.25);align-self:flex-start;border-radius:99px;padding:2px 12px}
+.vcard .sk{font-family:var(--display);font-size:1rem;line-height:1.5;opacity:.95;white-space:pre-line}
+.vcard .mn{font-family:var(--display);font-weight:700;font-size:1.25rem;line-height:1.4;margin-top:auto;text-wrap:balance}
+.vcard .rf{font-size:.8rem;opacity:.9}
+.vcard .art{position:absolute;right:-10px;top:-10px;width:120px;height:120px;opacity:.22}
+.deckctl{display:flex;justify-content:center;align-items:center;gap:14px}
+.round{width:48px;height:48px;border-radius:50%;background:var(--card);display:grid;place-items:center;box-shadow:0 3px 10px rgba(30,42,74,.12);font-size:1.3rem;font-weight:700}
+.dots{display:flex;gap:5px}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--peacock);width:20px;border-radius:8px}
+.hint{text-align:center;color:var(--muted);font-size:.82rem;margin:0}
+
+.cta{background:var(--sindoor);color:#fff;font-family:var(--display);font-weight:700;font-size:1.15rem;border-radius:18px;padding:14px 18px;box-shadow:0 5px 0 #B23E18;display:flex;align-items:center;justify-content:center;gap:10px;width:100%}
+.cta:active{transform:translateY(3px);box-shadow:0 2px 0 #B23E18}
+.cta.green{background:var(--leaf);box-shadow:0 5px 0 #1E7A48}
+.cta.blue{background:var(--peacock);box-shadow:0 5px 0 #0D4A91}
+.cta[disabled]{opacity:.45;pointer-events:none}
+
+/* mascot bubble */
+.talk{display:flex;gap:10px;align-items:flex-end}
+.talk svg.m{width:70px;height:70px;flex:0 0 auto}
+.bubble{background:var(--card);border-radius:18px 18px 18px 4px;padding:10px 14px;font-family:var(--display);font-weight:600;box-shadow:0 3px 10px rgba(30,42,74,.08);min-width:0}
+
+/* journey */
+.map{position:relative;margin:0 auto;width:100%;max-width:360px}
+.map svg.path{position:absolute;inset:0;width:100%;height:100%}
+.stone{position:absolute;width:72px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:2px}
+.stone button{width:64px;height:64px;border-radius:50%;font-family:var(--display);font-weight:800;font-size:1.5rem;color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.18);display:grid;place-items:center;position:relative}
+.stone.lock button{background:#C9D3E0!important;color:#8A97AB}
+.stone.cur button{animation:pulse 1.6s infinite}
+.stone .nm{font-size:.72rem;text-align:center;line-height:1.2;font-weight:600;max-width:110px}
+.stars{display:flex;gap:1px}
+.stars svg{width:14px;height:14px}
+@keyframes pulse{0%,100%{box-shadow:0 5px 0 rgba(0,0,0,.18),0 0 0 0 rgba(255,176,32,.7)}50%{box-shadow:0 5px 0 rgba(0,0,0,.18),0 0 0 12px rgba(255,176,32,0)}}
+.zone{font-family:var(--display);font-weight:700;text-align:center;color:var(--peacock);position:absolute;left:0;right:0;font-size:.95rem}
+
+/* rewards */
+.bgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.bdg{background:var(--card);border-radius:20px;padding:14px 10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(30,42,74,.06)}
+.bdg svg{width:64px;height:64px}
+.bdg b{font-family:var(--display);font-size:1rem;line-height:1.2}
+.bdg span{font-size:.75rem;color:var(--muted);line-height:1.3}
+.bdg.off{opacity:.55}
+.bdg.off svg{filter:grayscale(1)}
+.ranks{display:flex;flex-direction:column;gap:8px}
+.rk{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;background:var(--sky)}
+.rk b{font-family:var(--display);flex:1}
+.rk span{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.rk.on{background:var(--marigold)}
+.rk.on span{color:var(--ink)}
+
+/* welcome */
+.welcome{position:fixed;inset:0;z-index:40;background:linear-gradient(170deg,#1565C0 0%,#0FA3A3 60%,#2FA866 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;
+  padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));padding-block:calc(24px + env(safe-area-inset-top,0px)) calc(24px + env(safe-area-inset-bottom,0px));overflow-y:auto}
+.welcome h1{font-family:var(--display);font-size:2.4rem;line-height:1.1;margin:0}
+.welcome p{margin:0;max-width:30ch;opacity:.95}
+.welcome svg.m{width:170px;height:170px;animation:bob 3s ease-in-out infinite}
+.welcome input{width:100%;max-width:300px;padding:14px 16px;border-radius:16px;border:0;font:inherit;font-size:1.1rem;text-align:center;color:var(--ink);background:#fff}
+.welcome .cta{max-width:300px}
+.welcome .feat{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.welcome .feat span{background:rgba(255,255,255,.18);border-radius:99px;padding:4px 12px;font-size:.85rem}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+/* lesson sheet */
+.sheet{position:fixed;inset:0;z-index:30;background:var(--sky);display:flex;flex-direction:column}
+.sheet-top{display:flex;align-items:center;gap:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(10px + env(safe-area-inset-top,0px)) 8px}
+.sheet-top .x{width:40px;height:40px;border-radius:50%;background:var(--card);font-size:1.3rem;box-shadow:0 2px 8px rgba(30,42,74,.1)}
+.steps-bar{flex:1;display:flex;gap:5px}
+.steps-bar i{flex:1;height:10px;border-radius:99px;background:var(--line);transition:background .3s}
+.steps-bar i.on{background:var(--leaf)}
+.steps{flex:1;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none}
+.steps::-webkit-scrollbar{display:none}
+.step{flex:0 0 100%;scroll-snap-align:start;overflow-y:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:6px calc(24px + env(safe-area-inset-bottom,0px))}
+.step>.in{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.scene{border-radius:24px;height:200px;position:relative;overflow:hidden;display:grid;place-items:center}
+.scene svg{width:86%;height:86%}
+.scene.pop svg{animation:pop .6s}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.12) rotate(-3deg)}100%{transform:scale(1)}}
+.scene .tap{position:absolute;bottom:8px;right:10px;background:rgba(255,255,255,.85);border-radius:99px;padding:2px 10px;font-size:.75rem;font-weight:600;color:var(--ink)}
+.lvl-tag{font-family:var(--display);font-weight:700;color:var(--peacock);font-size:.95rem}
+.step h2{font-family:var(--display);font-size:1.6rem;line-height:1.25;margin:0;text-wrap:balance}
+.story{font-size:1.12rem;line-height:1.8;margin:0}
+.sloka-box{background:linear-gradient(135deg,#FFF1D6,#FFE2EC);border-radius:22px;padding:18px;border:2px dashed var(--marigold)}
+.sloka-box .sk{font-family:var(--display);font-weight:600;color:var(--sindoor);font-size:1.08rem;line-height:1.75;white-space:pre-line;margin:0}
+.sloka-box .rf{font-size:.8rem;color:var(--muted);margin-top:4px}
+.easy{background:var(--card);border-radius:22px;padding:16px}
+.easy b{font-family:var(--display);color:var(--leaf);display:block;margin-bottom:2px}
+.lesson{background:var(--peacock);color:#fff;border-radius:22px;padding:16px;display:flex;gap:12px;align-items:center}
+.lesson svg{width:44px;height:44px;flex:0 0 auto}
+.lesson p{margin:0;font-family:var(--display);font-weight:600;font-size:1.08rem;line-height:1.45}
+.q{font-family:var(--display);font-size:1.45rem;font-weight:700;line-height:1.35;margin:0;text-wrap:balance}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{background:var(--card);border-radius:18px;padding:14px 16px;text-align:left;font-size:1.08rem;font-weight:500;border:3px solid var(--line);box-shadow:0 4px 0 var(--line);display:flex;gap:10px;align-items:center}
+.opt .l{width:30px;height:30px;border-radius:50%;background:var(--sky);display:grid;place-items:center;font-family:var(--display);font-weight:700;flex:0 0 auto}
+.opt.ok{border-color:var(--leaf);background:#E3F7EC;box-shadow:0 4px 0 var(--leaf);animation:pop .5s}
+.opt.ok .l{background:var(--leaf);color:#fff}
+.opt.no{border-color:var(--sindoor);background:#FDE8E1;animation:shake .4s}
+.opt.no .l{background:var(--sindoor);color:#fff}
+.opt[disabled]{cursor:default}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.feedback{font-family:var(--display);font-weight:700;font-size:1.05rem;min-height:1.6em;margin:0}
+.result{text-align:center;align-items:center}
+.bigstars{display:flex;gap:6px;justify-content:center}
+.bigstars svg{width:68px;height:68px;transform:scale(0);animation:starIn .5s forwards}
+.bigstars svg:nth-child(2){animation-delay:.25s;width:84px;height:84px;margin-top:-14px}
+.bigstars svg:nth-child(3){animation-delay:.5s}
+@keyframes starIn{60%{transform:scale(1.25)}100%{transform:scale(1)}}
+.earn{font-family:var(--display);font-weight:800;font-size:2rem;color:var(--sindoor)}
+.breath{display:flex;flex-direction:column;align-items:center;gap:8px;background:var(--card);border-radius:22px;padding:16px}
+.breath .c{width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,#9BE3E3,var(--teal));transition:transform 4s ease-in-out}
+.breath .c.big{transform:scale(1.8)}
+.breath b{font-family:var(--display)}
+
+/* toast + celebrate */
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translate(-50%,-140%);z-index:60;background:var(--ink);color:#fff;border-radius:16px;padding:10px 16px;font-family:var(--display);font-weight:600;transition:transform .35s;max-width:calc(100% - 32px);text-align:center}
+.toast.show{transform:translate(-50%,0)}
+.xp-pop{position:fixed;z-index:61;font-family:var(--display);font-weight:800;color:var(--marigold);font-size:1.6rem;pointer-events:none;animation:rise 1s forwards;text-shadow:0 2px 0 rgba(0,0,0,.15)}
+@keyframes rise{to{transform:translateY(-60px);opacity:0}}
+.celebrate{position:fixed;inset:0;z-index:70;background:rgba(21,40,80,.72);display:grid;place-items:center;padding:24px}
+.celebrate .box{background:var(--card);border-radius:28px;padding:24px;text-align:center;max-width:340px;width:100%;display:flex;flex-direction:column;gap:10px;align-items:center;animation:pop .6s}
+.celebrate h2{font-family:var(--display);margin:0;font-size:1.6rem;color:var(--peacock)}
+.celebrate canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
+/* leaders */
+.lb{background:var(--card);border-radius:22px;padding:14px;box-shadow:0 4px 16px rgba(30,42,74,.06);display:flex;flex-direction:column;gap:10px}
+.lb-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.lb-head h3{font-family:var(--display);margin:0;font-size:1.1rem}
+.seg{display:flex;gap:3px;background:var(--sky);border-radius:99px;padding:3px}
+.seg button{padding:3px 10px;border-radius:99px;font-size:.78rem;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--peacock);color:#fff}
+.podium{display:grid;grid-template-columns:repeat(3,1fr);align-items:end;gap:8px}
+.pd{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;min-width:0}
+.av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:var(--display);font-weight:800;font-size:1.15rem;border:3px solid #fff;box-shadow:0 3px 8px rgba(30,42,74,.18);flex:0 0 auto}
+.pd.p1 .av{width:56px;height:56px;font-size:1.4rem}
+.av.me{border-color:var(--marigold)}
+.crown{width:28px;height:18px;margin-bottom:-4px}
+.pd .nmx{font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.pd .px{font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.blk{width:100%;border-radius:12px 12px 4px 4px;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#fff;font-size:1.2rem}
+.lrows{display:flex;flex-direction:column;gap:4px}
+.lrow{display:grid;grid-template-columns:24px auto 1fr auto;gap:8px;align-items:center;padding:5px 8px;border-radius:12px}
+.lrow .av{width:32px;height:32px;font-size:.9rem;border-width:2px}
+.lrow b{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lrow .pos{font-family:var(--display);font-weight:700;color:var(--muted);text-align:center}
+.lrow span{font-size:.82rem;font-variant-numeric:tabular-nums;color:var(--muted)}
+.lrow.me{background:#FFF1D6;box-shadow:inset 0 0 0 2px var(--marigold)}
+.chal{display:flex;gap:10px;align-items:center;background:var(--sky);border-radius:16px;padding:10px 12px}
+.chal p{margin:0;flex:1;min-width:0;font-size:.9rem;line-height:1.4}
+.chal p b{font-family:var(--display)}
+.chal .go{background:var(--sindoor);color:#fff;font-family:var(--display);font-weight:700;border-radius:12px;padding:6px 12px;box-shadow:0 3px 0 #B23E18;white-space:nowrap}
+.chal .bar{height:8px;background:#fff;border-radius:99px;overflow:hidden;margin-top:4px}
+.chal .bar i{display:block;height:100%;background:var(--sindoor);border-radius:99px}
+.sample{font-size:.7rem;color:var(--muted);margin:0}
+.myrank{display:flex;gap:12px;align-items:center;background:#FFF1D6;border-radius:16px;padding:10px 12px;box-shadow:inset 0 0 0 2px var(--marigold)}
+.rk-num{width:46px;height:46px;border-radius:14px;background:var(--marigold);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.5rem;flex:0 0 auto}
+.rk-num::before{content:"#";font-size:.9rem;margin-right:1px}
+.myrank b{font-family:var(--display);display:block;line-height:1.2}
+.myrank span{font-size:.8rem;color:var(--muted)}
+
+/* puja */
+.next{background:linear-gradient(140deg,#3B2A8C,#5C7CFA 60%,#FF8A5B);color:#fff;border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden}
+.next .lbl{font-size:.85rem;opacity:.9}
+.next .tm{font-family:var(--display);font-weight:800;font-size:2.4rem;line-height:1.05}
+.next .cd{font-family:var(--display);font-weight:600}
+.next .bellart{position:absolute;right:-8px;top:-6px;width:110px;height:110px;opacity:.25}
+.next .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.pill{background:rgba(255,255,255,.22);border-radius:99px;padding:5px 12px;font-family:var(--display);font-weight:600;font-size:.9rem;color:#fff}
+.alist{display:flex;flex-direction:column;gap:10px}
+.arow{background:var(--sky);border-radius:18px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.arow .r1,.arow .r2{display:flex;gap:8px;align-items:center}
+.arow input[type=time]{font-family:var(--display);font-weight:700;font-size:1.3rem;border:0;background:var(--card);border-radius:12px;padding:4px 8px;color:var(--ink)}
+.arow input[type=text]{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-weight:600;color:var(--ink);padding:4px}
+.arow select{flex:1;min-width:0;border:0;background:var(--card);border-radius:12px;padding:8px;font:inherit;color:var(--ink)}
+.arow .del{width:38px;height:38px;border-radius:12px;background:var(--card);color:var(--sindoor);font-size:1.1rem}
+.sw{position:relative;width:52px;height:30px;flex:0 0 auto}
+.sw input{opacity:0;position:absolute;inset:0;margin:0;cursor:pointer;z-index:1}
+.sw i{position:absolute;inset:0;background:#C9D3E0;border-radius:99px;transition:background .2s}
+.sw i::after{content:"";position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.sw input:checked+i{background:var(--leaf)}
+.sw input:checked+i::after{transform:translateX(22px)}
+.sw input:focus-visible+i{outline:3px solid var(--marigold);outline-offset:2px}
+.add{border:2px dashed var(--line);border-radius:18px;padding:12px;font-family:var(--display);font-weight:700;color:var(--peacock)}
+.tlist{display:grid;grid-template-columns:1fr;gap:10px}
+.tcard{border-radius:20px;padding:14px;color:#fff;display:flex;flex-direction:column;gap:8px}
+.tcard .h{display:flex;align-items:center;gap:10px}
+.tcard .h b{font-family:var(--display);font-size:1.15rem;display:block;line-height:1.2}
+.tcard .h span{font-size:.8rem;opacity:.9}
+.tcard .ic{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.22);display:grid;place-items:center;flex:0 0 auto}
+.tcard .ic svg{width:28px;height:28px}
+.play{margin-left:auto;background:#fff;color:var(--ink);font-family:var(--display);font-weight:700;border-radius:99px;padding:6px 14px;white-space:nowrap}
+.play[aria-pressed="true"]{background:var(--ink);color:#fff}
+.mt{display:flex;flex-wrap:wrap;gap:4px 8px;font-family:var(--display);font-weight:600;font-size:1.05rem}
+.mt span{padding:0 4px;border-radius:8px;transition:background .15s,transform .15s}
+.mt span.on{background:#fff;color:var(--ink);transform:scale(1.12)}
+.ringer{position:fixed;inset:0;z-index:80;background:linear-gradient(170deg,#3B2A8C,#5C7CFA);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;
+  padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));padding-block:calc(24px + env(safe-area-inset-top,0px)) calc(24px + env(safe-area-inset-bottom,0px))}
+.ringer .bigbell{width:110px;height:110px;animation:swing 1s ease-in-out infinite;transform-origin:50% 10%}
+@keyframes swing{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}}
+.ringer h2{font-family:var(--display);font-size:1.8rem;margin:0}
+.ringer .tm{font-family:var(--display);font-weight:800;font-size:3rem;line-height:1}
+.ringer .mt{justify-content:center;max-width:340px}
+.ringer .cta{max-width:320px}
+.ringer .soft{background:rgba(255,255,255,.2);color:#fff;border-radius:16px;padding:10px 18px;font-family:var(--display);font-weight:600}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);height:100%}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+
+<div class="app">
+  <div class="pages" id="pages">
+    <section class="page" id="p-home" aria-label="হোম"><div class="in" id="home"></div></section>
+    <section class="page" id="p-map" aria-label="যাত্রাপথ"><div class="in" id="map"></div></section>
+    <section class="page" id="p-puja" aria-label="পূজা"><div class="in" id="puja"></div></section>
+    <section class="page" id="p-rew" aria-label="পুরস্কার"><div class="in" id="rew"></div></section>
+  </div>
+  <nav><div class="navin">
+    <button class="nb" data-p="0" aria-current="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>হোম</button>
+    <button class="nb" data-p="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/></svg>যাত্রা</button>
+    <button class="nb" data-p="2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4z"/><path d="M10 21a2 2 0 0 0 4 0"/><path d="M12 3v2"/></svg>পূজা</button>
+    <button class="nb" data-p="3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M8.5 14L7 22l5-3 5 3-1.5-8"/></svg>পুরস্কার</button>
+  </div></nav>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ===== INVITE CODES: add or remove tester codes here ===== */
+const INVITE_CODES=["GITA-AJ97", "GITA-B299", "GITA-A6FZ", "GITA-KEZ4", "GITA-YKSQ", "GITA-XE74", "GITA-6HEF", "GITA-MUMJ", "GITA-EYWP", "GITA-FFC8"];
+/* ---------- helpers ---------- */
+const BN=n=>String(n).replace(/\d/g,d=>"০১২৩৪৫৬৭৮৯"[d]);
+const $=s=>document.querySelector(s);
+const todayKey=(d=new Date())=>d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+const STAR=(on)=>`<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.5 1.3 6.6L12 17.2l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z" fill="${on?"#FFB020":"#D7DFEA"}" stroke="${on?"#E09400":"#C3CDDA"}" stroke-width="1"/></svg>`;
+
+/* Original mascot: Pekham the peacock */
+function mascot(cls="m",mood="happy"){
+  const feathers=[...Array(7)].map((_,i)=>{const a=-75+i*25;return `<g transform="rotate(${a} 100 128)"><ellipse cx="100" cy="58" rx="13" ry="38" fill="#2FA866"/><circle cx="100" cy="36" r="9" fill="#1565C0"/><circle cx="100" cy="36" r="4.5" fill="#FFB020"/></g>`}).join("");
+  return `<svg class="${cls}" viewBox="0 0 200 200" aria-hidden="true">${feathers}
+  <ellipse cx="100" cy="150" rx="36" ry="40" fill="#1565C0"/>
+  <ellipse cx="100" cy="160" rx="20" ry="24" fill="#4DA3FF"/>
+  <circle cx="100" cy="98" r="28" fill="#1565C0"/>
+  <g fill="#FFB020"><line x1="100" y1="70" x2="100" y2="52" stroke="#1565C0" stroke-width="3"/><circle cx="100" cy="50" r="5"/><line x1="92" y1="72" x2="86" y2="56" stroke="#1565C0" stroke-width="3"/><circle cx="85" cy="54" r="4.5"/><line x1="108" y1="72" x2="114" y2="56" stroke="#1565C0" stroke-width="3"/><circle cx="115" cy="54" r="4.5"/></g>
+  <circle cx="90" cy="96" r="8" fill="#fff"/><circle cx="110" cy="96" r="8" fill="#fff"/>
+  <circle cx="${mood==="wow"?90:91}" cy="${mood==="wow"?96:97}" r="4" fill="#1E2A4A"/><circle cx="${mood==="wow"?110:111}" cy="${mood==="wow"?96:97}" r="4" fill="#1E2A4A"/>
+  <path d="M95 106 L100 116 L105 106 Z" fill="#FFB020"/>
+  <circle cx="82" cy="108" r="4" fill="#FF5E98" opacity=".6"/><circle cx="118" cy="108" r="4" fill="#FF5E98" opacity=".6"/>
+  <path d="M86 188 v8 M114 188 v8" stroke="#E09400" stroke-width="4" stroke-linecap="round"/></svg>`;
+}
+
+/* Scene art per chapter (original simple illustrations) */
+function motif(n){
+  const W="#fff";
+  const ray=(cx,cy,r1,r2,k,c)=>[...Array(k)].map((_,i)=>{const a=i*2*Math.PI/k;return `<line x1="${cx+r1*Math.cos(a)}" y1="${cy+r1*Math.sin(a)}" x2="${cx+r2*Math.cos(a)}" y2="${cy+r2*Math.sin(a)}" stroke="${c}" stroke-width="5" stroke-linecap="round"/>`}).join("");
+  const art={
+  1:`<rect x="10" y="118" width="180" height="10" rx="5" fill="#ffffff55"/><path d="M50 70 h86 l10 34 h-106z" fill="${W}"/><circle cx="76" cy="108" r="18" fill="none" stroke="#FFB020" stroke-width="6"/>${ray(76,108,4,16,8,"#FFB020")}<line x1="136" y1="70" x2="146" y2="20" stroke="${W}" stroke-width="4"/><path d="M146 20 l32 9 -32 9z" fill="#FFB020"/><circle cx="96" cy="56" r="10" fill="#FFE2C4"/><rect x="88" y="62" width="16" height="12" rx="4" fill="#1565C0"/>`,
+  2:`<path d="M60 40 l20-12 h40 l20 12 18 26 -18 10 -6-8 v58 h-68 v-58 l-6 8 -18-10z" fill="${W}"/><path d="M80 28 q20 16 40 0" fill="none" stroke="#FF5E98" stroke-width="4"/><circle cx="100" cy="80" r="12" fill="#FFB020"/>${ray(100,80,16,24,8,"#FFB020")}`,
+  3:`<circle cx="100" cy="66" r="30" fill="#FFB020"/>${ray(100,66,38,54,12,"#FFE08A")}<path d="M20 128 q40-30 80 0 t80 0" fill="#ffffff66"/><path d="M40 126 v-24 m-8 8 l8-8 8 8" stroke="${W}" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+  4:`<path d="M30 110 q35-18 70 0 q35-18 70 0 v-60 q-35-18-70 0 q-35-18-70 0z" fill="${W}"/><line x1="100" y1="50" x2="100" y2="110" stroke="#1565C0" stroke-width="3"/><circle cx="100" cy="34" r="14" fill="#FFB020"/>${ray(100,34,18,28,10,"#FFE08A")}`,
+  5:`<path d="M10 116 q30-8 60 0 t60 0 t60 0 v24 h-180z" fill="#ffffff55"/>${[-60,-30,0,30,60].map(a=>`<ellipse cx="100" cy="72" rx="13" ry="34" fill="#FF8FB8" transform="rotate(${a} 100 106)"/>`).join("")}<circle cx="100" cy="100" r="9" fill="#FFB020"/><ellipse cx="150" cy="118" rx="28" ry="8" fill="#2FA866"/><circle cx="146" cy="113" r="3" fill="#A8E0FF"/><circle cx="156" cy="115" r="2.5" fill="#A8E0FF"/>`,
+  6:`<circle cx="100" cy="74" r="56" fill="#ffffff33"/><circle cx="100" cy="74" r="40" fill="#ffffff33"/><circle cx="100" cy="46" r="14" fill="#FFE2C4"/><path d="M100 60 l26 46 h-52z" fill="#FFB020"/><ellipse cx="100" cy="110" rx="40" ry="10" fill="${W}"/><path d="M92 46 h4 M104 46 h4" stroke="#1E2A4A" stroke-width="2" stroke-linecap="round"/>`,
+  7:`<path d="M20 50 q80 80 160 0" fill="none" stroke="${W}" stroke-width="3"/>${[0,1,2,3,4,5,6,7,8].map(i=>{const t=i/8,x=20+160*t,y=50+80*2*t*(1-t)*1;const c=["#FF5E98","#FFB020","#2FA866","#4DA3FF","#B57BFF"][i%5];return `<circle cx="${x}" cy="${y}" r="10" fill="${c}" stroke="${W}" stroke-width="2"/>`}).join("")}`,
+  8:`<path d="M60 92 q40 30 80 0z" fill="#FFB020"/><ellipse cx="100" cy="92" rx="40" ry="7" fill="#E09400"/><path d="M100 86 q-14-22 0-48 q14 26 0 48z" fill="#FFE08A"/><path d="M100 84 q-6-12 0-26 q6 14 0 26z" fill="#FF8A5B"/>${ray(100,60,36,46,9,"#ffffff88")}`,
+  9:`${[0,72,144,216,288].map(a=>`<ellipse cx="70" cy="56" rx="10" ry="18" fill="#FF8FB8" transform="rotate(${a} 70 74)"/>`).join("")}<circle cx="70" cy="74" r="8" fill="#FFB020"/><path d="M120 50 q30 0 30 30 q-30 0 -30-30z" fill="#2FA866"/><circle cx="80" cy="118" r="14" fill="#FF5E2C"/><path d="M80 104 q4-6 10-6" stroke="#2FA866" stroke-width="3" fill="none"/><path d="M140 100 q-12 18 0 26 q12-8 0-26z" fill="#A8E0FF"/>`,
+  10:`<path d="M10 120 l50-80 30 40 25-30 75 70z" fill="${W}"/><path d="M60 40 l12 20 -10-4 -8 6z" fill="#A8E0FF"/><path d="M90 128 q20-20 10-40 q30 20 20 40z" fill="#4DA3FF"/><circle cx="160" cy="34" r="14" fill="#FFB020"/>`,
+  11:`<circle cx="100" cy="70" r="46" fill="#FFE08A"/>${ray(100,70,50,66,16,"#FFF4C2")}${[...Array(12)].map((_,i)=>{const a=i*Math.PI/6;return `<circle cx="${100+30*Math.cos(a)}" cy="${70+30*Math.sin(a)}" r="6" fill="#FFB020"/>`}).join("")}<circle cx="100" cy="70" r="14" fill="#FF8A5B"/>`,
+  12:`<path d="M100 120 C40 80 50 30 80 34 C92 36 98 46 100 52 C102 46 108 36 120 34 C150 30 160 80 100 120z" fill="#FF5E98"/><path d="M80 56 q6-10 14-8" stroke="${W}" stroke-width="5" fill="none" stroke-linecap="round"/>${[30,170].map(x=>`<circle cx="${x}" cy="40" r="6" fill="#FFB020"/>`).join("")}`,
+  13:`<rect x="10" y="96" width="180" height="40" rx="10" fill="#8B5E3C"/>${[30,70,110,150].map(x=>`<g><line x1="${x}" y1="100" x2="${x}" y2="70" stroke="#2FA866" stroke-width="4"/><path d="M${x} 78 q-14-4 -16-16 q14 2 16 16z M${x} 72 q14-4 16-16 q-14 2 -16 16z" fill="#2FA866"/></g>`).join("")}<circle cx="168" cy="30" r="14" fill="#FFB020"/>`,
+  14:`<circle cx="56" cy="74" r="30" fill="#FFFFFF"/><circle cx="100" cy="74" r="30" fill="#FF5E2C" opacity=".95"/><circle cx="144" cy="74" r="30" fill="#2A3352"/><text x="56" y="120" text-anchor="middle" font-size="13" fill="#fff" font-family="Hind Siliguri">সত্ত্ব</text><text x="100" y="120" text-anchor="middle" font-size="13" fill="#fff" font-family="Hind Siliguri">রজঃ</text><text x="144" y="120" text-anchor="middle" font-size="13" fill="#fff" font-family="Hind Siliguri">তমঃ</text>`,
+  15:`<path d="M60 20 q20 20 40 20 q20 0 40-20 M80 14 q10 18 20 26 M120 14 q-10 18 -20 26" stroke="#8B5E3C" stroke-width="5" fill="none" stroke-linecap="round"/><rect x="94" y="38" width="12" height="40" fill="#8B5E3C"/><ellipse cx="100" cy="100" rx="56" ry="30" fill="#2FA866"/><circle cx="70" cy="104" r="5" fill="#FF5E98"/><circle cx="120" cy="96" r="5" fill="#FFB020"/><circle cx="100" cy="114" r="5" fill="#FF5E98"/>`,
+  16:`<path d="M100 130 L100 90 L40 30" stroke="#FFE08A" stroke-width="16" fill="none" stroke-linecap="round"/><path d="M100 90 L160 30" stroke="#2A3352" stroke-width="16" fill="none" stroke-linecap="round"/><circle cx="36" cy="24" r="14" fill="#FFB020"/><path d="M158 18 a12 12 0 1 0 10 18 a9 9 0 1 1 -10-18z" fill="#C9D3E0"/>`,
+  17:`<rect x="56" y="58" width="88" height="66" rx="8" fill="${W}"/><rect x="50" y="46" width="100" height="20" rx="6" fill="#FF5E98"/><rect x="94" y="46" width="12" height="78" fill="#FFB020"/><path d="M100 46 q-26-26 -30-4 q4 10 30 4 q26 6 30-4 q-4-22 -30 4z" fill="#FFB020"/>`,
+  18:`<rect x="30" y="86" width="140" height="10" rx="5" fill="#C98A1A" transform="rotate(-14 100 91)"/>${[60,80,100,120].map((x,i)=>`<circle cx="${x}" cy="${98-i*5}" r="2.5" fill="#5A3A10"/>`).join("")}<g transform="rotate(20 140 50)"><path d="M140 100 q-4-40 0-70" stroke="#2FA866" stroke-width="3" fill="none"/><ellipse cx="140" cy="40" rx="14" ry="22" fill="#2FA866"/><ellipse cx="140" cy="36" rx="8" ry="10" fill="#1565C0"/><circle cx="140" cy="36" r="4" fill="#FFB020"/></g>`
+  };
+  return `<svg viewBox="0 0 200 140" aria-hidden="true">${art[n]||""}</svg>`;
+}
+
+/* ---------- content ---------- */
+const COLORS=["#FF8A5B","#4DA3FF","#2FA866","#B57BFF","#F2A007","#FF5E98","#0FA3A3","#E8572C","#5C7CFA"];
+const L=[
+ {n:1,t:"অর্জুনের মন খারাপ",story:"অনেক অনেক দিন আগে কুরুক্ষেত্র নামে এক বিশাল মাঠে দুই দল সৈন্য মুখোমুখি দাঁড়িয়ে ছিল। বীর অর্জুন রথে চড়ে দেখলেন, অপর দলে তাঁর নিজের দাদু, শিক্ষক আর ভাইয়েরা! তাঁর মন খুব খারাপ হয়ে গেল, চোখে জল এল। তখন তাঁর রথের সারথি ও প্রিয় বন্ধু শ্রীকৃষ্ণ তাঁকে বোঝাতে শুরু করলেন। সেই কথাগুলোই হলো গীতা।",
+  sk:"ধর্মক্ষেত্রে কুরুক্ষেত্রে সমবেতা যুযুৎসবঃ।\nমামকাঃ পাণ্ডবাশ্চৈব কিমকুর্বত সঞ্জয়॥",ref:"১.১",easy:"রাজা ধৃতরাষ্ট্র সঞ্জয়কে জিজ্ঞেস করলেন, কুরুক্ষেত্রের মাঠে আমার ছেলেরা আর পাণ্ডবেরা কী করছে? এই প্রশ্ন দিয়েই গীতা শুরু।",
+  lesson:"মন খারাপ হলে কাছের মানুষকে খুলে বলো। ভালো বন্ধু সঠিক পথ দেখায়।",
+  q:[["গীতার কথা কোথায় বলা হয়েছিল?",["কুরুক্ষেত্রের মাঠে","নদীর ধারে","পাহাড়ের চূড়ায়"],0],["অর্জুনের রথের সারথি কে ছিলেন?",["ভীম","শ্রীকৃষ্ণ","সঞ্জয়"],1]]},
+ {n:2,t:"আত্মা কখনো হারায় না",story:"শ্রীকৃষ্ণ হেসে বললেন, আমাদের শরীর একটা জামার মতো। জামা পুরনো হলে আমরা নতুন জামা পরি, কিন্তু আমরা তো একই থাকি! আমাদের ভেতরের আসল 'আমি' হলো আত্মা। আগুন তাকে পোড়াতে পারে না, জল ভেজাতে পারে না। তিনি আরও বললেন, মন দিয়ে নিজের কাজ করো, ফল নিয়ে দুশ্চিন্তা কোরো না।",
+  sk:"কর্মণ্যেবাধিকারস্তে মা ফলেষু কদাচন।\nমা কর্মফলহেতুর্ভূর্মা তে সঙ্গোঽস্ত্বকর্মণি॥",ref:"২.৪৭",easy:"তোমার কাজ হলো মন দিয়ে চেষ্টা করা। ফল কী হবে তা নিয়ে ভয় পেয়ো না, আবার কাজ ফেলেও রেখো না।",
+  lesson:"পরীক্ষার জন্য মন দিয়ে পড়ো, নম্বর নিয়ে ভয় পেয়ো না।",
+  q:[["শ্রীকৃষ্ণ শরীরকে কীসের সঙ্গে তুলনা করেছেন?",["বাড়ি","গাছ","জামা"],2],["আমাদের আসল দায়িত্ব কোনটা?",["মন দিয়ে কাজ করা","শুধু ফলের কথা ভাবা","কাজ না করা"],0]]},
+ {n:3,t:"কাজই আসল পূজা",story:"সূর্য প্রতিদিন আলো দেয়, নদী জল দেয়, গাছ ফল দেয়। ওরা কেউ বদলে কিছু চায় না। শ্রীকৃষ্ণ বললেন, আমাদেরও এভাবে সবার ভালোর জন্য কাজ করা উচিত। আর মনে রেখো, বড়রা যা করে, ছোটরা দেখে দেখে তা-ই শেখে।",
+  sk:"যদ্যদাচরতি শ্রেষ্ঠস্তত্তদেবেতরো জনঃ।\nস যৎপ্রমাণং কুরুতে লোকস্তদনুবর্ততে॥",ref:"৩.২১",easy:"ভালো মানুষ যেমন করে, অন্যরাও তেমন করে। তাই নিজে ভালো কাজ করলে অন্যরাও শেখে।",
+  lesson:"তুমি যে ভালো কাজ করবে, তোমার ছোট ভাইবোনও তা শিখবে।",
+  q:[["কে কিছু না চেয়েই রোজ আলো দেয়?",["পাথর","সূর্য","বালিশ"],1],["ছোটরা কীভাবে শেখে?",["বড়দের দেখে","শুধু ঘুমিয়ে","কারো কাছেই না"],0]]},
+ {n:4,t:"ভগবান বারবার আসেন",story:"শ্রীকৃষ্ণ বললেন, যখনই পৃথিবীতে খারাপ কাজ বেড়ে যায় আর ভালো মানুষ কষ্ট পায়, তখন আমি আসি ভালোদের রক্ষা করতে। তিনি আরও বললেন, জ্ঞান হলো সবচেয়ে উজ্জ্বল আলো। নম্র হয়ে গুরুকে প্রশ্ন করলেই সেই আলো পাওয়া যায়।",
+  sk:"যদা যদা হি ধর্মস্য গ্লানির্ভবতি ভারত।\nঅভ্যুত্থানমধর্মস্য তদাত্মানং সৃজাম্যহম্॥",ref:"৪.৭",easy:"যখনই ভালো জিনিস কমে যায় আর খারাপ জিনিস বেড়ে যায়, তখনই ভগবান সবাইকে রক্ষা করতে আসেন।",
+  lesson:"না বুঝলে প্রশ্ন করতে লজ্জা নেই। শিক্ষককে বিনয়ের সঙ্গে জিজ্ঞেস করো।",
+  q:[["ভগবান কখন আসেন?",["শুধু জন্মদিনে","কখনো না","যখন খারাপ কাজ বেড়ে যায়"],2],["জ্ঞান পাওয়ার ভালো উপায় কী?",["রাগ করা","নম্র হয়ে প্রশ্ন করা","চুপ করে বসে থাকা"],1]]},
+ {n:5,t:"পদ্মপাতার জাদু",story:"পুকুরের পদ্মপাতা দেখেছ? জলের মধ্যে থাকলেও পাতাটা একটুও ভেজে না, জলের ফোঁটা গড়িয়ে পড়ে যায়! শ্রীকৃষ্ণ বললেন, যে ভগবানকে মনে রেখে কাজ করে, সে-ও পদ্মপাতার মতো। খারাপ জিনিস তাকে ছুঁতে পারে না।",
+  sk:"ব্রহ্মণ্যাধায় কর্মাণি সঙ্গং ত্যক্ত্বা করোতি যঃ।\nলিপ্যতে ন স পাপেন পদ্মপত্রমিবাম্ভসা॥",ref:"৫.১০",easy:"যে সব কাজ ভগবানকে উৎসর্গ করে, পদ্মপাতা যেমন জলে ভেজে না, তেমনি খারাপ কিছু তাকে ছোঁয় না।",
+  lesson:"চারপাশে কেউ খারাপ কথা বললেও তুমি ভালো থাকতে পারো।",
+  q:[["পদ্মপাতা জলে থাকলে কী হয়?",["ভেজে না","ডুবে যায়","গলে যায়"],0],["পদ্মপাতার মতো হতে কী করতে হবে?",["অন্যের দোষ খোঁজা","কাজ ফেলে রাখা","ভগবানকে মনে রেখে কাজ করা"],2]]},
+ {n:6,t:"মন শান্ত করার খেলা",story:"আমাদের মন যেন এক চঞ্চল বানর, এক ডাল থেকে আরেক ডালে লাফায়! শ্রীকৃষ্ণ বললেন, রোজ একটু চুপ করে বসে ধীরে ধীরে শ্বাস নিলে মন শান্ত হয়। আর মনে রেখো, তুমিই তোমার সবচেয়ে বড় বন্ধু।",breath:true,
+  sk:"উদ্ধরেদাত্মনাত্মানং নাত্মানমবসাদয়েৎ।\nআত্মৈব হ্যাত্মনো বন্ধুরাত্মৈব রিপুরাত্মনঃ॥",ref:"৬.৫",easy:"নিজেকে নিজেই এগিয়ে নাও, হাল ছেড়ো না। তুমি নিজেই নিজের বন্ধু হতে পারো, আবার শত্রুও।",
+  lesson:"রাগ হলে চোখ বন্ধ করে পাঁচবার ধীরে শ্বাস নাও।",
+  q:[["চঞ্চল মনকে কীসের সঙ্গে তুলনা করা হয়েছে?",["ঘুমন্ত বিড়াল","লাফানো বানর","পাথর"],1],["মন শান্ত করার উপায় কী?",["ধীরে ধীরে শ্বাস নেওয়া","চিৎকার করা","আরও জোরে দৌড়ানো"],0]]},
+ {n:7,t:"মালার অদৃশ্য সুতো",story:"একটা মালায় অনেক রঙের পুঁতি থাকে। কিন্তু সবগুলোকে একসঙ্গে ধরে রাখে একটা সুতো, যেটা চোখে প্রায় দেখাই যায় না। শ্রীকৃষ্ণ বললেন, এই পৃথিবীর সব কিছু, মানুষ, পশু, গাছ, তারা, আমার মধ্যে এভাবেই গাঁথা।",
+  sk:"মত্তঃ পরতরং নান্যৎকিঞ্চিদস্তি ধনঞ্জয়।\nময়ি সর্বমিদং প্রোতং সূত্রে মণিগণা ইব॥",ref:"৭.৭",easy:"ভগবানের চেয়ে বড় কিছু নেই। সুতোয় গাঁথা পুঁতির মতো সব কিছু তাঁর মধ্যেই আছে।",
+  lesson:"আমরা সবাই এক মালার পুঁতি, তাই সবার সঙ্গে মিলেমিশে থাকো।",
+  q:[["মালার পুঁতিগুলোকে কে ধরে রাখে?",["আঠা","বাতাস","সুতো"],2],["এই গল্পের শিক্ষা কী?",["মিলেমিশে থাকা","একা থাকা","ঝগড়া করা"],0]]},
+ {n:8,t:"ভালো কথা মনে রাখো",story:"শ্রীকৃষ্ণ বললেন, আমরা সারাদিন যা ভাবি, ধীরে ধীরে আমরা তেমনই হয়ে যাই। তাই খেলতে খেলতে, পড়তে পড়তে ভগবানকে আর ভালো কথাগুলো মনে রাখা দরকার। প্রদীপ যেমন অন্ধকার দূর করে, ভালো চিন্তা তেমনি মনকে আলোয় ভরে দেয়।",
+  sk:"তস্মাৎসর্বেষু কালেষু মামনুস্মর যুধ্য চ।\nময্যর্পিতমনোবুদ্ধির্মামেবৈষ্যস্যসংশয়ঃ॥",ref:"৮.৭",easy:"তাই সবসময় আমাকে মনে রাখো আর নিজের কাজ করে যাও। মন আমাতে রাখলে তুমি আমার কাছেই আসবে।",
+  lesson:"ঘুমানোর আগে দিনের একটা ভালো কাজের কথা ভাবো।",
+  q:[["আমরা ধীরে ধীরে কেমন হয়ে যাই?",["যা সারাদিন ভাবি তেমন","যে রঙের জামা পরি তেমন","কিছুই বদলায় না"],0],["ঘুমানোর আগে কী ভাবা ভালো?",["ভয়ের গল্প","দিনের একটা ভালো কাজ","কারো উপর রাগ"],1]]},
+ {n:9,t:"একটি ফুলের উপহার",story:"ভগবানকে খুশি করতে কি অনেক টাকা লাগে? একদম না! শ্রীকৃষ্ণ বললেন, ভালোবেসে একটা পাতা, একটা ফুল, একটা ফল বা একটু জল দিলেও আমি খুশি হই। আসল জিনিস হলো মনের ভালোবাসা।",
+  sk:"পত্রং পুষ্পং ফলং তোয়ং যো মে ভক্ত্যা প্রযচ্ছতি।\nতদহং ভক্ত্যুপহৃতমশ্নামি প্রযতাত্মনঃ॥",ref:"৯.২৬",easy:"কেউ ভালোবেসে একটা পাতা, ফুল, ফল বা জল দিলে ভগবান তা খুশি মনে নেন।",
+  lesson:"উপহারের দাম নয়, ভালোবাসাটাই আসল।",
+  q:[["ভগবান কোন উপহার খুশি হয়ে নেন?",["শুধু সোনা","ভালোবেসে দেওয়া একটা ফুল","শুধু দামি খেলনা"],1],["উপহারে আসল জিনিস কী?",["দাম","প্যাকেটের রঙ","ভালোবাসা"],2]]},
+ {n:10,t:"সবকিছুতে ভগবান",story:"অর্জুন জানতে চাইলেন, আপনাকে কোথায় কোথায় দেখতে পাব? শ্রীকৃষ্ণ বললেন, পাহাড়দের মধ্যে আমি হিমালয়, নদীদের মধ্যে গঙ্গা, গাছেদের মধ্যে অশ্বত্থ। যেখানে সুন্দর আর ভালো কিছু দেখবে, জানবে সেখানে আমি আছি।",
+  sk:"অহমাত্মা গুড়াকেশ সর্বভূতাশয়স্থিতঃ।\nঅহমাদিশ্চ মধ্যং চ ভূতানামন্ত এব চ॥",ref:"১০.২০",easy:"আমি সবার হৃদয়ের ভেতরে থাকি। সব কিছুর শুরু, মাঝখান আর শেষ আমিই।",
+  lesson:"সুন্দর ফুল বা উজ্জ্বল তারা দেখলে ভগবানকে ধন্যবাদ দাও।",
+  q:[["পাহাড়দের মধ্যে শ্রীকৃষ্ণ কোনটি?",["হিমালয়","ছোট টিলা","বালির ঢিবি"],0],["নদীদের মধ্যে তিনি কোনটি?",["পুকুর","নালা","গঙ্গা"],2]]},
+ {n:11,t:"বিশাল বিশ্বরূপ",story:"অর্জুন বললেন, আপনার আসল রূপ দেখতে চাই! শ্রীকৃষ্ণ তাঁকে বিশেষ দিব্য চোখ দিলেন। অর্জুন দেখলেন হাজার হাজার মুখ, অগণিত হাত, আর হাজার সূর্যের মতো উজ্জ্বল আলো! সারা বিশ্ব যেন তাঁর মধ্যে। অর্জুন অবাক হয়ে প্রণাম করলেন।",
+  sk:"দিবি সূর্যসহস্রস্য ভবেদ্যুগপদুত্থিতা।\nযদি ভাঃ সদৃশী সা স্যাদ্ভাসস্তস্য মহাত্মনঃ॥",ref:"১১.১২",easy:"আকাশে একসঙ্গে হাজারটা সূর্য উঠলে যত আলো হতো, বিশ্বরূপের আলো ছিল ঠিক তেমন।",
+  lesson:"পৃথিবী অনেক বড় আর আশ্চর্য, সবসময় নতুন কিছু জানার আগ্রহ রাখো।",
+  q:[["বিশ্বরূপের আলো কেমন ছিল?",["একটা মোমবাতির মতো","হাজার সূর্যের মতো","একদম অন্ধকার"],1],["বিশ্বরূপ দেখতে অর্জুন কী পেয়েছিলেন?",["দিব্য চোখ","চশমা","দূরবীন"],0]]},
+ {n:12,t:"ভগবানের প্রিয় বন্ধু",story:"শ্রীকৃষ্ণ বললেন, আমার সবচেয়ে প্রিয় সে, যে কাউকে হিংসা করে না, সবার সঙ্গে বন্ধুর মতো মেশে, দুঃখী মানুষকে দয়া করে, অহংকার করে না আর সহজেই ক্ষমা করে দেয়।",
+  sk:"অদ্বেষ্টা সর্বভূতানাং মৈত্রঃ করুণ এব চ।\nনির্মমো নিরহঙ্কারঃ সমদুঃখসুখঃ ক্ষমী॥",ref:"১২.১৩",easy:"যে কাউকে ঘৃণা করে না, সবার বন্ধু, দয়ালু, অহংকার নেই, সুখে-দুঃখে শান্ত আর ক্ষমা করতে পারে, সে-ই ভগবানের প্রিয়।",
+  lesson:"বন্ধু ভুল করলে তাকে ক্ষমা করে দাও।",
+  q:[["ভগবানের প্রিয় কে?",["যে সবার সঙ্গে ঝগড়া করে","যে অহংকার করে","যে দয়ালু আর ক্ষমাশীল"],2],["বন্ধু ভুল করলে কী করবে?",["ক্ষমা করে দেব","আর কথা বলব না","প্রতিশোধ নেব"],0]]},
+ {n:13,t:"শরীর একটা বাগান",story:"শ্রীকৃষ্ণ বললেন, আমাদের শরীর একটা খেতের মতো, আর আমরা হলাম তার মালী। খেতে যে বীজ বুনবে, সেই গাছ হবে। তেমনি ভালো চিন্তা আর ভালো কাজের বীজ বুনলে আমরা ভালো ফল পাই।",
+  sk:"সমং সর্বেষু ভূতেষু তিষ্ঠন্তং পরমেশ্বরম্।\nবিনশ্যৎস্ববিনশ্যন্তং যঃ পশ্যতি স পশ্যতি॥",ref:"১৩.২৭",easy:"যে সব প্রাণীর মধ্যে একই ভগবানকে দেখতে পায়, সে-ই আসলে ঠিকঠাক দেখে।",
+  lesson:"রোজ অন্তত একটা ভালো কাজের বীজ বোনো।",
+  q:[["শরীরকে কীসের সঙ্গে তুলনা করা হয়েছে?",["গাড়ি","খেত বা বাগান","বাক্স"],1],["ভালো ফল পেতে কী বুনতে হয়?",["ভালো কাজের বীজ","রাগের বীজ","কিছুই না"],0]]},
+ {n:14,t:"তিন রঙের গুণ",story:"শ্রীকৃষ্ণ বললেন, আমাদের ভেতরে তিনটি গুণ আছে। সাদা আলোর মতো সত্ত্ব, শান্ত আর ভালো। লাল আগুনের মতো রজঃ, ছটফটে, শুধু চাই আর চাই। কালো অন্ধকারের মতো তমঃ, অলস আর ঘুমঘুম। আমাদের চেষ্টা করতে হবে সাদা আলোর দিকে যেতে।",
+  sk:"সত্ত্বং রজস্তম ইতি গুণাঃ প্রকৃতিসম্ভবাঃ।\nনিবধ্নন্তি মহাবাহো দেহে দেহিনমব্যয়ম্॥",ref:"১৪.৫",easy:"সত্ত্ব, রজঃ আর তমঃ, প্রকৃতির এই তিন গুণ আমাদের আত্মাকে শরীরের সঙ্গে বেঁধে রাখে।",
+  lesson:"অলসতা ঝেড়ে ফেলে শান্ত মনে কাজ করো।",
+  q:[["কোন গুণ শান্ত আর ভালো?",["রজঃ","তমঃ","সত্ত্ব"],2],["অলসতা কোন গুণের লক্ষণ?",["তমঃ","সত্ত্ব","রজঃ"],0]]},
+ {n:15,t:"আজব উল্টো গাছ",story:"একটা আজব গাছ কল্পনা করো, যার শিকড় আকাশের দিকে আর ডালপালা মাটির দিকে! শ্রীকৃষ্ণ বললেন, এই সংসার এমনই এক গাছ। এর শিকড় হলেন ভগবান, উপরে। তাই শুধু ডালপালা নিয়ে, মানে খেলনা আর জিনিসপত্র নিয়ে, ব্যস্ত না থেকে শিকড়ের কথা মনে রাখো।",
+  sk:"ঊর্ধ্বমূলমধঃশাখমশ্বত্থং প্রাহুরব্যয়ম্।\nছন্দাংসি যস্য পর্ণানি যস্তং বেদ স বেদবিৎ॥",ref:"১৫.১",easy:"সংসার এক উল্টো অশ্বত্থ গাছ, শিকড় উপরে, ডাল নিচে, বেদের মন্ত্র তার পাতা। যে এটা বোঝে, সে-ই আসল জ্ঞানী।",
+  lesson:"খেলনার চেয়ে মানুষ আর ভালোবাসা অনেক বেশি দামি।",
+  q:[["উল্টো গাছের শিকড় কোথায়?",["নিচে","উপরে","পাশে"],1],["এই গাছের শিকড় কে?",["খেলনা","মেঘ","ভগবান"],2]]},
+ {n:16,t:"আলো আর অন্ধকারের পথ",story:"একদিকে আলোর পথ: সত্যি বলা, সাহসী হওয়া, দান করা। অন্যদিকে অন্ধকার পথ: রাগ, লোভ আর অহংকার। শ্রীকৃষ্ণ বললেন, বাজে ইচ্ছা, রাগ আর লোভ, এই তিনটি হলো দুঃখের দরজা। এগুলো থেকে দূরে থাকো।",
+  sk:"ত্রিবিধং নরকস্যেদং দ্বারং নাশনমাত্মনঃ।\nকামঃ ক্রোধস্তথা লোভস্তস্মাদেতত্ত্রয়ং ত্যজেৎ॥",ref:"১৬.২১",easy:"বাজে ইচ্ছা, রাগ আর লোভ, এই তিনটি দরজা দিয়ে দুঃখ ঢোকে। তাই এই তিনটিকে বিদায় দাও।",
+  lesson:"বাজে ইচ্ছা, রাগ আর লোভ, এই তিন দুষ্টুকে মনে ঢুকতে দিও না।",
+  q:[["দুঃখের তিন দরজা কী কী?",["খেলা, পড়া, গান","বাজে ইচ্ছা, রাগ, লোভ","ঘুম, খাওয়া, হাঁটা"],1],["আলোর পথে কী থাকে?",["সত্যি বলা আর সাহস","মিথ্যা বলা","অহংকার"],0]]},
+ {n:17,t:"সবচেয়ে ভালো দান",story:"শ্রীকৃষ্ণ বললেন, দানও তিন রকম। সবচেয়ে ভালো দান হলো যখন কিছু ফেরত পাওয়ার আশা না করে, ঠিক সময়ে, ঠিক মানুষকে আনন্দের সঙ্গে দেওয়া হয়। আর আমরা যা খাই, তা-ও আমাদের মনকে তৈরি করে। তাজা আর সাদাসিধে খাবার মনকে ভালো রাখে।",
+  sk:"দাতব্যমিতি যদ্দানং দীয়তেঽনুপকারিণে।\nদেশে কালে চ পাত্রে চ তদ্দানং সাত্ত্বিকং স্মৃতম্॥",ref:"১৭.২০",easy:"দেওয়া উচিত, এই ভেবে বদলে কিছু না চেয়ে ঠিক জায়গায়, ঠিক সময়ে, ঠিক মানুষকে যা দেওয়া হয়, সেটাই সেরা দান।",
+  lesson:"বন্ধুর টিফিন না থাকলে নিজের টিফিন ভাগ করে নাও।",
+  q:[["সবচেয়ে ভালো দান কোনটা?",["বদলে কিছু চেয়ে দেওয়া","দেখানোর জন্য দেওয়া","কিছু ফেরত না চেয়ে দেওয়া"],2],["কোন খাবার মনকে ভালো রাখে?",["তাজা সাদাসিধে খাবার","বাসি খাবার","শুধু চিপস"],0]]},
+ {n:18,t:"অর্জুনের নতুন সাহস",story:"সব শেষে শ্রীকৃষ্ণ বললেন, তুমি নিজের দায়িত্ব পালন করো আর আমার উপর ভরসা রাখো, ভয় পেয়ো না। অর্জুনের মনের সব দুঃখ আর দ্বিধা চলে গেল। তিনি হাসিমুখে বললেন, আমি বুঝেছি! এবার আমি প্রস্তুত।",
+  sk:"সর্বধর্মান্পরিত্যজ্য মামেকং শরণং ব্রজ।\nঅহং ত্বাং সর্বপাপেভ্যো মোক্ষয়িষ্যামি মা শুচঃ॥",ref:"১৮.৬৬",easy:"সব চিন্তা ছেড়ে শুধু আমার উপর ভরসা রাখো। আমি তোমাকে সব বিপদ থেকে রক্ষা করব, দুঃখ কোরো না।",
+  lesson:"ভয় পেলে মনে রেখো, ভগবান সবসময় তোমার পাশে আছেন।",
+  q:[["গীতা শোনার পর অর্জুনের কী হলো?",["আরও কাঁদলেন","ঘুমিয়ে পড়লেন","ভয় চলে গেল, সাহস পেলেন"],2],["ভয় পেলে কী মনে রাখব?",["ভগবান পাশে আছেন","কেউ নেই","পালিয়ে যাব"],0]]}
+];
+const ZONES=[[1,"কুরুক্ষেত্রের মাঠ"],[7,"জ্ঞানের বাগান"],[13,"আলোর পাহাড়"]];
+const RANKS=[[0,"নতুন পথিক"],[60,"ছোট্ট শিক্ষার্থী"],[160,"জ্ঞানের তারা"],[320,"গীতা বন্ধু"],[520,"গীতা বীর"]];
+const CARDS=[1,2,5,6,9,12,16,18,3,10].map(n=>L[n-1]);
+
+/* ---------- state ---------- */
+const S=(()=>{let s={};try{s=JSON.parse(localStorage.getItem("gita-kids")||"{}")}catch(e){}
+  return Object.assign({name:"",xp:0,done:{},days:[],log:{},cards:[],badges:[],pujaDays:[],
+    alarms:[{id:"a1",label:"সকালের পূজা",time:"06:30",tone:"om",on:true},{id:"a2",label:"সন্ধ্যা আরতি",time:"18:30",tone:"aarti",on:true}]},s)})();
+const save=()=>{try{localStorage.setItem("gita-kids",JSON.stringify(S))}catch(e){}};
+const doneCount=()=>Object.keys(S.done).length;
+const unlocked=n=>n===1||!!S.done[n-1];
+const rankOf=xp=>{let i=0;RANKS.forEach((r,k)=>{if(xp>=r[0])i=k});return i};
+function streak(){
+  const set=new Set(S.days);let d=new Date(),c=0;
+  if(!set.has(todayKey(d))){d.setDate(d.getDate()-1)}
+  while(set.has(todayKey(d))){c++;d.setDate(d.getDate()-1)}
+  return c;
+}
+
+/* ---------- feedback ---------- */
+let tt;function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2400)}
+function xpPop(n,x,y){const e=document.createElement("div");e.className="xp-pop";e.textContent="+"+BN(n)+" XP";e.style.left=(x-30)+"px";e.style.top=(y-20)+"px";document.body.appendChild(e);setTimeout(()=>e.remove(),1000)}
+
+const BADGES=[
+ {id:"first",t:"প্রথম পা",d:"প্রথম স্তর পার করো",c:"#FF8A5B",ok:()=>doneCount()>=1},
+ {id:"perfect",t:"নির্ভুল উত্তর",d:"কোনো স্তরে ৩ তারা পাও",c:"#FFB020",ok:()=>Object.values(S.done).some(v=>v>=3)},
+ {id:"cards",t:"কার্ড সংগ্রাহক",d:"১০টি শ্লোক-কার্ড দেখো",c:"#B57BFF",ok:()=>S.cards.length>=10},
+ {id:"streak3",t:"তিন দিনের ধারা",d:"পরপর ৩ দিন শেখো",c:"#E8572C",ok:()=>streak()>=3},
+ {id:"five",t:"পাঁচ স্তর পার",d:"৫টি স্তর শেষ করো",c:"#2FA866",ok:()=>doneCount()>=5},
+ {id:"half",t:"অর্ধেক পথ",d:"৯টি স্তর শেষ করো",c:"#4DA3FF",ok:()=>doneCount()>=9},
+ {id:"xp300",t:"৩০০ পয়েন্ট",d:"মোট ৩০০ XP জমাও",c:"#0FA3A3",ok:()=>S.xp>=300},
+ {id:"hero",t:"গীতা বীর",d:"১৮টি স্তরই শেষ করো",c:"#FF5E98",ok:()=>doneCount()>=18}
+];
+function medal(c,i){return `<svg viewBox="0 0 64 64"><path d="M20 4h10l4 14H24z" fill="#4DA3FF"/><path d="M44 4H34l-4 14h10z" fill="#FF5E98"/><circle cx="32" cy="38" r="20" fill="${c}"/><circle cx="32" cy="38" r="14" fill="#ffffff44"/><text x="32" y="45" text-anchor="middle" font-size="18" font-weight="800" fill="#fff" font-family="Baloo Da 2">${BN(i+1)}</text></svg>`}
+
+function checkBadges(){
+  BADGES.forEach(b=>{if(!S.badges.includes(b.id)&&b.ok()){S.badges.push(b.id);setTimeout(()=>toast("নতুন পদক: "+b.t+"!"),900)}});
+}
+function addXP(n,x,y){
+  const before=rankOf(S.xp);S.xp+=n;const k=todayKey();S.log[k]=(S.log[k]||0)+n;
+  if(!S.days.includes(k))S.days.push(k);
+  if(x!=null)xpPop(n,x,y);
+  checkBadges();save();
+  checkChallenge();
+  const after=rankOf(S.xp);
+  return after>before?after:null;
+}
+
+/* ---------- learning leaders (sample learners until the app has real accounts) ---------- */
+const LB={
+  area:{label:"আমার এলাকা",list:[["অরিত্র",168,"#4DA3FF"],["মৌমিতা",142,"#FF5E98"],["ঋষভ",118,"#2FA866"],["তৃষা",86,"#B57BFF"],["সৌম্য",54,"#F2A007"],["পূজা",30,"#0FA3A3"],["অনিক",14,"#E8572C"]]},
+  class:{label:"আমার ক্লাস",list:[["দিয়া",96,"#FF5E98"],["অয়ন",72,"#4DA3FF"],["শ্রেয়া",48,"#2FA866"],["তন্ময়",26,"#B57BFF"],["রিয়া",12,"#F2A007"]]},
+  friends:{label:"বন্ধুরা",list:[["ঈশান",64,"#0FA3A3"],["প্রিয়াঙ্কা",38,"#FF8A5B"],["নীল",20,"#5C7CFA"]]}
+};
+let lbScope="area";
+function weekXP(){let t=0;for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);t+=S.log[todayKey(d)]||0}return t}
+function board(){
+  const me={name:S.name||"তুমি",xp:weekXP(),c:"#E8572C",me:true};
+  return LB[lbScope].list.map(([name,xp,c])=>({name,xp,c})).concat(me).sort((a,b)=>b.xp-a.xp||(a.me?-1:1));
+}
+const av=(p,cls="")=>`<div class="av ${p.me?"me":""} ${cls}" style="background:${p.c}">${p.name.charAt(0)}</div>`;
+function renderLB(){
+  const el=$("#lb");if(!el)return;
+  const b=board(),myPos=b.findIndex(p=>p.me),me=b[myPos],above=b[myPos-1];
+  const order=[1,0,2],hts=[54,72,40],cols=["#9FB3C8","#FFB020","#E0915A"];
+  const podium=order.map(i=>{const p=b[i];if(!p)return "<div></div>";return `<div class="pd p${i+1}">
+    ${i===0?`<svg class="crown" viewBox="0 0 28 18"><path d="M2 16 L4 4 L10 10 L14 2 L18 10 L24 4 L26 16z" fill="#FFB020"/></svg>`:""}
+    ${av(p.me?{...p,name:"তু"}:p)}<div class="nmx">${p.me?"তুমি":p.name}</div><div class="px">${BN(p.xp)} XP</div>
+    <div class="blk" style="height:${hts[order.indexOf(i)]}px;background:${cols[order.indexOf(i)]}">${BN(i+1)}</div></div>`}).join("");
+  const myrank=`<div class="myrank"><div class="rk-num">${BN(myPos+1)}</div><div style="min-width:0"><b>${LB[lbScope].label}য় তোমার স্থান</b><span>${BN(b.length)} জনের মধ্যে · এই সপ্তাহে ${BN(me.xp)} XP</span></div></div>`;
+  let chal="";
+  const C=S.challenge&&S.challenge.scope===lbScope?S.challenge:null;
+  if(C){const pct=Math.min(100,Math.round(me.xp/(C.target+1)*100));
+    chal=`<div class="chal"><div style="flex:1;min-width:0"><p>চ্যালেঞ্জ চলছে: <b>${C.name}</b>-কে ছাড়াতে আর <b>${BN(Math.max(1,C.target+1-me.xp))} XP</b></p><div class="bar"><i style="width:${pct}%"></i></div></div><button class="go" id="lbPlay">খেলো</button></div>`}
+  else if(above){chal=`<div class="chal"><p><b>${above.name}</b> তোমার ঠিক আগে। আর <b>${BN(above.xp-me.xp+1)} XP</b> পেলেই তুমি ${BN(myPos)} নম্বরে!</p><button class="go" id="lbChal">চ্যালেঞ্জ করো</button></div>`}
+  else{chal=`<div class="chal"><p><b>তুমিই শীর্ষে!</b> প্রথম স্থান ধরে রাখতে রোজ একটু শেখো।</p><button class="go" id="lbPlay">খেলো</button></div>`}
+  el.innerHTML=`
+  <div class="lb-head"><h3>এই সপ্তাহের শেখার নেতা</h3>
+    <div class="seg">${Object.entries(LB).map(([k,v])=>`<button data-sc="${k}" aria-pressed="${k===lbScope}">${v.label}</button>`).join("")}</div></div>
+  <div class="podium">${podium}</div>
+  ${myrank}
+  ${chal}
+  <p class="sample">নমুনা তালিকা: আসল অ্যাপে অভিভাবকের অনুমতি নিয়ে ক্লাস বা এলাকার শিক্ষার্থীরা ডাকনামে দেখা যাবে।</p>`;
+  el.querySelectorAll("[data-sc]").forEach(x=>x.onclick=()=>{lbScope=x.dataset.sc;renderLB()});
+  const play=()=>{const n=L.find(l=>!S.done[l.n]);n?openLesson(n.n):goPage(1)};
+  const cb=$("#lbChal");if(cb)cb.onclick=()=>{S.challenge={name:above.name,target:above.xp,scope:lbScope};save();renderLB();toast(above.name+"-কে চ্যালেঞ্জ! এবার শিখে XP জেতো।")};
+  const pb=$("#lbPlay");if(pb)pb.onclick=play;
+}
+function checkChallenge(){
+  const C=S.challenge;if(!C)return;
+  if(weekXP()>C.target){const nm=C.name;delete S.challenge;save();
+    setTimeout(()=>celebrate("চ্যালেঞ্জ জিতেছ!","তুমি "+nm+"-কে ছাড়িয়ে গেছ","দারুণ! এবার পরের জনকে চ্যালেঞ্জ করো।"),1400)}
+}
+
+/* ---------- home ---------- */
+let deckOrder=[];
+function initDeck(){const start=Math.floor((Date.now()/864e5))%CARDS.length;deckOrder=CARDS.map((_,i)=>(i+start)%CARDS.length)}
+function renderHome(){
+  const r=rankOf(S.xp),next=RANKS[r+1],cur=RANKS[r];
+  const pct=next?Math.round((S.xp-cur[0])/(next[0]-cur[0])*100):100;
+  const dc=doneCount(),nextL=L.find(l=>!S.done[l.n]);
+  const st=streak();
+  // last 7 days xp bars
+  const days=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));return {k:todayKey(d),w:["রবি","সোম","মঙ্গল","বুধ","বৃহঃ","শুক্র","শনি"][d.getDay()],v:S.log[todayKey(d)]||0}});
+  const mx=Math.max(20,...days.map(d=>d.v));
+  const bw=22,gap=10,h=78;
+  const bars=days.map((d,i)=>{const bh=Math.max(4,d.v/mx*h);const x=i*(bw+gap)+4;return `<rect x="${x}" y="${h-bh+8}" width="${bw}" height="${bh}" rx="6" fill="${i===6?"#E8572C":"#4DA3FF"}"/>${d.v?`<text x="${x+bw/2}" y="${h-bh+3}" text-anchor="middle" style="fill:#1E2A4A;font-weight:600">${BN(d.v)}</text>`:""}<text x="${x+bw/2}" y="${h+24}" text-anchor="middle">${d.w}</text>`}).join("");
+  const C=2*Math.PI*46,off=C*(1-dc/18);
+  $("#home").innerHTML=`
+  <div class="top">
+    <div class="hello"><b>নমস্কার, ${S.name||"বন্ধু"}!</b><span>আজ কী শিখবে?</span></div>
+    <div class="chip" title="টানা দিন"><svg viewBox="0 0 24 24"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-7 0 3 2 4 3 4 0-3-1-6 0-9z" fill="#E8572C"/><path d="M12 12c1 2 3 3 3 5a3 3 0 0 1-6 0c0-1 1-2 1.5-3 0 1 .8 1.5 1.5 1.5 0-1.5-.5-2.5 0-3.5z" fill="#FFB020"/></svg>${BN(st)}</div>
+    <div class="chip" title="মোট তারা">${STAR(true).replace("<svg","<svg width='20' height='20'")}${BN(Object.values(S.done).reduce((a,b)=>a+b,0))}</div>
+  </div>
+  <section class="lb" id="lb" aria-label="শেখার নেতারা"></section>
+  <div class="rank">
+    <div class="badge-lvl">${BN(r+1)}</div>
+    <div class="t"><small>তোমার পদমর্যাদা</small><b>${cur[1]}</b>
+      <div class="xpbar"><i style="width:${pct}%"></i></div>
+      <small>${BN(S.xp)} XP ${next?`· "${next[1]}" হতে আর ${BN(next[0]-S.xp)} XP`:"· সর্বোচ্চ পদ!"}</small></div>
+  </div>
+  <div class="panel">
+    <h3>আমার অগ্রগতি</h3>
+    <div class="prog">
+      <svg class="ring" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="${BN(dc)} of 18 levels">
+        <circle cx="60" cy="60" r="46" fill="none" stroke="#E5EDF7" stroke-width="14"/>
+        <circle cx="60" cy="60" r="46" fill="none" stroke="#2FA866" stroke-width="14" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/>
+        <text x="60" y="60" text-anchor="middle" font-size="28" font-weight="800" fill="#1E2A4A">${BN(dc)}</text>
+        <text x="60" y="80" text-anchor="middle" font-size="12" fill="#5B6787">১৮ স্তরের</text>
+      </svg>
+      <div style="min-width:0"><div style="font-size:.82rem;color:var(--muted);margin-bottom:2px">এই সপ্তাহের XP</div>
+        <svg class="bars" viewBox="0 0 230 112" width="100%" role="img" aria-label="last 7 days XP">${bars}</svg></div>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>${BN(dc)}</b><span>স্তর পার</span></div>
+      <div class="stat"><b>${BN(S.cards.length)}</b><span>কার্ড দেখা</span></div>
+      <div class="stat"><b>${BN(S.badges.length)}</b><span>পদক</span></div>
+    </div>
+  </div>
+  <div class="sh"><h2>আজকের শ্লোক-কার্ড</h2><span>সোয়াইপ করো</span></div>
+  <div class="deck" id="deck"></div>
+  <div class="deckctl"><button class="round" id="prevC" aria-label="আগের কার্ড">‹</button><div class="dots" id="dots"></div><button class="round" id="nextC" aria-label="পরের কার্ড">›</button></div>
+  <div class="talk">${mascot()}<div class="bubble">${nextL?`চলো, স্তর ${BN(nextL.n)}: "${nextL.t}" খেলি!`:"অসাধারণ! তুমি পুরো গীতা যাত্রা শেষ করেছ!"}</div></div>
+  <button class="cta" id="goNext">${nextL?`স্তর ${BN(nextL.n)} শুরু করো`:"যাত্রাপথ দেখো"}</button>`;
+  $("#goNext").onclick=()=>nextL?openLesson(nextL.n):goPage(1);
+  renderLB();
+  renderDeck();
+  $("#prevC").onclick=()=>{deckOrder.unshift(deckOrder.pop());renderDeck()};
+  $("#nextC").onclick=()=>flyTop(-1);
+}
+function cardHTML(c,i,depth){
+  const col=COLORS[(c.n-1)%COLORS.length];
+  const first=c.sk.split("\n")[0];
+  return `<div class="vcard" data-i="${i}" style="background:${col};z-index:${10-depth};transform:translateY(${depth*12}px) scale(${1-depth*.05});${depth>2?"opacity:0":""}" ${depth?`aria-hidden="true"`:""}>
+   <div class="art">${motif(c.n)}</div>
+   <span class="no">শ্লোক ${c.ref}</span>
+   <div class="sk">${first}…</div>
+   <div class="mn">${c.easy}</div>
+   <div class="rf">${c.t} · অধ্যায় ${BN(c.n)}</div></div>`;
+}
+function renderDeck(){
+  const deck=$("#deck");if(!deck)return;
+  deck.innerHTML=deckOrder.slice(0,4).map((ci,d)=>cardHTML(CARDS[ci],ci,d)).reverse().join("");
+  $("#dots").innerHTML=CARDS.map((_,i)=>`<i class="${i===deckOrder[0]?"on":""}"></i>`).join("");
+  markSeen(deckOrder[0]);
+  const top=deck.querySelector(`.vcard[data-i="${deckOrder[0]}"]`);
+  let sx=0,dx=0,drag=false;
+  top.addEventListener("pointerdown",e=>{drag=true;sx=e.clientX;dx=0;top.classList.add("drag");top.setPointerCapture(e.pointerId)});
+  top.addEventListener("pointermove",e=>{if(!drag)return;dx=e.clientX-sx;top.style.transform=`translateX(${dx}px) rotate(${dx/14}deg)`});
+  const end=()=>{if(!drag)return;drag=false;top.classList.remove("drag");
+    if(Math.abs(dx)>80)flyTop(dx>0?1:-1);else top.style.transform="";};
+  top.addEventListener("pointerup",end);top.addEventListener("pointercancel",end);
+}
+function flyTop(dir){
+  const top=$(`#deck .vcard[data-i="${deckOrder[0]}"]`);if(!top)return;
+  top.style.transform=`translateX(${dir*window.innerWidth}px) rotate(${dir*30}deg)`;top.style.opacity="0";
+  setTimeout(()=>{deckOrder.push(deckOrder.shift());renderDeck()},280);
+}
+function markSeen(ci){
+  const id=CARDS[ci].ref;if(S.cards.includes(id))return;
+  S.cards.push(id);const up=addXP(2);
+  const c=document.querySelector(".stat:nth-child(2) b");if(c)c.textContent=BN(S.cards.length);
+  if(up!=null)celebrate("নতুন পদমর্যাদা!",RANKS[up][1],"তুমি এখন একজন "+RANKS[up][1]+"।");
+}
+
+/* ---------- journey map ---------- */
+function renderMap(){
+  const step=104,top=60,H=top+L.length*step+40;
+  const pos=L.map((l,i)=>({x:50+30*Math.sin(i*1.05),y:top+i*step}));
+  let d=`M ${pos[0].x} ${pos[0].y+32}`;
+  for(let i=1;i<pos.length;i++){const a=pos[i-1],b=pos[i];d+=` C ${a.x} ${a.y+32+step/2}, ${b.x} ${b.y+32-step/2}, ${b.x} ${b.y+32}`}
+  const curN=(L.find(l=>!S.done[l.n])||{}).n;
+  $("#map").innerHTML=`
+  <div class="sh"><h2>গীতার যাত্রাপথ</h2><span>${BN(doneCount())}/১৮ স্তর</span></div>
+  <div class="talk">${mascot()}<div class="bubble">প্রতিটি পাথর একটি স্তর। গল্প পড়ো, প্রশ্নের উত্তর দাও, তারা জেতো!</div></div>
+  <div class="map" style="height:${H}px">
+    <svg class="path" viewBox="0 0 100 ${H}" preserveAspectRatio="none"><path d="${d}" fill="none" stroke="#C9D8EA" stroke-width="2.4" stroke-dasharray="1 3" stroke-linecap="round" vector-effect="non-scaling-stroke" style="stroke-width:8px"/></svg>
+    ${ZONES.map(z=>`<div class="zone" style="top:${pos[z[0]-1].y-48}px">— ${z[1]} —</div>`).join("")}
+    ${L.map((l,i)=>{const lk=!unlocked(l.n),st=S.done[l.n]||0,col=COLORS[i%COLORS.length];
+      return `<div class="stone ${lk?"lock":""} ${l.n===curN?"cur":""}" style="left:${pos[i].x}%;top:${pos[i].y}px">
+      <button data-l="${l.n}" style="background:${col}" aria-label="স্তর ${BN(l.n)}: ${l.t}${lk?" (বন্ধ)":""}">${lk?`<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>`:BN(l.n)}</button>
+      <div class="stars">${[1,2,3].map(k=>STAR(k<=st)).join("")}</div>
+      <div class="nm">${l.t}</div></div>`}).join("")}
+  </div>`;
+  document.querySelectorAll(".stone button").forEach(b=>b.onclick=()=>{const n=+b.dataset.l;unlocked(n)?openLesson(n):toast("আগে স্তর "+BN(n-1)+" শেষ করো!")});
+}
+
+/* ---------- rewards ---------- */
+function renderRew(){
+  const r=rankOf(S.xp);
+  $("#rew").innerHTML=`
+  <div class="sh"><h2>আমার পদক</h2><span>${BN(S.badges.length)}/${BN(BADGES.length)}</span></div>
+  <div class="bgrid">${BADGES.map((b,i)=>`<div class="bdg ${S.badges.includes(b.id)?"":"off"}">${medal(b.c,i)}<b>${b.t}</b><span>${b.d}</span></div>`).join("")}</div>
+  <div class="panel"><h3>পদমর্যাদার সিঁড়ি</h3><div class="ranks">${RANKS.map((x,i)=>`<div class="rk ${i===r?"on":""}"><div class="badge-lvl" style="width:36px;height:36px;font-size:1rem">${BN(i+1)}</div><b>${x[1]}</b><span>${BN(x[0])} XP</span></div>`).join("")}</div></div>
+  <div class="panel"><h3>কীভাবে XP পাবে</h3>
+   <div class="ranks" style="font-size:.95rem">
+    <div class="rk"><b>নতুন শ্লোক-কার্ড দেখা</b><span>+২</span></div>
+    <div class="rk"><b>স্তরের গল্প শেষ করা</b><span>+১০</span></div>
+    <div class="rk"><b>প্রতিটি সঠিক উত্তর</b><span>+১০</span></div>
+    <div class="rk"><b>৩ তারা বোনাস</b><span>+১০</span></div>
+    <div class="rk"><b>আজকের পূজা করেছি</b><span>+৫</span></div></div></div>
+  <div class="panel"><h3>নাম বদলাও</h3><div style="display:flex;gap:8px"><input id="nm" value="${S.name}" placeholder="তোমার নাম" style="flex:1;min-width:0;padding:10px 12px;border-radius:12px;border:2px solid var(--line);font:inherit"><button class="cta blue" style="width:auto;padding:10px 16px;font-size:1rem" id="nmSave">রাখো</button></div></div>`;
+  $("#nmSave").onclick=()=>{S.name=$("#nm").value.trim();save();renderHome();toast("নাম রাখা হয়েছে")};
+}
+
+/* ---------- lesson ---------- */
+let LS=null;
+function openLesson(n){
+  const l=L[n-1];LS={n,correct:0,answered:[false,false],idx:0};
+  const col=COLORS[(n-1)%COLORS.length];
+  const el=document.createElement("div");el.className="sheet";el.id="sheet";
+  const letters=["ক","খ","গ"];
+  el.innerHTML=`
+  <div class="sheet-top"><button class="x" id="closeL" aria-label="বন্ধ করো">×</button><div class="steps-bar">${[0,1,2,3,4].map(i=>`<i class="${i===0?"on":""}"></i>`).join("")}</div></div>
+  <div class="steps" id="steps">
+    <section class="step"><div class="in">
+      <div class="scene" id="scene" style="background:${col}">${motif(n)}<span class="tap">ছবিতে ছোঁও</span></div>
+      <div class="lvl-tag">স্তর ${BN(n)} · গল্প</div>
+      <h2>${l.t}</h2>
+      <p class="story">${l.story}</p>
+      ${l.breath?`<div class="breath"><div class="c" id="bc"></div><b id="bt">বৃত্তের সঙ্গে শ্বাস নাও</b><button class="cta green" style="width:auto;padding:8px 18px;font-size:1rem" id="bb">শ্বাসের খেলা শুরু</button></div>`:""}
+      <button class="cta blue nx">পরের ধাপ →</button></div></section>
+    <section class="step"><div class="in">
+      <div class="lvl-tag">স্তর ${BN(n)} · আজকের শ্লোক</div>
+      <div class="sloka-box"><p class="sk">${l.sk}</p><div class="rf">শ্রীমদ্ভগবদ্গীতা ${l.ref}</div></div>
+      <div class="easy"><b>সহজ কথায়</b>${l.easy}</div>
+      <div class="lesson">${mascot("","wow")}<p>${l.lesson}</p></div>
+      <button class="cta blue nx">প্রশ্নের খেলা →</button></div></section>
+    ${l.q.map((q,qi)=>`<section class="step"><div class="in">
+      <div class="lvl-tag">প্রশ্ন ${BN(qi+1)}/২</div>
+      <div class="talk">${mascot()}<div class="bubble">ভেবে উত্তর দাও!</div></div>
+      <p class="q">${q[0]}</p>
+      <div class="opts">${q[1].map((o,oi)=>`<button class="opt" data-q="${qi}" data-o="${oi}"><span class="l">${letters[oi]}</span>${o}</button>`).join("")}</div>
+      <p class="feedback" id="fb${qi}"></p>
+      <button class="cta blue nx" id="nq${qi}" disabled>${qi===0?"পরের প্রশ্ন →":"ফলাফল দেখো →"}</button></div></section>`).join("")}
+    <section class="step"><div class="in result" id="result"></div></section>
+  </div>`;
+  document.body.appendChild(el);
+  const steps=$("#steps");
+  // keep learner on the right step: block swiping ahead of unanswered questions
+  steps.addEventListener("scroll",()=>{
+    const i=Math.round(steps.scrollLeft/steps.clientWidth);
+    const maxAllowed=LS.answered[0]?(LS.answered[1]?4:3):2;
+    if(i>maxAllowed){steps.scrollTo({left:maxAllowed*steps.clientWidth,behavior:"smooth"});return}
+    if(i!==LS.idx){LS.idx=i;document.querySelectorAll(".steps-bar i").forEach((b,k)=>b.classList.toggle("on",k<=i));if(i===4)finishLesson()}
+  },{passive:true});
+  el.querySelectorAll(".nx").forEach(b=>b.onclick=()=>steps.scrollTo({left:(LS.idx+1)*steps.clientWidth,behavior:"smooth"}));
+  $("#closeL").onclick=closeLesson;
+  $("#scene").onclick=e=>{const s=e.currentTarget;s.classList.remove("pop");void s.offsetWidth;s.classList.add("pop")};
+  if(l.breath){let on=false,tm;$("#bb").onclick=()=>{on=!on;$("#bb").textContent=on?"থামাও":"শ্বাসের খেলা শুরু";clearInterval(tm);
+    const bc=$("#bc"),bt=$("#bt");if(!on){bc.classList.remove("big");bt.textContent="বৃত্তের সঙ্গে শ্বাস নাও";return}
+    let inh=true;const tick=()=>{bc.classList.toggle("big",inh);bt.textContent=inh?"ধীরে শ্বাস নাও…":"ধীরে ছাড়ো…";inh=!inh};tick();tm=setInterval(tick,4000)}}
+  el.querySelectorAll(".opt").forEach(b=>b.onclick=e=>{
+    const qi=+b.dataset.q,oi=+b.dataset.o,q=l.q[qi];if(LS.answered[qi])return;
+    LS.answered[qi]=true;
+    const opts=el.querySelectorAll(`.opt[data-q="${qi}"]`);opts.forEach(o=>o.disabled=true);
+    if(oi===q[2]){b.classList.add("ok");LS.correct++;$("#fb"+qi).innerHTML=`<span style="color:var(--leaf)">দারুণ! একদম ঠিক!</span>`;const r=b.getBoundingClientRect();xpPop(10,r.right-40,r.top)}
+    else{b.classList.add("no");opts[q[2]].classList.add("ok");$("#fb"+qi).innerHTML=`<span style="color:var(--sindoor)">উঁহু! সঠিক উত্তর সবুজ রঙে দেখো।</span>`}
+    $("#nq"+qi).disabled=false;
+  });
+}
+function finishLesson(){
+  if(LS.finished)return;LS.finished=true;
+  const n=LS.n,prev=S.done[n]||0,stars=1+LS.correct;
+  let gain=0;
+  if(!prev){gain=10+LS.correct*10+(stars===3?10:0)}
+  else if(stars>prev){gain=(stars-prev)*10}
+  if(stars>prev)S.done[n]=stars;
+  const up=gain?addXP(gain):(save(),null);
+  checkBadges();save();
+  const nextL=n<18?L[n]:null;
+  $("#result").innerHTML=`
+    <div class="lvl-tag">স্তর ${BN(n)} সম্পূর্ণ!</div>
+    <div class="bigstars">${[1,2,3].map(k=>STAR(k<=stars)).join("")}</div>
+    <h2>${["","ভালো চেষ্টা!","খুব ভালো!","অসাধারণ!"][stars]}</h2>
+    <div class="earn">${gain?"+"+BN(gain)+" XP":"আবার খেলেছ!"}</div>
+    <p class="story" style="text-align:center">${BN(LS.correct)}/২টি প্রশ্নের সঠিক উত্তর দিয়েছ।${stars<3?" আবার খেললে আরও তারা পাবে।":""}</p>
+    ${mascot()}
+    ${nextL?`<button class="cta green" id="goNextL">স্তর ${BN(nextL.n)} খুলে গেছে! চলো →</button>`:""}
+    <button class="cta blue" id="backMap">যাত্রাপথে ফিরি</button>`;
+  if(nextL)$("#goNextL").onclick=()=>{closeLesson();openLesson(nextL.n)};
+  $("#backMap").onclick=()=>{closeLesson();goPage(1)};
+  if(up!=null)setTimeout(()=>celebrate("নতুন পদমর্যাদা!",RANKS[up][1],"তুমি এখন একজন "+RANKS[up][1]+"। এগিয়ে চলো!"),900);
+  else if(n===18&&!prev)setTimeout(()=>celebrate("অভিনন্দন!","গীতা যাত্রা সম্পূর্ণ","তুমি ১৮টি স্তরই পার করেছ!"),900);
+}
+function closeLesson(){const s=$("#sheet");if(s)s.remove();refresh()}
+
+/* ---------- celebration ---------- */
+function celebrate(h,big,txt){
+  const o=document.createElement("div");o.className="celebrate";
+  o.innerHTML=`<canvas></canvas><div class="box">${mascot("","wow").replace("<svg","<svg width='120' height='120'")}<h2>${h}</h2><div class="earn" style="font-size:1.5rem">${big}</div><p style="margin:0">${txt}</p><button class="cta green">দারুণ!</button></div>`;
+  document.body.appendChild(o);o.querySelector("button").onclick=()=>o.remove();
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const cv=o.querySelector("canvas"),cx=cv.getContext("2d");cv.width=innerWidth;cv.height=innerHeight;
+  const P=[...Array(120)].map(()=>({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,vy:2+Math.random()*3,vx:-1+Math.random()*2,r:4+Math.random()*5,c:COLORS[Math.floor(Math.random()*COLORS.length)],a:Math.random()*6}));
+  let f=0;(function run(){if(!o.isConnected||f++>240)return;cx.clearRect(0,0,cv.width,cv.height);P.forEach(p=>{p.y+=p.vy;p.x+=p.vx;p.a+=.1;cx.save();cx.translate(p.x,p.y);cx.rotate(p.a);cx.fillStyle=p.c;cx.fillRect(-p.r,-p.r/2,p.r*2,p.r);cx.restore()});requestAnimationFrame(run)})();
+}
+
+/* ---------- devotional sound engine (original melodies, synthesized in the browser) ---------- */
+const SA=220,RT={S:1,R:9/8,G:5/4,M:4/3,P:3/2,D:5/3,N:15/8};
+let AC=null,player=null,NB=null;
+function ac(){if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;AC=new C()}if(AC.state==="suspended")AC.resume();return AC}
+function newOut(){const g=AC.createGain();g.gain.value=.9;g.connect(AC.destination);return g}
+function voice(out,f,t,d,vol=.16){const o=AC.createOscillator(),o2=AC.createOscillator(),g=AC.createGain(),lf=AC.createOscillator(),lg=AC.createGain(),fl=AC.createBiquadFilter();
+  o.type="triangle";o2.type="sine";o.frequency.value=f;o2.frequency.value=f*2;fl.type="lowpass";fl.frequency.value=2200;
+  lf.frequency.value=5.2;lg.gain.value=f*.007;lf.connect(lg);lg.connect(o.frequency);lg.connect(o2.frequency);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.07);g.gain.setValueAtTime(vol,t+Math.max(.08,d-.1));g.gain.exponentialRampToValueAtTime(.0005,t+d+.3);
+  const g2=AC.createGain();g2.gain.value=.25;o.connect(fl);o2.connect(g2);g2.connect(fl);fl.connect(g);g.connect(out);
+  [o,o2,lf].forEach(x=>{x.start(t);x.stop(t+d+.35)})}
+function drone(out,t,d){[[SA/2,.045],[SA*.75,.035],[SA,.022]].forEach(([f,v])=>{const o=AC.createOscillator(),g=AC.createGain(),fl=AC.createBiquadFilter();o.type="sawtooth";o.frequency.value=f;fl.type="lowpass";fl.frequency.value=650;
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.8);g.gain.setValueAtTime(v,t+d-.5);g.gain.linearRampToValueAtTime(0,t+d);o.connect(fl);fl.connect(g);g.connect(out);o.start(t);o.stop(t+d+.05)})}
+function noise(){if(NB)return NB;const b=AC.createBuffer(1,AC.sampleRate*.3,AC.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return NB=b}
+function kartal(out,t,v=.22){const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=noise();f.type="highpass";f.frequency.value=5500;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+.18);s.connect(f);f.connect(g);g.connect(out);s.start(t);s.stop(t+.2)}
+function drum(out,t,v=.32){const o=AC.createOscillator(),g=AC.createGain();o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(55,t+.25);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+.4);o.connect(g);g.connect(out);o.start(t);o.stop(t+.45)}
+function bell(out,t,f=520,v=.2){[[1,1],[2.76,.5],[5.4,.28],[8.93,.14]].forEach(([m,a])=>{const o=AC.createOscillator(),g=AC.createGain();o.type="sine";o.frequency.value=f*m;
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v*a,t+.005);g.gain.exponentialRampToValueAtTime(.0005,t+3.6/Math.sqrt(m));o.connect(g);g.connect(out);o.start(t);o.stop(t+4)})}
+function conch(out,t){const o=AC.createOscillator(),o2=AC.createOscillator(),f=AC.createBiquadFilter(),g=AC.createGain(),lf=AC.createOscillator(),lg=AC.createGain();
+  o.type="sawtooth";o2.type="square";o.frequency.setValueAtTime(233,t);o.frequency.setValueAtTime(233,t+2.3);o.frequency.linearRampToValueAtTime(262,t+3);o2.frequency.value=116.5;
+  f.type="lowpass";f.frequency.value=1000;f.Q.value=4;lf.frequency.value=4.5;lg.gain.value=3;lf.connect(lg);lg.connect(o.frequency);
+  const g2=AC.createGain();g2.gain.value=.3;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.15,t+.7);g.gain.setValueAtTime(.15,t+2.8);g.gain.linearRampToValueAtTime(0,t+3.4);
+  o.connect(f);o2.connect(g2);g2.connect(f);f.connect(g);g.connect(out);[o,o2,lf].forEach(x=>{x.start(t);x.stop(t+3.5)})}
+
+const HK=["G","G","R","G","P","G","R","S","S","R","G","P","D","P","G","R"];
+const TONES={
+ om:{name:"ওঁ নমঃ শিবায়",kind:"মন্ত্রের সুর · তানপুরা",col:"#5C7CFA",syl:["ওঁ","ন","মঃ","শি","বা","য়"],drone:true,
+   seq:[["S",1.2,0],["R",.45,1],["G",.45,2],["P",.7,3],["G",.45,4],["R",1,5],["P",1.2,0],["D",.45,1],["P",.45,2],["G",.7,3],["R",.45,4],["S",1.3,5]]},
+ hk:{name:"হরে কৃষ্ণ কীর্তন",kind:"মহামন্ত্রের সুর · করতাল",col:"#FF8A5B",kartal:true,
+   syl:["হরে","কৃষ্ণ","হরে","কৃষ্ণ","কৃষ্ণ","কৃষ্ণ","হরে","হরে","হরে","রাম","হরে","রাম","রাম","রাম","হরে","হরে"],
+   seq:HK.map((n,k)=>[n,k===7?.8:k===15?.9:.5,k])},
+ bell:{name:"মন্দিরের ঘণ্টা",kind:"ঘণ্টাধ্বনি",col:"#0FA3A3"},
+ conch:{name:"শঙ্খধ্বনি",kind:"শঙ্খের আওয়াজ",col:"#2FA866"},
+ aarti:{name:"সন্ধ্যা আরতি",kind:"ঘণ্টা, ঢাক ও করতাল",col:"#E8572C"}
+};
+const TICON={
+ om:`<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M16 26c-6 0-9-4-9-8s3-6 6-6c4 0 5 3 5 5"/><circle cx="16" cy="6" r="2" fill="#fff"/><path d="M22 14c3 0 4 2 4 4s-1 4-4 4"/></svg>`,
+ hk:`<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4"><circle cx="11" cy="16" r="6"/><circle cx="21" cy="16" r="6"/></svg>`,
+ bell:`<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M9 22V15a7 7 0 0 1 14 0v7l2 2H7z"/><path d="M14 27h4M16 4v4"/></svg>`,
+ conch:`<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M6 20c4-10 14-14 20-12-2 6-6 16-16 16-2 0-3-2-4-4z"/><path d="M12 18c2-3 6-5 9-5"/></svg>`,
+ aarti:`<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M8 20h16l-2 4H10z"/><path d="M16 18c-3-3-1-7 0-10 1 3 3 7 0 10z" fill="#fff"/></svg>`
+};
+function schedule(id,out,t0,timers){
+  const T=TONES[id];
+  if(T.seq){const total=T.seq.reduce((a,s)=>a+s[1],0)+.6;if(T.drone)drone(out,t0,total+.4);let t=t0;
+    T.seq.forEach(([n,d,si],k)=>{voice(out,SA*RT[n],t,d*.95);if(T.kartal){kartal(out,t);if(k%2===0)drum(out,t,.18)}
+      timers.push(setTimeout(()=>hilite(id,si),Math.max(0,(t-AC.currentTime)*1000)));t+=d});
+    timers.push(setTimeout(()=>hilite(id,-1),Math.max(0,(t-AC.currentTime)*1000)));return total}
+  if(id==="bell"){[0,2.4,4.8].forEach(x=>bell(out,t0+x,520));return 7.2}
+  if(id==="conch"){conch(out,t0);return 5}
+  if(id==="aarti"){for(let i=0;i<8;i++){const x=t0+i*.6;if(i%2===0)bell(out,x,660,.13);kartal(out,x+.3,.16);if(i%4===0)drum(out,x)}return 4.8}
+  return 3;
+}
+function hilite(id,si){document.querySelectorAll(`[data-mt="${id}"] span`).forEach((s,i)=>s.classList.toggle("on",i===si))}
+function playTone(id,loop=true){
+  stopTone();if(!ac()){toast("এই ডিভাইসে শব্দ চালানো যাচ্ছে না");return}
+  const out=newOut(),timers=[];player={id,out,timers};
+  const run=t=>{if(!player||player.out!==out)return;const d=schedule(id,out,t,timers);
+    if(loop)timers.push(setTimeout(()=>run(t+d),Math.max(0,(t+d-AC.currentTime-.3)*1000)))};
+  run(AC.currentTime+.08);updatePlay();
+}
+function stopTone(){if(!player)return;const{out,timers,id}=player;player=null;timers.forEach(clearTimeout);
+  try{out.gain.setTargetAtTime(0,AC.currentTime,.05);setTimeout(()=>out.disconnect(),500)}catch(e){}
+  hilite(id,-1);updatePlay()}
+function updatePlay(){document.querySelectorAll("[data-play]").forEach(b=>{const on=player&&player.id===b.dataset.play;b.setAttribute("aria-pressed",!!on);b.textContent=on?"■ থামাও":"▶ শুনুন"})}
+const mtHTML=id=>TONES[id].syl?`<div class="mt" data-mt="${id}">${TONES[id].syl.map(s=>`<span>${s}</span>`).join("")}</div>`:"";
+
+/* ---------- native phone alarms (active only inside the installed Android app) ---------- */
+const NATIVE=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
+const LN=NATIVE&&window.Capacitor.Plugins?window.Capacitor.Plugins.LocalNotifications:null;
+let exactOK=true;
+async function nativeSetup(){
+  if(!LN)return;
+  try{
+    for(const[k,v]of Object.entries(TONES)){
+      await LN.createChannel({id:"alarm_"+k,name:v.name,description:"পূজা ও পাঠের অ্যালার্ম",importance:5,visibility:1,sound:k+".wav",vibration:true,lights:true,lightColor:"#FFB020"});
+    }
+    const p=await LN.checkPermissions();if(p.display!=="granted")await LN.requestPermissions();
+    try{const ex=await LN.checkExactNotificationSetting();exactOK=ex.exact_alarm==="granted"}catch(e){}
+    LN.addListener("localNotificationActionPerformed",ev=>{
+      const id=ev.notification&&ev.notification.extra&&ev.notification.extra.alarmId;
+      const a=S.alarms.find(x=>x.id===id);if(a){goPage(2);setTimeout(()=>ring(a),500)}
+    });
+    await nativeSchedule();renderPuja();
+  }catch(e){console.warn("native setup",e)}
+}
+async function nativeSchedule(){
+  if(!LN)return;
+  try{
+    const pend=await LN.getPending();
+    if(pend.notifications&&pend.notifications.length)await LN.cancel({notifications:pend.notifications.map(n=>({id:n.id}))});
+    const list=S.alarms.filter(a=>a.on).map((a,i)=>{const[h,m]=a.time.split(":").map(Number);
+      return {id:1000+i,title:a.label+"-র সময় হয়েছে",body:TONES[a.tone].name+" · ছুঁয়ে অ্যাপ খোলো",
+        channelId:"alarm_"+a.tone,sound:a.tone+".wav",smallIcon:"ic_stat_bell",iconColor:"#1565C0",
+        schedule:{on:{hour:h,minute:m},allowWhileIdle:true},extra:{alarmId:a.id}}});
+    if(list.length)await LN.schedule({notifications:list});
+  }catch(e){console.warn("native schedule",e)}
+}
+async function fixAlarmPermission(){
+  if(!LN)return;
+  try{await LN.requestPermissions();await LN.changeExactNotificationSetting();
+    const ex=await LN.checkExactNotificationSetting();exactOK=ex.exact_alarm==="granted";await nativeSchedule();renderPuja();
+    toast(exactOK?"অ্যালার্মের অনুমতি ঠিক আছে":"সেটিংসে 'অ্যালার্ম ও রিমাইন্ডার' চালু করো")}catch(e){toast("ফোনের সেটিংসে নোটিফিকেশন চালু করো")}
+}
+
+/* ---------- puja alarms ---------- */
+const PERIOD=h=>h<4?"রাত":h<12?"সকাল":h<16?"দুপুর":h<18?"বিকেল":h<20?"সন্ধ্যা":"রাত";
+function fmtTime(t){const[h,m]=t.split(":").map(Number);const h12=h%12||12;return PERIOD(h)+" "+BN(h12)+":"+BN(String(m).padStart(2,"0"))}
+function nextAlarm(){const now=new Date();let best=null;
+  S.alarms.filter(a=>a.on).forEach(a=>{const[h,m]=a.time.split(":").map(Number);const d=new Date();d.setHours(h,m,0,0);if(d<=now)d.setDate(d.getDate()+1);if(!best||d<best.d)best={a,d}});return best}
+function cdText(){const nx=nextAlarm();if(!nx)return "";const mins=Math.ceil((nx.d-new Date())/60000),h=Math.floor(mins/60),m=mins%60;
+  return "আর "+(h?BN(h)+" ঘণ্টা ":"")+BN(m)+" মিনিট বাকি"}
+function renderPuja(){
+  const el=$("#puja");if(!el)return;
+  const nx=nextAlarm(),doneToday=S.pujaDays.includes(todayKey());
+  el.innerHTML=`
+  <div class="sh"><h2>পূজার সময়</h2><span>${BN(S.pujaDays.length)} দিন পূজা করেছ</span></div>
+  <div class="next">
+    <svg class="bellart" viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2"><path d="M9 22V15a7 7 0 0 1 14 0v7l2 2H7z"/><path d="M14 27h4M16 4v4"/></svg>
+    ${nx?`<div class="lbl">পরের পূজা · ${nx.a.label}</div><div class="tm">${fmtTime(nx.a.time)}</div><div class="cd" id="cd">${cdText()}</div>
+    <div class="row"><span class="pill">${TONES[nx.a.tone].name}</span><button class="pill" id="testRing">▶ এখনই বাজিয়ে দেখো</button></div>`
+    :`<div class="lbl">কোনো অ্যালার্ম চালু নেই</div><div class="cd">নিচে পূজার সময় যোগ করো বা চালু করো।</div>`}
+  </div>
+  <button class="cta ${doneToday?"green":""}" id="pujaDone">${doneToday?"✓ আজকের পূজা হয়েছে":"আজ পূজা করেছি · +৫ XP"}</button>
+  <div class="panel"><h3>আমার পূজার অ্যালার্ম</h3><div class="alist">
+    ${S.alarms.map(a=>`<div class="arow" data-a="${a.id}">
+      <div class="r1"><input type="time" id="t-${a.id}" value="${a.time}" aria-label="সময়"><input type="text" id="l-${a.id}" value="${a.label}" aria-label="নাম" maxlength="24">
+        <label class="sw"><input type="checkbox" id="o-${a.id}" ${a.on?"checked":""} aria-label="চালু/বন্ধ"><i></i></label></div>
+      <div class="r2"><select id="s-${a.id}" aria-label="অ্যালার্মের ধ্বনি">${Object.entries(TONES).map(([k,v])=>`<option value="${k}" ${k===a.tone?"selected":""}>${v.name}</option>`).join("")}</select>
+        <button class="del" aria-label="মুছে ফেলো">×</button></div></div>`).join("")}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="add" id="addA">+ পূজার সময়</button><button class="add" id="addL">+ পাঠের সময়</button></div>
+    ${NATIVE&&!exactOK?`<button class="cta" id="fixPerm" style="font-size:1rem">অ্যালার্ম ঠিক সময়ে বাজাতে অনুমতি দাও</button>`:""}</div></div>
+  <div class="sh"><h2>ভক্তি ধ্বনি</h2><span>শুনুন ও সঙ্গে গাও</span></div>
+  <div class="tlist">${Object.entries(TONES).map(([k,v])=>`<div class="tcard" style="background:${v.col}">
+    <div class="h"><div class="ic">${TICON[k]}</div><div style="min-width:0"><b>${v.name}</b><span>${v.kind}</span></div><button class="play" data-play="${k}" aria-pressed="false">▶ শুনুন</button></div>
+    ${mtHTML(k)}</div>`).join("")}</div>
+  <p class="sample">${NATIVE?"অ্যাপ বন্ধ থাকলেও ফোন নির্ধারিত সময়ে অ্যালার্ম বাজাবে। নোটিফিকেশন ছুঁলে অ্যাপ খুলে পূজা বা পাঠ শুরু হবে।":"ব্রাউজারে অ্যাপটি খোলা থাকলে অ্যালার্ম বাজবে। ফোনে ইনস্টল করা অ্যাপে বন্ধ থাকলেও বাজবে।"} সুরগুলো এই অ্যাপের নিজস্ব।</p>`;
+  el.querySelectorAll(".arow").forEach(r=>{const id=r.dataset.a,a=S.alarms.find(x=>x.id===id);
+    const upd=()=>{a.time=$("#t-"+id).value||a.time;a.label=$("#l-"+id).value.trim()||"পূজা";a.on=$("#o-"+id).checked;a.tone=$("#s-"+id).value;save();nativeSchedule();const c=$("#cd");if(c)c.textContent=cdText()};
+    r.querySelectorAll("input,select").forEach(i=>i.addEventListener("change",upd));
+    $("#o-"+id).addEventListener("change",()=>{upd();renderPuja();toast(a.on?a.label+" চালু হলো":a.label+" বন্ধ হলো")});
+    r.querySelector(".del").onclick=()=>{S.alarms=S.alarms.filter(x=>x.id!==id);save();nativeSchedule();renderPuja();toast("অ্যালার্ম মুছে ফেলা হলো")};
+  });
+  $("#addA").onclick=()=>{S.alarms.push({id:"a"+Date.now(),label:"পূজা",time:"12:00",tone:"bell",on:true,kind:"puja"});save();nativeSchedule();renderPuja()};
+  $("#addL").onclick=()=>{S.alarms.push({id:"a"+Date.now(),label:"গীতা পাঠের সময়",time:"17:00",tone:"bell",on:true,kind:"learn"});save();nativeSchedule();renderPuja();toast("পাঠের অ্যালার্ম যোগ হলো")};
+  const fx=$("#fixPerm");if(fx)fx.onclick=fixAlarmPermission;
+  el.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>{player&&player.id===b.dataset.play?stopTone():playTone(b.dataset.play)});
+  const tr=$("#testRing");if(tr)tr.onclick=()=>ring(nx.a);
+  $("#pujaDone").onclick=e=>markPuja(e);
+  updatePlay();
+}
+function markPuja(e){
+  const k=todayKey();if(S.pujaDays.includes(k)){toast("আজকের পূজা আগেই হয়ে গেছে");return}
+  S.pujaDays.push(k);const r=e&&e.currentTarget?e.currentTarget.getBoundingClientRect():{right:innerWidth/2+40,top:innerHeight/2};
+  const up=addXP(5,r.right-40,r.top);toast("জয় শ্রীকৃষ্ণ! আজকের পূজা হলো");renderPuja();renderHome();
+  if(up!=null)setTimeout(()=>celebrate("নতুন পদমর্যাদা!",RANKS[up][1],"তুমি এখন একজন "+RANKS[up][1]+"।"),900);
+}
+let snooze=null;const fired=new Set();
+function ring(a){
+  const old=$("#ringer");if(old)old.remove();
+  const o=document.createElement("div");o.className="ringer";o.id="ringer";o.setAttribute("role","alertdialog");o.setAttribute("aria-label",a.label);
+  o.innerHTML=`<svg class="bigbell" viewBox="0 0 32 32" fill="#FFB020" stroke="#fff" stroke-width="1.5"><path d="M9 22V15a7 7 0 0 1 14 0v7l2 2H7z"/><circle cx="16" cy="27" r="2"/><path d="M16 4v4" fill="none"/></svg>
+    <h2>${a.label}-র সময় হয়েছে</h2><div class="tm">${fmtTime(a.time)}</div><div>${TONES[a.tone].name}</div>${mtHTML(a.tone)}
+    <button class="cta green" id="rStart">${a.kind==="learn"?"পাঠ শুরু করি":"পূজা শুরু করি"}</button>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><button class="soft" id="rSnooze">৫ মিনিট পরে</button><button class="soft" id="rSound">শব্দ শুনতে চাপো</button></div>`;
+  document.body.appendChild(o);playTone(a.tone);
+  const close=()=>{stopTone();o.remove()};
+  $("#rStart").onclick=e=>{close();if(a.kind==="learn"){const n=L.find(l=>!S.done[l.n]);n?openLesson(n.n):goPage(1)}else markPuja(e)};
+  $("#rSnooze").onclick=()=>{close();snooze={a,t:Date.now()+300000};toast("৫ মিনিট পরে আবার মনে করাব")};
+  $("#rSound").onclick=()=>playTone(a.tone);
+}
+setInterval(()=>{
+  const n=new Date(),hm=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");
+  S.alarms.forEach(a=>{const k=a.id+todayKey()+a.time;if(a.on&&a.time===hm&&!fired.has(k)){fired.add(k);ring(a)}});
+  if(snooze&&Date.now()>=snooze.t){const a=snooze.a;snooze=null;ring(a)}
+  const c=$("#cd");if(c)c.textContent=cdText();
+},10000);
+
+/* ---------- pages ---------- */
+const pagesEl=$("#pages");
+function goPage(i){pagesEl.scrollTo({left:i*pagesEl.clientWidth,behavior:"smooth"})}
+document.querySelectorAll(".nb").forEach(b=>b.onclick=()=>goPage(+b.dataset.p));
+pagesEl.addEventListener("scroll",()=>{const i=Math.round(pagesEl.scrollLeft/pagesEl.clientWidth);
+  document.querySelectorAll(".nb").forEach((b,k)=>b.setAttribute("aria-current",k===i))},{passive:true});
+function refresh(){renderHome();renderMap();renderPuja();renderRew()}
+
+/* ---------- welcome ---------- */
+function welcome(){
+  const w=document.createElement("div");w.className="welcome";
+  w.innerHTML=`${mascot()}
+  <h1>গীতা পাঠশালা</h1>
+  <p>আমি পেখম! চলো, গল্প, ছবি আর খেলার মধ্য দিয়ে শ্রীমদ্ভগবদ্গীতার ১৮টি স্তর পার করি।</p>
+  <div class="feat"><span>১৮টি স্তর</span><span>মজার প্রশ্ন</span><span>তারা আর পদক</span></div>
+  ${S.invite?"":`<input id="wcode" placeholder="আমন্ত্রণ কোড (যেমন GITA-XXXX)" aria-label="আমন্ত্রণ কোড" maxlength="12" style="text-transform:uppercase">`}<input id="wname" placeholder="তোমার নাম লেখো" value="${S.name}" aria-label="তোমার নাম" maxlength="20">
+  <button class="cta" id="wgo">${S.name?"আবার শুরু করি":"চলো শুরু করি"}</button>`;
+  document.body.appendChild(w);
+  $("#wgo").onclick=()=>{if(!S.invite){const c=($("#wcode").value||"").trim().toUpperCase();if(!INVITE_CODES.includes(c)){toast("কোডটি সঠিক নয়। যিনি অ্যাপ দিয়েছেন তাঁর কাছ থেকে কোড নাও।");return}S.invite=c}S.name=$("#wname").value.trim()||S.name;const k=todayKey();if(!S.days.includes(k))S.days.push(k);save();w.remove();refresh()};
+}
+
+initDeck();refresh();welcome();nativeSetup();
+</script>
+
+<script>if("serviceWorker" in navigator&&!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+name: Build Android APK
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: android-actions/setup-android@v3
+      - name: Install packages
+        run: npm install
+      - name: Create and patch Android project
+        run: npm run android:prepare
+      - name: Build signed release APK
+        working-directory: android
+        env:
+          KS_PASS: gitapathshala
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+      - name: Rename APK
+        run: cp android/app/build/outputs/apk/release/app-release.apk gita-pathshala.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gita-pathshala-apk
+          path: gita-pathshala.apk

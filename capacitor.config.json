@@ -1,0 +1,12 @@
+{
+  "appId": "com.gitapathshala.app",
+  "appName": "গীতা পাঠশালা",
+  "webDir": "www",
+  "android": { "backgroundColor": "#1565C0" },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_bell",
+      "iconColor": "#1565C0"
+    }
+  }
+}

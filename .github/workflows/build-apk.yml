@@ -3,6 +3,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -34,3 +36,10 @@ jobs:
         with:
           name: gita-pathshala-apk
           path: gita-pathshala.apk
+      - name: Publish as a release (easy phone download)
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: গীতা পাঠশালা v1.0.${{ github.run_number }}
+          body: "ফোনে ইনস্টল করতে নিচের gita-pathshala.apk ফাইলটি ডাউনলোড করুন।"
+          files: gita-pathshala.apk

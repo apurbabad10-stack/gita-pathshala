@@ -260,6 +260,7 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-conte
 .sw input:checked+i{background:var(--leaf)}
 .sw input:checked+i::after{transform:translateX(22px)}
 .sw input:focus-visible+i{outline:3px solid var(--marigold);outline-offset:2px}
+.alst{background:#E3F7EC;border-radius:16px;padding:10px 12px}
 .add{border:2px dashed var(--line);border-radius:18px;padding:12px;font-family:var(--display);font-weight:700;color:var(--peacock)}
 .tlist{display:grid;grid-template-columns:1fr;gap:10px}
 .tcard{border-radius:20px;padding:14px;color:#fff;display:flex;flex-direction:column;gap:8px}
@@ -559,28 +560,31 @@ function board(){
 const av=(p,cls="")=>`<div class="av ${p.me?"me":""} ${cls}" style="background:${p.c}">${p.name.charAt(0)}</div>`;
 function renderLB(){
   const el=$("#lb");if(!el)return;
+  const FM=isFullMode(),scopes=Object.entries(LB).filter(([k])=>!(FM&&k==="class"));
+  if(FM&&lbScope==="class")lbScope="area";
+  const you=FM?"আপনি":"তুমি",your=FM?"আপনার":"তোমার";
   const b=board(),myPos=b.findIndex(p=>p.me),me=b[myPos],above=b[myPos-1];
   const order=[1,0,2],hts=[54,72,40],cols=["#9FB3C8","#FFB020","#E0915A"];
   const podium=order.map(i=>{const p=b[i];if(!p)return "<div></div>";return `<div class="pd p${i+1}">
     ${i===0?`<svg class="crown" viewBox="0 0 28 18"><path d="M2 16 L4 4 L10 10 L14 2 L18 10 L24 4 L26 16z" fill="#FFB020"/></svg>`:""}
-    ${av(p.me?{...p,name:"তু"}:p)}<div class="nmx">${p.me?"তুমি":p.name}</div><div class="px">${BN(p.xp)} XP</div>
+    ${av(p.me?{...p,name:you.charAt(0)}:p)}<div class="nmx">${p.me?you:p.name}</div><div class="px">${BN(p.xp)} XP</div>
     <div class="blk" style="height:${hts[order.indexOf(i)]}px;background:${cols[order.indexOf(i)]}">${BN(i+1)}</div></div>`}).join("");
-  const myrank=`<div class="myrank"><div class="rk-num">${BN(myPos+1)}</div><div style="min-width:0"><b>${LB[lbScope].label}য় তোমার স্থান</b><span>${BN(b.length)} জনের মধ্যে · এই সপ্তাহে ${BN(me.xp)} XP</span></div></div>`;
+  const myrank=`<div class="myrank"><div class="rk-num">${BN(myPos+1)}</div><div style="min-width:0"><b>${LB[lbScope].label}য় ${your} স্থান</b><span>${BN(b.length)} জনের মধ্যে · এই সপ্তাহে ${BN(me.xp)} XP</span></div></div>`;
   let chal="";
   const C=S.challenge&&S.challenge.scope===lbScope?S.challenge:null;
   if(C){const pct=Math.min(100,Math.round(me.xp/(C.target+1)*100));
     chal=`<div class="chal"><div style="flex:1;min-width:0"><p>চ্যালেঞ্জ চলছে: <b>${C.name}</b>-কে ছাড়াতে আর <b>${BN(Math.max(1,C.target+1-me.xp))} XP</b></p><div class="bar"><i style="width:${pct}%"></i></div></div><button class="go" id="lbPlay">খেলো</button></div>`}
-  else if(above){chal=`<div class="chal"><p><b>${above.name}</b> তোমার ঠিক আগে। আর <b>${BN(above.xp-me.xp+1)} XP</b> পেলেই তুমি ${BN(myPos)} নম্বরে!</p><button class="go" id="lbChal">চ্যালেঞ্জ করো</button></div>`}
-  else{chal=`<div class="chal"><p><b>তুমিই শীর্ষে!</b> প্রথম স্থান ধরে রাখতে রোজ একটু শেখো।</p><button class="go" id="lbPlay">খেলো</button></div>`}
+  else if(above){chal=`<div class="chal"><p><b>${above.name}</b> ${your} ঠিক আগে। আর <b>${BN(above.xp-me.xp+1)} XP</b> পেলেই ${you} ${BN(myPos)} নম্বরে!</p><button class="go" id="lbChal">চ্যালেঞ্জ ${FM?"করুন":"করো"}</button></div>`}
+  else{chal=`<div class="chal"><p><b>${you}ই শীর্ষে!</b> প্রথম স্থান ধরে রাখতে রোজ একটু ${FM?"পড়ুন":"শেখো"}।</p><button class="go" id="lbPlay">খেলো</button></div>`}
   el.innerHTML=`
   <div class="lb-head"><h3>এই সপ্তাহের শেখার নেতা</h3>
-    <div class="seg">${Object.entries(LB).map(([k,v])=>`<button data-sc="${k}" aria-pressed="${k===lbScope}">${v.label}</button>`).join("")}</div></div>
+    <div class="seg">${scopes.map(([k,v])=>`<button data-sc="${k}" aria-pressed="${k===lbScope}">${v.label}</button>`).join("")}</div></div>
   <div class="podium">${podium}</div>
   ${myrank}
   ${chal}
-  <p class="sample">নমুনা তালিকা: আসল অ্যাপে অভিভাবকের অনুমতি নিয়ে ক্লাস বা এলাকার শিক্ষার্থীরা ডাকনামে দেখা যাবে।</p>`;
+  <p class="sample">${FM?"নমুনা তালিকা: আসল অ্যাপে এলাকার পাঠক ও বন্ধুরা ডাকনামে দেখা যাবে।":"নমুনা তালিকা: আসল অ্যাপে অভিভাবকের অনুমতি নিয়ে ক্লাস বা এলাকার শিক্ষার্থীরা ডাকনামে দেখা যাবে।"}</p>`;
   el.querySelectorAll("[data-sc]").forEach(x=>x.onclick=()=>{lbScope=x.dataset.sc;renderLB()});
-  const play=()=>{const n=L.find(l=>!S.done[l.n]);n?openLesson(n.n):goPage(1)};
+  const play=()=>{if(FM){openReader(S.last||firstId());return}const n=L.find(l=>!S.done[l.n]);n?openLesson(n.n):goPage(1)};
   const cb=$("#lbChal");if(cb)cb.onclick=()=>{S.challenge={name:above.name,target:above.xp,scope:lbScope};save();renderLB();toast(above.name+"-কে চ্যালেঞ্জ! এবার শিখে XP জেতো।")};
   const pb=$("#lbPlay");if(pb)pb.onclick=play;
 }
@@ -749,7 +753,7 @@ function chReadCount(n){const set=new Set(S.readV);let k=0;for(let i=1;i<=VCOUNT
 function renderLibrary(){
   $("#map").innerHTML=`
   <div class="sh"><h2>সম্পূর্ণ গীতা</h2><span>${BN(S.readV.length)} শ্লোক পড়া</span></div>
-  ${FULL_REAL?"":`<div class="notice">পূর্ণ পাঠ এখনো যোগ হয়নি। এখন প্রতিটি অধ্যায়ের নির্বাচিত শ্লোক দেখা যাবে। বই থেকে তৈরি gita-data.json যোগ হলেই সব শ্লোক, শব্দার্থ, অনুবাদ ও তাৎপর্য চলে আসবে।</div>`}
+  ${FULL_REAL?"":`<div class="notice">সম্পূর্ণ গীতার পাঠ তৈরি হচ্ছে। আপাতত প্রতিটি অধ্যায়ের নির্বাচিত শ্লোক পড়া যাবে; শীঘ্রই সব শ্লোক, শব্দার্থ, অনুবাদ ও তাৎপর্য যোগ হবে।</div>`}
   ${contCard()}
   <input class="srch" id="lsrch" type="search" placeholder="শ্লোক, শব্দ বা নম্বর খুঁজুন (যেমন ২.৪৭)" aria-label="খুঁজুন">
   <div id="lres"></div>
@@ -781,7 +785,7 @@ function openChapter(n){
   const el=sheetShell("chsheet",`অধ্যায় ${BN(n)} · ${chTitle(n)}`,`${BN(cnt)}টি শ্লোক · ${BN(chReadCount(n))}টি পড়া`);
   el.querySelector(".in").innerHTML=`<div class="scene" style="background:${COLORS[(n-1)%COLORS.length]};height:150px">${motif(n)}</div>
    <div class="vgrid">${[...Array(cnt)].map((_,i)=>{const k=i+1,id=vid(n,k),v=VMAP[id];return `<button class="vb ${set.has(id)?"read":""} ${v?"":"na"}" data-id="${id}" aria-label="শ্লোক ${BN(k)}">${BN(k)}${isFav(v?v.id:id)?`<span class="h">♥</span>`:""}</button>`}).join("")}</div>
-   ${FULL_REAL?"":`<p class="sample">ধূসর নম্বরগুলোর পূর্ণ পাঠ gita-data.json যোগ হলে খুলবে।</p>`}`;
+   ${FULL_REAL?"":`<p class="sample">ধূসর নম্বরের শ্লোকগুলো শীঘ্রই যোগ হবে।</p>`}`;
   el.querySelectorAll(".vb").forEach(b=>b.onclick=()=>{const v=VMAP[b.dataset.id];v?openReader(v.id):toast("এই শ্লোকের পাঠ এখনো যোগ হয়নি")});
 }
 let RFS=17;try{RFS=+localStorage.getItem("gita-rfs")||17}catch(e){}
@@ -797,7 +801,7 @@ function openReader(id){
    ${kid&&l?`<div class="easy"><b>সহজ কথায়</b>${l.easy}</div><div class="lesson">${mascot("","wow")}<p>${l.lesson}</p></div>`:
     sec("","শব্দার্থ",v.words)+sec("song","গীতার গান",v.song)+sec("tr",v.own?"সহজ অর্থ":"অনুবাদ",v.tr)+
     (v.pur?`<div class="sec"><details><summary>তাৎপর্য পড়ুন <span>▾</span></summary><p style="margin-top:8px">${v.pur}</p></details></div>`:"")}
-   ${!FULL_REAL&&!kid?`<div class="notice">শব্দার্থ, গীতার গান, অনুবাদ ও তাৎপর্য gita-data.json যোগ হলে দেখা যাবে।</div>`:""}`;
+   ${!FULL_REAL&&!kid?`<div class="notice">এই শ্লোকের শব্দার্থ, গীতার গান, পূর্ণ অনুবাদ ও তাৎপর্য শীঘ্রই যোগ হবে।</div>`:""}`;
   el.insertAdjacentHTML("beforeend",`<div class="rd-nav"><button class="cta blue" id="rprev" ${prev?"":"disabled"}>← আগের</button><button class="cta green" id="rnext" ${next?"":"disabled"}>পরের →</button></div>`);
   $("#rfav").onclick=()=>{toggleFav(v.id);$("#rfav").textContent=isFav(v.id)?"♥":"♡"};
   const setFs=d=>{RFS=Math.max(14,Math.min(26,RFS+d));body.style.setProperty("--rfs",RFS+"px");try{localStorage.setItem("gita-rfs",RFS)}catch(e){}};
@@ -1031,22 +1035,27 @@ const mtHTML=id=>TONES[id].syl?`<div class="mt" data-mt="${id}">${TONES[id].syl.
 
 /* ---------- native phone alarms (active only inside the installed Android app) ---------- */
 const NATIVE=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
-const LN=NATIVE&&window.Capacitor.Plugins?window.Capacitor.Plugins.LocalNotifications:null;
-let exactOK=true;
+// Plain-HTML Capacitor apps get no plugin proxies (those come from @capacitor/core's bundler build),
+// so call the native LocalNotifications plugin through the bridge ourselves.
+const LN=NATIVE?(()=>{const C=window.Capacitor,P="LocalNotifications";
+  const call=m=>(o)=>(C.nativePromise?C.nativePromise(P,m,o||{}):Promise.reject(new Error("bridge missing")));
+  const api={};["createChannel","checkPermissions","requestPermissions","checkExactNotificationSetting","changeExactNotificationSetting","getPending","cancel","schedule","areEnabled"].forEach(m=>api[m]=call(m));
+  api.addListener=(ev,cb)=>C.addListener?C.addListener(P,ev,cb):null;return api})():null;
+let exactOK=true,alarmState={perm:"",pending:0,err:""};
 async function nativeSetup(){
   if(!LN)return;
   try{
     for(const[k,v]of Object.entries(TONES)){
       await LN.createChannel({id:"alarm_"+k,name:v.name,description:"পূজা ও পাঠের অ্যালার্ম",importance:5,visibility:1,sound:k+".wav",vibration:true,lights:true,lightColor:"#FFB020"});
     }
-    const p=await LN.checkPermissions();if(p.display!=="granted")await LN.requestPermissions();
+    let p=await LN.checkPermissions();if(p.display!=="granted")p=await LN.requestPermissions();alarmState.perm=p.display;
     try{const ex=await LN.checkExactNotificationSetting();exactOK=ex.exact_alarm==="granted"}catch(e){}
     LN.addListener("localNotificationActionPerformed",ev=>{
       const id=ev.notification&&ev.notification.extra&&ev.notification.extra.alarmId;
       const a=S.alarms.find(x=>x.id===id);if(a){goPage(2);setTimeout(()=>ring(a),500)}
     });
     await nativeSchedule();renderPuja();
-  }catch(e){console.warn("native setup",e)}
+  }catch(e){alarmState.err=String(e&&e.message||e);renderPuja()}
 }
 async function nativeSchedule(){
   if(!LN)return;
@@ -1058,7 +1067,25 @@ async function nativeSchedule(){
         channelId:"alarm_"+a.tone,sound:a.tone+".wav",smallIcon:"ic_stat_bell",iconColor:"#1565C0",
         schedule:{on:{hour:h,minute:m},allowWhileIdle:true},extra:{alarmId:a.id}}});
     if(list.length)await LN.schedule({notifications:list});
-  }catch(e){console.warn("native schedule",e)}
+    const after=await LN.getPending();alarmState.pending=(after.notifications||[]).length;alarmState.err="";
+  }catch(e){alarmState.err=String(e&&e.message||e);toast("অ্যালার্ম সেট করা যায়নি: অনুমতি দেখুন")}
+  const st=$("#alSt");if(st)st.innerHTML=alarmStatusHTML();
+}
+function alarmStatusHTML(){
+  if(!NATIVE)return "";
+  const ok=alarmState.perm==="granted"&&!alarmState.err;
+  return `<div class="${ok?"alst":"notice"}" style="font-size:.88rem;display:flex;flex-direction:column;gap:4px">
+    <b style="font-family:var(--display)">${ok?"✓ ফোনের অ্যালার্ম চালু":"⚠ অ্যালার্মে সমস্যা"}</b>
+    <span>নোটিফিকেশন অনুমতি: ${alarmState.perm==="granted"?"আছে":"নেই"} · ঠিক সময়ে বাজানোর অনুমতি: ${exactOK?"আছে":"নেই"} · সেট করা অ্যালার্ম: ${BN(alarmState.pending)}টি</span>
+    ${alarmState.err?`<span>ত্রুটি: ${alarmState.err}</span>`:""}</div>`;
+}
+async function testAlarm(){
+  if(!LN){toast("ফোনে ইনস্টল করা অ্যাপে এটি কাজ করবে");return}
+  try{const a=S.alarms[0]||{id:"t",label:"পরীক্ষা",tone:"bell"};
+    await LN.schedule({notifications:[{id:999,title:"পরীক্ষামূলক অ্যালার্ম",body:"অ্যালার্ম ঠিকমতো কাজ করছে · ছুঁয়ে অ্যাপ খোলো",
+      channelId:"alarm_"+a.tone,sound:a.tone+".wav",smallIcon:"ic_stat_bell",iconColor:"#1565C0",
+      schedule:{at:new Date(Date.now()+60000),allowWhileIdle:true},extra:{alarmId:a.id}}]});
+    toast("১ মিনিট পরে বাজবে। এখন অ্যাপ বন্ধ করে দেখো।")}catch(e){alarmState.err=String(e&&e.message||e);renderPuja();toast("পরীক্ষা ব্যর্থ: অনুমতি দেখুন")}
 }
 async function fixAlarmPermission(){
   if(!LN)return;
@@ -1093,7 +1120,8 @@ function renderPuja(){
       <div class="r2"><select id="s-${a.id}" aria-label="অ্যালার্মের ধ্বনি">${Object.entries(TONES).map(([k,v])=>`<option value="${k}" ${k===a.tone?"selected":""}>${v.name}</option>`).join("")}</select>
         <button class="del" aria-label="মুছে ফেলো">×</button></div></div>`).join("")}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="add" id="addA">+ পূজার সময়</button><button class="add" id="addL">+ পাঠের সময়</button></div>
-    ${NATIVE&&!exactOK?`<button class="cta" id="fixPerm" style="font-size:1rem">অ্যালার্ম ঠিক সময়ে বাজাতে অনুমতি দাও</button>`:""}</div></div>
+    ${NATIVE&&(!exactOK||alarmState.perm!=="granted")?`<button class="cta" id="fixPerm" style="font-size:1rem">অ্যালার্মের অনুমতি দাও</button>`:""}
+    ${NATIVE?`<div id="alSt">${alarmStatusHTML()}</div><button class="cta blue" id="testAl" style="font-size:1rem">১ মিনিট পরে পরীক্ষা অ্যালার্ম</button>`:""}</div></div>
   <div class="sh"><h2>ভক্তি ধ্বনি</h2><span>শুনুন ও সঙ্গে গাও</span></div>
   <div class="tlist">${Object.entries(TONES).map(([k,v])=>`<div class="tcard" style="background:${v.col}">
     <div class="h"><div class="ic">${TICON[k]}</div><div style="min-width:0"><b>${v.name}</b><span>${v.kind}</span></div><button class="play" data-play="${k}" aria-pressed="false">▶ শুনুন</button></div>
@@ -1108,6 +1136,7 @@ function renderPuja(){
   $("#addA").onclick=()=>{S.alarms.push({id:"a"+Date.now(),label:"পূজা",time:"12:00",tone:"bell",on:true,kind:"puja"});save();nativeSchedule();renderPuja()};
   $("#addL").onclick=()=>{S.alarms.push({id:"a"+Date.now(),label:"গীতা পাঠের সময়",time:"17:00",tone:"bell",on:true,kind:"learn"});save();nativeSchedule();renderPuja();toast("পাঠের অ্যালার্ম যোগ হলো")};
   const fx=$("#fixPerm");if(fx)fx.onclick=fixAlarmPermission;
+  const ta=$("#testAl");if(ta)ta.onclick=testAlarm;
   el.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>{player&&player.id===b.dataset.play?stopTone():playTone(b.dataset.play)});
   const tr=$("#testRing");if(tr)tr.onclick=()=>ring(nx.a);
   $("#pujaDone").onclick=e=>markPuja(e);

@@ -282,6 +282,57 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-conte
 .ringer .mt{justify-content:center;max-width:340px}
 .ringer .cta{max-width:320px}
 .ringer .soft{background:rgba(255,255,255,.2);color:#fff;border-radius:16px;padding:10px 18px;font-family:var(--display);font-weight:600}
+/* library + reader */
+.cont{background:linear-gradient(135deg,#FF8A5B,#E8572C);color:#fff;border-radius:22px;padding:16px;display:flex;gap:12px;align-items:center;text-align:left;width:100%}
+.cont .t{flex:1;min-width:0}.cont small{opacity:.9;display:block}.cont b{font-family:var(--display);font-size:1.15rem;display:block;line-height:1.3}
+.cont .sk1{font-family:var(--display);font-size:.9rem;opacity:.95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cont .go{background:#fff;color:var(--sindoor);font-family:var(--display);font-weight:700;border-radius:14px;padding:8px 14px;white-space:nowrap}
+.srch{width:100%;padding:12px 14px;border-radius:16px;border:2px solid var(--line);background:var(--card);font:inherit;color:var(--ink)}
+.cgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.cc{border-radius:20px;padding:12px;color:#fff;display:flex;flex-direction:column;gap:4px;text-align:left;min-height:118px;position:relative;overflow:hidden}
+.cc .num{font-family:var(--display);font-weight:800;font-size:1.8rem;line-height:1}
+.cc b{font-family:var(--display);font-size:1rem;line-height:1.25}
+.cc span{font-size:.75rem;opacity:.92}
+.cc .pb{height:6px;background:rgba(255,255,255,.3);border-radius:99px;overflow:hidden;margin-top:auto}
+.cc .pb i{display:block;height:100%;background:#fff;border-radius:99px}
+.cc .art{position:absolute;right:-14px;top:-10px;width:80px;height:80px;opacity:.22}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:8px}
+.vb{aspect-ratio:1;border-radius:14px;background:var(--card);font-family:var(--display);font-weight:700;font-size:1rem;box-shadow:0 2px 6px rgba(30,42,74,.08);position:relative;display:grid;place-items:center;max-width:100%}
+.vb.read{background:#E3F7EC;color:#1E7A48}
+.vb.na{color:#A9B4C6}
+.vb .h{position:absolute;top:2px;right:4px;font-size:.7rem;color:var(--lotus)}
+.rd-top{display:flex;align-items:center;gap:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(10px + env(safe-area-inset-top,0px)) 8px}
+.rd-top .ttl{flex:1;min-width:0;font-family:var(--display);font-weight:700;line-height:1.2}
+.rd-top .ttl small{display:block;font-family:var(--body);font-weight:500;color:var(--muted);font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ib{width:40px;height:40px;border-radius:50%;background:var(--card);box-shadow:0 2px 8px rgba(30,42,74,.1);display:grid;place-items:center;font-family:var(--display);font-weight:700;flex:0 0 auto}
+.ib.fav{color:var(--lotus)}
+.rd-body{flex:1;overflow-y:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:4px calc(90px + env(safe-area-inset-bottom,0px));touch-action:pan-y}
+.rd-body>.in{max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:12px;font-size:var(--rfs,17px)}
+.sec{background:var(--card);border-radius:18px;padding:14px 16px}
+.sec h4{margin:0 0 4px;font-family:var(--display);color:var(--peacock);font-size:.95em}
+.sec p{margin:0;white-space:pre-line;line-height:1.85}
+.sec.tr{background:#EAF5FF;border-left:5px solid var(--peacock)}
+.sec.tr p{font-weight:500}
+.sec.song p{font-family:var(--display);font-weight:600;color:#6A3FB5;text-align:center}
+.sec details summary{cursor:pointer;font-family:var(--display);font-weight:700;color:var(--peacock);list-style:none;display:flex;justify-content:space-between}
+.sec details summary::-webkit-details-marker{display:none}
+.sec details[open] summary span{transform:rotate(180deg)}
+.rd-nav{position:fixed;left:0;right:0;bottom:0;display:flex;gap:10px;justify-content:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--sky) 35%)}
+.rd-nav .cta{max-width:240px;font-size:1rem;padding:11px 14px}
+.notice{background:#FFF4E2;border:2px dashed var(--marigold);border-radius:16px;padding:12px 14px;font-size:.9rem}
+.flist{display:flex;flex-direction:column;gap:10px}
+.fi{background:var(--card);border-radius:18px;padding:12px 14px;text-align:left;display:flex;flex-direction:column;gap:4px;box-shadow:0 3px 10px rgba(30,42,74,.06);width:100%}
+.fi .r{display:flex;justify-content:space-between;gap:8px;font-family:var(--display);font-weight:700;color:var(--peacock)}
+.fi .s{font-family:var(--display);color:var(--sindoor);white-space:pre-line;line-height:1.6}
+.fi .m{font-size:.9rem;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.heart{background:none;font-size:1.3rem;color:var(--lotus);line-height:1;padding:4px}
+.vcard .hb{position:absolute;right:14px;bottom:12px;background:rgba(255,255,255,.25);border-radius:99px;width:38px;height:38px;color:#fff;font-size:1.2rem;z-index:2}
+.modal{position:fixed;inset:0;z-index:90;background:rgba(21,40,80,.6);display:grid;place-items:center;padding:24px}
+.modal .box{background:var(--card);border-radius:24px;padding:20px;max-width:340px;width:100%;display:flex;flex-direction:column;gap:10px;text-align:center}
+.modal h3{font-family:var(--display);margin:0;color:var(--peacock)}
+.modal input{padding:12px;border-radius:12px;border:2px solid var(--line);font:inherit;font-size:1.2rem;text-align:center}
+.mode-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.mode-row .tag{background:var(--peacock);color:#fff;border-radius:99px;padding:3px 12px;font-family:var(--display);font-weight:600}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);height:100%}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
@@ -439,7 +490,7 @@ const CARDS=[1,2,5,6,9,12,16,18,3,10].map(n=>L[n-1]);
 
 /* ---------- state ---------- */
 const S=(()=>{let s={};try{s=JSON.parse(localStorage.getItem("gita-kids")||"{}")}catch(e){}
-  return Object.assign({name:"",xp:0,done:{},days:[],log:{},cards:[],badges:[],pujaDays:[],
+  return Object.assign({name:"",age:0,mode:"",fav:[],readV:[],last:"",xp:0,done:{},days:[],log:{},cards:[],badges:[],pujaDays:[],
     alarms:[{id:"a1",label:"সকালের পূজা",time:"06:30",tone:"om",on:true},{id:"a2",label:"সন্ধ্যা আরতি",time:"18:30",tone:"aarti",on:true}]},s)})();
 const save=()=>{try{localStorage.setItem("gita-kids",JSON.stringify(S))}catch(e){}};
 const doneCount=()=>Object.keys(S.done).length;
@@ -466,10 +517,22 @@ const BADGES=[
  {id:"xp300",t:"৩০০ পয়েন্ট",d:"মোট ৩০০ XP জমাও",c:"#0FA3A3",ok:()=>S.xp>=300},
  {id:"hero",t:"গীতা বীর",d:"১৮টি স্তরই শেষ করো",c:"#FF5E98",ok:()=>doneCount()>=18}
 ];
+const BADGES_FULL=[
+ {id:"f_first",t:"প্রথম শ্লোক",d:"প্রথম শ্লোক পড়ুন",c:"#FF8A5B",ok:()=>S.readV.length>=1},
+ {id:"f_ch",t:"অধ্যায় সম্পূর্ণ",d:"একটি অধ্যায় পুরো পড়ুন",c:"#2FA866",ok:()=>chaptersDone()>=1},
+ {id:"f_50",t:"৫০ শ্লোক",d:"৫০টি শ্লোক পড়ুন",c:"#4DA3FF",ok:()=>S.readV.length>=50},
+ {id:"streak3",t:"তিন দিনের ধারা",d:"পরপর ৩ দিন পড়ুন",c:"#E8572C",ok:()=>streak()>=3},
+ {id:"f_fav10",t:"প্রিয় সংগ্রহ",d:"১০টি প্রিয় শ্লোক রাখুন",c:"#FF5E98",ok:()=>S.fav.length>=10},
+ {id:"f_half",t:"অর্ধেক গীতা",d:"৩৫০টি শ্লোক পড়ুন",c:"#B57BFF",ok:()=>S.readV.length>=350},
+ {id:"xp300",t:"৩০০ পয়েন্ট",d:"মোট ৩০০ XP জমান",c:"#0FA3A3",ok:()=>S.xp>=300},
+ {id:"f_all",t:"সম্পূর্ণ গীতা",d:"সব শ্লোক পড়ুন",c:"#FFB020",ok:()=>chaptersDone()>=18}
+];
+const curBadges=()=>isFullMode()?BADGES_FULL:BADGES;
+function chaptersDone(){let n=0;const set=new Set(S.readV);VCOUNT.forEach((cnt,i)=>{let all=true;for(let k=1;k<=cnt;k++){if(!set.has(vid(i+1,k))){all=false;break}}if(all)n++});return n}
 function medal(c,i){return `<svg viewBox="0 0 64 64"><path d="M20 4h10l4 14H24z" fill="#4DA3FF"/><path d="M44 4H34l-4 14h10z" fill="#FF5E98"/><circle cx="32" cy="38" r="20" fill="${c}"/><circle cx="32" cy="38" r="14" fill="#ffffff44"/><text x="32" y="45" text-anchor="middle" font-size="18" font-weight="800" fill="#fff" font-family="Baloo Da 2">${BN(i+1)}</text></svg>`}
 
 function checkBadges(){
-  BADGES.forEach(b=>{if(!S.badges.includes(b.id)&&b.ok()){S.badges.push(b.id);setTimeout(()=>toast("নতুন পদক: "+b.t+"!"),900)}});
+  BADGES.concat(BADGES_FULL).forEach(b=>{if(!S.badges.includes(b.id)&&b.ok()){S.badges.push(b.id);setTimeout(()=>toast("নতুন পদক: "+b.t+"!"),900)}});
 }
 function addXP(n,x,y){
   const before=rankOf(S.xp);S.xp+=n;const k=todayKey();S.log[k]=(S.log[k]||0)+n;
@@ -527,6 +590,32 @@ function checkChallenge(){
     setTimeout(()=>celebrate("চ্যালেঞ্জ জিতেছ!","তুমি "+nm+"-কে ছাড়িয়ে গেছ","দারুণ! এবার পরের জনকে চ্যালেঞ্জ করো।"),1400)}
 }
 
+/* ---------- complete Gita data (gita-data.json, made with the Text Studio) ---------- */
+const VCOUNT=[47,72,43,42,29,47,30,28,34,42,55,20,35,27,20,24,28,78];
+const CH=["বিষাদ-যোগ","সাংখ্য-যোগ","কর্মযোগ","জ্ঞানযোগ","কর্মসন্ন্যাস-যোগ","ধ্যানযোগ","জ্ঞানবিজ্ঞান-যোগ","অক্ষরব্রহ্ম-যোগ","রাজগুহ্য-যোগ","বিভূতি-যোগ","বিশ্বরূপ-দর্শন-যোগ","ভক্তিযোগ","প্রকৃতি-পুরুষ-বিবেকযোগ","গুণত্রয়-বিভাগ-যোগ","পুরুষোত্তম-যোগ","দৈবাসুর-সম্পদ-বিভাগযোগ","শ্রদ্ধাত্রয়-বিভাগ-যোগ","মোক্ষযোগ"].map((name,i)=>({n:i+1,name,v:VCOUNT[i]}));
+let FULL=null,FULL_REAL=false;
+const toENd=s=>String(s||"").replace(/[০-৯]/g,d=>"০১২৩৪৫৬৭৮৯".indexOf(d));
+const vid=(c,n)=>c+"."+n;
+const idFromRef=r=>toENd(r);
+function fallbackData(){
+  return {chapters:CH.map((c,i)=>{const l=L[i],vs=[];
+    const own=l?{id:idFromRef(l.ref),n:idFromRef(l.ref).split(".")[1],sk:l.sk,words:"",song:"",tr:l.easy,pur:"",own:true}:null;
+    return {n:c.n,title:c.name,verses:own?[own]:[]}})};
+}
+async function loadFull(){
+  try{const r=await fetch("gita-data.json",{cache:"no-store"});if(!r.ok)throw 0;const d=await r.json();
+    if(d&&d.chapters&&d.chapters.length){FULL=d;FULL_REAL=true}}catch(e){}
+  if(!FULL)FULL=fallbackData();
+  buildIndex();refresh();
+}
+let VIDX=[],VMAP={};
+function buildIndex(){VIDX=[];VMAP={};FULL.chapters.forEach(c=>c.verses.forEach(v=>{const id=v.id||vid(c.n,v.n);v.id=id;v.c=c.n;VIDX.push(v);VMAP[id]=v;
+  const m=String(v.n).match(/^(\d+)-(\d+)$/);if(m)for(let k=+m[1];k<=+m[2];k++)VMAP[vid(c.n,k)]=v}))}
+const chTitle=n=>{const c=FULL&&FULL.chapters.find(x=>x.n===n);return (c&&c.title)||(CH[n-1]||{}).name||""};
+const isFav=id=>S.fav.includes(id);
+function toggleFav(id){const i=S.fav.indexOf(id);if(i>=0){S.fav.splice(i,1);toast("প্রিয় তালিকা থেকে সরানো হলো")}else{S.fav.push(id);toast("প্রিয় শ্লোকে যোগ হলো ♥")}save();checkBadges();save()}
+const isFullMode=()=>S.mode==="full";
+
 /* ---------- home ---------- */
 let deckOrder=[];
 function initDeck(){const start=Math.floor((Date.now()/864e5))%CARDS.length;deckOrder=CARDS.map((_,i)=>(i+start)%CARDS.length)}
@@ -540,10 +629,12 @@ function renderHome(){
   const mx=Math.max(20,...days.map(d=>d.v));
   const bw=22,gap=10,h=78;
   const bars=days.map((d,i)=>{const bh=Math.max(4,d.v/mx*h);const x=i*(bw+gap)+4;return `<rect x="${x}" y="${h-bh+8}" width="${bw}" height="${bh}" rx="6" fill="${i===6?"#E8572C":"#4DA3FF"}"/>${d.v?`<text x="${x+bw/2}" y="${h-bh+3}" text-anchor="middle" style="fill:#1E2A4A;font-weight:600">${BN(d.v)}</text>`:""}<text x="${x+bw/2}" y="${h+24}" text-anchor="middle">${d.w}</text>`}).join("");
-  const C=2*Math.PI*46,off=C*(1-dc/18);
+  const FM=isFullMode(),totalV=VCOUNT.reduce((a,b)=>a+b,0),rv=S.readV.length;
+  const C=2*Math.PI*46,off=C*(1-(FM?Math.min(1,rv/totalV):dc/18));
   $("#home").innerHTML=`
   <div class="top">
-    <div class="hello"><b>নমস্কার, ${S.name||"বন্ধু"}!</b><span>আজ কী শিখবে?</span></div>
+    <div class="hello"><b>নমস্কার, ${S.name||"বন্ধু"}!</b><span>${isFullMode()?"আজ কোন শ্লোক পড়বেন?":"আজ কী শিখবে?"}</span></div>
+    <button class="chip" id="favChip" title="প্রিয় শ্লোক" aria-label="প্রিয় শ্লোক"><span style="color:var(--lotus);font-size:1.1rem">♥</span>${BN(S.fav.length)}</button>
     <div class="chip" title="টানা দিন"><svg viewBox="0 0 24 24"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-7 0 3 2 4 3 4 0-3-1-6 0-9z" fill="#E8572C"/><path d="M12 12c1 2 3 3 3 5a3 3 0 0 1-6 0c0-1 1-2 1.5-3 0 1 .8 1.5 1.5 1.5 0-1.5-.5-2.5 0-3.5z" fill="#FFB020"/></svg>${BN(st)}</div>
     <div class="chip" title="মোট তারা">${STAR(true).replace("<svg","<svg width='20' height='20'")}${BN(Object.values(S.done).reduce((a,b)=>a+b,0))}</div>
   </div>
@@ -554,30 +645,34 @@ function renderHome(){
       <div class="xpbar"><i style="width:${pct}%"></i></div>
       <small>${BN(S.xp)} XP ${next?`· "${next[1]}" হতে আর ${BN(next[0]-S.xp)} XP`:"· সর্বোচ্চ পদ!"}</small></div>
   </div>
+  ${isFullMode()?contCard():""}
   <div class="panel">
     <h3>আমার অগ্রগতি</h3>
     <div class="prog">
-      <svg class="ring" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="${BN(dc)} of 18 levels">
+      <svg class="ring" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="progress">
         <circle cx="60" cy="60" r="46" fill="none" stroke="#E5EDF7" stroke-width="14"/>
         <circle cx="60" cy="60" r="46" fill="none" stroke="#2FA866" stroke-width="14" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/>
-        <text x="60" y="60" text-anchor="middle" font-size="28" font-weight="800" fill="#1E2A4A">${BN(dc)}</text>
-        <text x="60" y="80" text-anchor="middle" font-size="12" fill="#5B6787">১৮ স্তরের</text>
+        <text x="60" y="60" text-anchor="middle" font-size="${FM?24:28}" font-weight="800" fill="#1E2A4A">${BN(FM?rv:dc)}</text>
+        <text x="60" y="80" text-anchor="middle" font-size="12" fill="#5B6787">${FM?BN(totalV)+" শ্লোকের":"১৮ স্তরের"}</text>
       </svg>
       <div style="min-width:0"><div style="font-size:.82rem;color:var(--muted);margin-bottom:2px">এই সপ্তাহের XP</div>
         <svg class="bars" viewBox="0 0 230 112" width="100%" role="img" aria-label="last 7 days XP">${bars}</svg></div>
     </div>
     <div class="stats">
-      <div class="stat"><b>${BN(dc)}</b><span>স্তর পার</span></div>
-      <div class="stat"><b>${BN(S.cards.length)}</b><span>কার্ড দেখা</span></div>
+      ${FM?`<div class="stat"><b>${BN(chaptersDone())}</b><span>অধ্যায় শেষ</span></div><div class="stat"><b>${BN(S.fav.length)}</b><span>প্রিয় শ্লোক</span></div>`
+        :`<div class="stat"><b>${BN(dc)}</b><span>স্তর পার</span></div><div class="stat"><b>${BN(S.cards.length)}</b><span>কার্ড দেখা</span></div>`}
       <div class="stat"><b>${BN(S.badges.length)}</b><span>পদক</span></div>
     </div>
   </div>
   <div class="sh"><h2>আজকের শ্লোক-কার্ড</h2><span>সোয়াইপ করো</span></div>
   <div class="deck" id="deck"></div>
   <div class="deckctl"><button class="round" id="prevC" aria-label="আগের কার্ড">‹</button><div class="dots" id="dots"></div><button class="round" id="nextC" aria-label="পরের কার্ড">›</button></div>
-  <div class="talk">${mascot()}<div class="bubble">${nextL?`চলো, স্তর ${BN(nextL.n)}: "${nextL.t}" খেলি!`:"অসাধারণ! তুমি পুরো গীতা যাত্রা শেষ করেছ!"}</div></div>
-  <button class="cta" id="goNext">${nextL?`স্তর ${BN(nextL.n)} শুরু করো`:"যাত্রাপথ দেখো"}</button>`;
-  $("#goNext").onclick=()=>nextL?openLesson(nextL.n):goPage(1);
+  ${FM?`<button class="cta" id="goNext">সম্পূর্ণ গীতা খুলুন</button>`
+   :`<div class="talk">${mascot()}<div class="bubble">${nextL?`চলো, স্তর ${BN(nextL.n)}: "${nextL.t}" খেলি!`:"অসাধারণ! তুমি পুরো গীতা যাত্রা শেষ করেছ!"}</div></div>
+  <button class="cta" id="goNext">${nextL?`স্তর ${BN(nextL.n)} শুরু করো`:"যাত্রাপথ দেখো"}</button>`}`;
+  $("#goNext").onclick=()=>FM?goPage(1):nextL?openLesson(nextL.n):goPage(1);
+  $("#favChip").onclick=openFavs;
+  const cb2=$("#contBtn");if(cb2)cb2.onclick=()=>openReader(S.last||firstId());
   renderLB();
   renderDeck();
   $("#prevC").onclick=()=>{deckOrder.unshift(deckOrder.pop());renderDeck()};
@@ -591,7 +686,8 @@ function cardHTML(c,i,depth){
    <span class="no">শ্লোক ${c.ref}</span>
    <div class="sk">${first}…</div>
    <div class="mn">${c.easy}</div>
-   <div class="rf">${c.t} · অধ্যায় ${BN(c.n)}</div></div>`;
+   <div class="rf">${c.t} · অধ্যায় ${BN(c.n)}</div>
+   ${depth===0?`<button class="hb" data-fav="${idFromRef(c.ref)}" aria-label="প্রিয়তে যোগ করুন">${isFav(idFromRef(c.ref))?"♥":"♡"}</button>`:""}</div>`;
 }
 function renderDeck(){
   const deck=$("#deck");if(!deck)return;
@@ -599,6 +695,7 @@ function renderDeck(){
   $("#dots").innerHTML=CARDS.map((_,i)=>`<i class="${i===deckOrder[0]?"on":""}"></i>`).join("");
   markSeen(deckOrder[0]);
   const top=deck.querySelector(`.vcard[data-i="${deckOrder[0]}"]`);
+  const hb=top.querySelector(".hb");if(hb){hb.addEventListener("pointerdown",e=>e.stopPropagation());hb.onclick=e=>{e.stopPropagation();toggleFav(hb.dataset.fav);hb.textContent=isFav(hb.dataset.fav)?"♥":"♡";const fc=$("#favChip");if(fc)fc.lastChild.textContent=BN(S.fav.length)}}
   let sx=0,dx=0,drag=false;
   top.addEventListener("pointerdown",e=>{drag=true;sx=e.clientX;dx=0;top.classList.add("drag");top.setPointerCapture(e.pointerId)});
   top.addEventListener("pointermove",e=>{if(!drag)return;dx=e.clientX-sx;top.style.transform=`translateX(${dx}px) rotate(${dx/14}deg)`});
@@ -620,6 +717,7 @@ function markSeen(ci){
 
 /* ---------- journey map ---------- */
 function renderMap(){
+  if(isFullMode()){renderLibrary();return}
   const step=104,top=60,H=top+L.length*step+40;
   const pos=L.map((l,i)=>({x:50+30*Math.sin(i*1.05),y:top+i*step}));
   let d=`M ${pos[0].x} ${pos[0].y+32}`;
@@ -640,22 +738,134 @@ function renderMap(){
   document.querySelectorAll(".stone button").forEach(b=>b.onclick=()=>{const n=+b.dataset.l;unlocked(n)?openLesson(n):toast("আগে স্তর "+BN(n-1)+" শেষ করো!")});
 }
 
+/* ---------- library (complete version) ---------- */
+function firstId(){return (VIDX[0]&&VIDX[0].id)||"1.1"}
+function contCard(){
+  const v=VMAP[S.last];
+  if(!v)return `<button class="cont" id="contBtn"><div class="t"><small>সম্পূর্ণ গীতা</small><b>প্রথম অধ্যায় থেকে শুরু করুন</b><div class="sk1">${chTitle(1)}</div></div><span class="go">শুরু</span></button>`;
+  return `<button class="cont" id="contBtn"><div class="t"><small>যেখানে থেমেছিলেন</small><b>অধ্যায় ${BN(v.c)} · শ্লোক ${BN(v.n)}</b><div class="sk1">${(v.sk||"").split("\n")[0]}</div></div><span class="go">পড়ুন</span></button>`;
+}
+function chReadCount(n){const set=new Set(S.readV);let k=0;for(let i=1;i<=VCOUNT[n-1];i++)if(set.has(vid(n,i)))k++;return k}
+function renderLibrary(){
+  $("#map").innerHTML=`
+  <div class="sh"><h2>সম্পূর্ণ গীতা</h2><span>${BN(S.readV.length)} শ্লোক পড়া</span></div>
+  ${FULL_REAL?"":`<div class="notice">পূর্ণ পাঠ এখনো যোগ হয়নি। এখন প্রতিটি অধ্যায়ের নির্বাচিত শ্লোক দেখা যাবে। বই থেকে তৈরি gita-data.json যোগ হলেই সব শ্লোক, শব্দার্থ, অনুবাদ ও তাৎপর্য চলে আসবে।</div>`}
+  ${contCard()}
+  <input class="srch" id="lsrch" type="search" placeholder="শ্লোক, শব্দ বা নম্বর খুঁজুন (যেমন ২.৪৭)" aria-label="খুঁজুন">
+  <div id="lres"></div>
+  <button class="cta blue" id="libFav" style="font-size:1rem">♥ প্রিয় শ্লোক (${BN(S.fav.length)})</button>
+  <div class="sh"><h2>অধ্যায়</h2><span>১৮টি</span></div>
+  <div class="cgrid">${VCOUNT.map((cnt,i)=>{const n=i+1,rd=chReadCount(n);return `<button class="cc" data-ch="${n}" style="background:${COLORS[i%COLORS.length]}">
+    <div class="art">${motif(n)}</div><span class="num">${BN(n)}</span><b>${chTitle(n)}</b><span>${BN(cnt)} শ্লোক · ${BN(rd)} পড়া</span>
+    <div class="pb"><i style="width:${Math.round(rd/cnt*100)}%"></i></div></button>`}).join("")}</div>`;
+  document.querySelectorAll(".cc").forEach(b=>b.onclick=()=>openChapter(+b.dataset.ch));
+  $("#contBtn").onclick=()=>openReader(S.last||firstId());
+  $("#libFav").onclick=openFavs;
+  const inp=$("#lsrch"),res=$("#lres");
+  inp.oninput=()=>{const q=inp.value.trim();if(!q){res.innerHTML="";return}
+    const m=toENd(q).match(/^(\d{1,2})\s*[.:।]\s*(\d{1,2})$/);
+    let hits=[];if(m){const v=VMAP[vid(+m[1],+m[2])];if(v)hits=[v]}
+    else hits=VIDX.filter(v=>[v.sk,v.words,v.tr,v.pur].some(x=>x&&x.includes(q))).slice(0,30);
+    res.innerHTML=hits.length?`<div class="flist">${hits.map(favItem).join("")}</div>`:`<p class="sample">"${q}" পাওয়া যায়নি।</p>`;
+    res.querySelectorAll(".fi").forEach(b=>b.onclick=()=>openReader(b.dataset.id))};
+}
+function sheetShell(id,title,sub){
+  const old=$("#"+id);if(old)old.remove();
+  const el=document.createElement("div");el.className="sheet";el.id=id;
+  el.innerHTML=`<div class="rd-top"><button class="ib" data-x aria-label="বন্ধ করুন">×</button><div class="ttl">${title}<small>${sub||""}</small></div><span class="rd-extra"></span></div><div class="rd-body"><div class="in"></div></div>`;
+  document.body.appendChild(el);el.querySelector("[data-x]").onclick=()=>{el.remove();refresh()};
+  return el;
+}
+function openChapter(n){
+  const cnt=VCOUNT[n-1],set=new Set(S.readV);
+  const el=sheetShell("chsheet",`অধ্যায় ${BN(n)} · ${chTitle(n)}`,`${BN(cnt)}টি শ্লোক · ${BN(chReadCount(n))}টি পড়া`);
+  el.querySelector(".in").innerHTML=`<div class="scene" style="background:${COLORS[(n-1)%COLORS.length]};height:150px">${motif(n)}</div>
+   <div class="vgrid">${[...Array(cnt)].map((_,i)=>{const k=i+1,id=vid(n,k),v=VMAP[id];return `<button class="vb ${set.has(id)?"read":""} ${v?"":"na"}" data-id="${id}" aria-label="শ্লোক ${BN(k)}">${BN(k)}${isFav(v?v.id:id)?`<span class="h">♥</span>`:""}</button>`}).join("")}</div>
+   ${FULL_REAL?"":`<p class="sample">ধূসর নম্বরগুলোর পূর্ণ পাঠ gita-data.json যোগ হলে খুলবে।</p>`}`;
+  el.querySelectorAll(".vb").forEach(b=>b.onclick=()=>{const v=VMAP[b.dataset.id];v?openReader(v.id):toast("এই শ্লোকের পাঠ এখনো যোগ হয়নি")});
+}
+let RFS=17;try{RFS=+localStorage.getItem("gita-rfs")||17}catch(e){}
+function openReader(id){
+  const v=VMAP[id];if(!v){toast("এই শ্লোকের পাঠ এখনো যোগ হয়নি");return}
+  const pos=VIDX.indexOf(v),prev=VIDX[pos-1],next=VIDX[pos+1];
+  const kid=!isFullMode(),l=L.find(x=>idFromRef(x.ref)===v.id);
+  const el=sheetShell("reader",`অধ্যায় ${BN(v.c)} · শ্লোক ${BN(v.n)}`,chTitle(v.c));
+  el.querySelector(".rd-extra").innerHTML=`<div style="display:flex;gap:6px"><button class="ib" id="fsm" aria-label="লেখা ছোট">অ-</button><button class="ib" id="fsp" aria-label="লেখা বড়">অ+</button><button class="ib fav" id="rfav" aria-label="প্রিয়">${isFav(v.id)?"♥":"♡"}</button></div>`;
+  const body=el.querySelector(".in");body.style.setProperty("--rfs",RFS+"px");
+  const sec=(cls,h,t)=>t?`<div class="sec ${cls}"><h4>${h}</h4><p>${t}</p></div>`:"";
+  body.innerHTML=`<div class="sloka-box"><p class="sk">${v.sk}</p><div class="rf">শ্রীমদ্ভগবদ্গীতা ${BN(v.c)}.${BN(v.n)}</div></div>
+   ${kid&&l?`<div class="easy"><b>সহজ কথায়</b>${l.easy}</div><div class="lesson">${mascot("","wow")}<p>${l.lesson}</p></div>`:
+    sec("","শব্দার্থ",v.words)+sec("song","গীতার গান",v.song)+sec("tr",v.own?"সহজ অর্থ":"অনুবাদ",v.tr)+
+    (v.pur?`<div class="sec"><details><summary>তাৎপর্য পড়ুন <span>▾</span></summary><p style="margin-top:8px">${v.pur}</p></details></div>`:"")}
+   ${!FULL_REAL&&!kid?`<div class="notice">শব্দার্থ, গীতার গান, অনুবাদ ও তাৎপর্য gita-data.json যোগ হলে দেখা যাবে।</div>`:""}`;
+  el.insertAdjacentHTML("beforeend",`<div class="rd-nav"><button class="cta blue" id="rprev" ${prev?"":"disabled"}>← আগের</button><button class="cta green" id="rnext" ${next?"":"disabled"}>পরের →</button></div>`);
+  $("#rfav").onclick=()=>{toggleFav(v.id);$("#rfav").textContent=isFav(v.id)?"♥":"♡"};
+  const setFs=d=>{RFS=Math.max(14,Math.min(26,RFS+d));body.style.setProperty("--rfs",RFS+"px");try{localStorage.setItem("gita-rfs",RFS)}catch(e){}};
+  $("#fsm").onclick=()=>setFs(-2);$("#fsp").onclick=()=>setFs(2);
+  if(prev)$("#rprev").onclick=()=>openReader(prev.id);
+  if(next)$("#rnext").onclick=()=>openReader(next.id);
+  // swipe left/right for next/previous verse
+  const sc=el.querySelector(".rd-body");let sx=0,sy=0;
+  sc.addEventListener("touchstart",e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+  sc.addEventListener("touchend",e=>{const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.5){if(dx<0&&next)openReader(next.id);else if(dx>0&&prev)openReader(prev.id)}},{passive:true});
+  // reading progress
+  S.last=v.id;const m=String(v.n).match(/^(\d+)-(\d+)$/),ids=m?[...Array(+m[2]-+m[1]+1)].map((_,i)=>vid(v.c,+m[1]+i)):[v.id];
+  const fresh=ids.filter(x=>!S.readV.includes(x));
+  if(fresh.length){S.readV.push(...fresh);const up=addXP(2*fresh.length);
+    if(up!=null)setTimeout(()=>celebrate("নতুন পদমর্যাদা!",RANKS[up][1],"আপনি এখন "+RANKS[up][1]+"।"),600);
+    const chDone=chReadCount(v.c)===VCOUNT[v.c-1]&&fresh.length;if(chDone&&!S["chc"+v.c]){S["chc"+v.c]=1;addXP(20);setTimeout(()=>celebrate("অধ্যায় সম্পূর্ণ!","অধ্যায় "+BN(v.c),chTitle(v.c)+" পড়া শেষ হলো। +২০ XP"),700)}}
+  save();
+}
+function favItem(v){
+  const c=v.c||+String(v.id).split(".")[0];
+  return `<button class="fi" data-id="${v.id}"><div class="r"><span>অধ্যায় ${BN(c)} · শ্লোক ${BN(v.n)}</span>${isFav(v.id)?`<span style="color:var(--lotus)">♥</span>`:""}</div>
+   <div class="s">${(v.sk||"").split("\n").slice(0,2).join("\n")}</div>${v.tr?`<div class="m">${v.tr}</div>`:""}</button>`;
+}
+function openFavs(){
+  const list=S.fav.map(id=>VMAP[id]).filter(Boolean);
+  const el=sheetShell("favs","প্রিয় শ্লোক",`${BN(list.length)}টি শ্লোক`);
+  el.querySelector(".in").innerHTML=list.length?`<div class="flist">${list.map(favItem).join("")}</div>`:
+   `<div class="talk">${mascot()}<div class="bubble">এখনো কোনো প্রিয় শ্লোক নেই। যেকোনো শ্লোকের পাশে ♡ চাপলে এখানে জমা হবে।</div></div>`;
+  el.querySelectorAll(".fi").forEach(b=>b.onclick=()=>openReader(b.dataset.id));
+}
+function setMode(m){S.mode=m;save();goPage(0);refresh();toast(m==="full"?"সম্পূর্ণ গীতা চালু হলো":"শিশু পাঠ চালু হলো")}
+function parentCheck(ok){
+  const a=3+Math.floor(Math.random()*7),b=4+Math.floor(Math.random()*6);
+  const o=document.createElement("div");o.className="modal";
+  o.innerHTML=`<div class="box"><h3>বড়দের অনুমতি</h3><p style="margin:0">সম্পূর্ণ গীতায় যেতে একজন বড় মানুষ উত্তর দিন:</p><b style="font-family:var(--display);font-size:1.6rem">${BN(a)} × ${BN(b)} = ?</b>
+   <input id="pc" inputmode="numeric" aria-label="উত্তর"><button class="cta green" id="pcok">নিশ্চিত করুন</button><button class="cta blue" id="pcx" style="font-size:1rem">বাতিল</button></div>`;
+  document.body.appendChild(o);$("#pc").focus();
+  $("#pcx").onclick=()=>o.remove();
+  $("#pcok").onclick=()=>{if(parseInt(toENd($("#pc").value))===a*b){o.remove();ok()}else{toast("উত্তর ঠিক হয়নি");$("#pc").value=""}};
+}
+
 /* ---------- rewards ---------- */
 function renderRew(){
   const r=rankOf(S.xp);
   $("#rew").innerHTML=`
-  <div class="sh"><h2>আমার পদক</h2><span>${BN(S.badges.length)}/${BN(BADGES.length)}</span></div>
-  <div class="bgrid">${BADGES.map((b,i)=>`<div class="bdg ${S.badges.includes(b.id)?"":"off"}">${medal(b.c,i)}<b>${b.t}</b><span>${b.d}</span></div>`).join("")}</div>
+  <div class="sh"><h2>আমার পদক</h2><span>${BN(curBadges().filter(b=>S.badges.includes(b.id)).length)}/${BN(curBadges().length)}</span></div>
+  <div class="bgrid">${curBadges().map((b,i)=>`<div class="bdg ${S.badges.includes(b.id)?"":"off"}">${medal(b.c,i)}<b>${b.t}</b><span>${b.d}</span></div>`).join("")}</div>
   <div class="panel"><h3>পদমর্যাদার সিঁড়ি</h3><div class="ranks">${RANKS.map((x,i)=>`<div class="rk ${i===r?"on":""}"><div class="badge-lvl" style="width:36px;height:36px;font-size:1rem">${BN(i+1)}</div><b>${x[1]}</b><span>${BN(x[0])} XP</span></div>`).join("")}</div></div>
   <div class="panel"><h3>কীভাবে XP পাবে</h3>
    <div class="ranks" style="font-size:.95rem">
-    <div class="rk"><b>নতুন শ্লোক-কার্ড দেখা</b><span>+২</span></div>
+    <div class="rk"><b>${isFullMode()?"নতুন শ্লোক পড়া":"নতুন শ্লোক-কার্ড দেখা"}</b><span>+২</span></div>
     <div class="rk"><b>স্তরের গল্প শেষ করা</b><span>+১০</span></div>
     <div class="rk"><b>প্রতিটি সঠিক উত্তর</b><span>+১০</span></div>
     <div class="rk"><b>৩ তারা বোনাস</b><span>+১০</span></div>
     <div class="rk"><b>আজকের পূজা করেছি</b><span>+৫</span></div></div></div>
-  <div class="panel"><h3>নাম বদলাও</h3><div style="display:flex;gap:8px"><input id="nm" value="${S.name}" placeholder="তোমার নাম" style="flex:1;min-width:0;padding:10px 12px;border-radius:12px;border:2px solid var(--line);font:inherit"><button class="cta blue" style="width:auto;padding:10px 16px;font-size:1rem" id="nmSave">রাখো</button></div></div>`;
-  $("#nmSave").onclick=()=>{S.name=$("#nm").value.trim();save();renderHome();toast("নাম রাখা হয়েছে")};
+  <div class="panel"><h3>প্রোফাইল</h3>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;gap:8px"><input id="nm" value="${S.name}" placeholder="নাম" aria-label="নাম" style="flex:1;min-width:0;padding:10px 12px;border-radius:12px;border:2px solid var(--line);font:inherit">
+        <input id="ag" value="${S.age?BN(S.age):""}" placeholder="বয়স" aria-label="বয়স" inputmode="numeric" style="width:80px;padding:10px 12px;border-radius:12px;border:2px solid var(--line);font:inherit;text-align:center"></div>
+      <div class="mode-row"><span>এখনকার সংস্করণ:</span><span class="tag">${isFullMode()?"সম্পূর্ণ গীতা":"শিশু পাঠ"}</span></div>
+      <button class="cta blue" style="font-size:1rem;padding:10px 16px" id="nmSave">সেভ করুন</button>
+      <button class="cta" style="font-size:1rem;padding:10px 16px;background:var(--teal);box-shadow:0 5px 0 #0B7A7A" id="modeSw">${isFullMode()?"শিশু পাঠে যান":"সম্পূর্ণ গীতায় যান"}</button>
+      <p class="sample">বয়স ১২-র কম হলে শিশু পাঠ, ১২ বা বেশি হলে সম্পূর্ণ গীতা। শিশু পাঠ থেকে সম্পূর্ণ গীতায় যেতে বড়দের অনুমতি লাগে।</p></div></div>`;
+  $("#nmSave").onclick=()=>{S.name=$("#nm").value.trim()||S.name;const ag=parseInt(toENd($("#ag").value));
+    if(ag&&ag>=3&&ag<=110){const want=ag<12?"kids":"full";S.age=ag;if(want!==S.mode){if(want==="full")return parentCheck(()=>setMode("full"));setMode("kids");return}}
+    save();refresh();toast("সেভ হয়েছে")};
+  $("#modeSw").onclick=()=>isFullMode()?setMode("kids"):parentCheck(()=>setMode("full"));
 }
 
 /* ---------- lesson ---------- */
@@ -677,7 +887,7 @@ function openLesson(n){
       <button class="cta blue nx">পরের ধাপ →</button></div></section>
     <section class="step"><div class="in">
       <div class="lvl-tag">স্তর ${BN(n)} · আজকের শ্লোক</div>
-      <div class="sloka-box"><p class="sk">${l.sk}</p><div class="rf">শ্রীমদ্ভগবদ্গীতা ${l.ref}</div></div>
+      <div class="sloka-box"><p class="sk">${l.sk}</p><div class="rf" style="display:flex;justify-content:space-between;align-items:center">শ্রীমদ্ভগবদ্গীতা ${l.ref}<button class="heart" id="lfav" aria-label="প্রিয়তে যোগ করো">${isFav(idFromRef(l.ref))?"♥":"♡"}</button></div></div>
       <div class="easy"><b>সহজ কথায়</b>${l.easy}</div>
       <div class="lesson">${mascot("","wow")}<p>${l.lesson}</p></div>
       <button class="cta blue nx">প্রশ্নের খেলা →</button></div></section>
@@ -701,6 +911,7 @@ function openLesson(n){
   },{passive:true});
   el.querySelectorAll(".nx").forEach(b=>b.onclick=()=>steps.scrollTo({left:(LS.idx+1)*steps.clientWidth,behavior:"smooth"}));
   $("#closeL").onclick=closeLesson;
+  $("#lfav").onclick=()=>{const id=idFromRef(l.ref);toggleFav(id);$("#lfav").textContent=isFav(id)?"♥":"♡"};
   $("#scene").onclick=e=>{const s=e.currentTarget;s.classList.remove("pop");void s.offsetWidth;s.classList.add("pop")};
   if(l.breath){let on=false,tm;$("#bb").onclick=()=>{on=!on;$("#bb").textContent=on?"থামাও":"শ্বাসের খেলা শুরু";clearInterval(tm);
     const bc=$("#bc"),bt=$("#bt");if(!on){bc.classList.remove("big");bt.textContent="বৃত্তের সঙ্গে শ্বাস নাও";return}
@@ -935,22 +1146,28 @@ function goPage(i){pagesEl.scrollTo({left:i*pagesEl.clientWidth,behavior:"smooth
 document.querySelectorAll(".nb").forEach(b=>b.onclick=()=>goPage(+b.dataset.p));
 pagesEl.addEventListener("scroll",()=>{const i=Math.round(pagesEl.scrollLeft/pagesEl.clientWidth);
   document.querySelectorAll(".nb").forEach((b,k)=>b.setAttribute("aria-current",k===i))},{passive:true});
-function refresh(){renderHome();renderMap();renderPuja();renderRew()}
+function refresh(){
+  const nb1=document.querySelector('.nb[data-p="1"]');if(nb1)nb1.lastChild.textContent=isFullMode()?"গ্রন্থ":"যাত্রা";
+  renderHome();renderMap();renderPuja();renderRew()}
 
 /* ---------- welcome ---------- */
 function welcome(){
   const w=document.createElement("div");w.className="welcome";
   w.innerHTML=`${mascot()}
   <h1>গীতা পাঠশালা</h1>
-  <p>আমি পেখম! চলো, গল্প, ছবি আর খেলার মধ্য দিয়ে শ্রীমদ্ভগবদ্গীতার ১৮টি স্তর পার করি।</p>
-  <div class="feat"><span>১৮টি স্তর</span><span>মজার প্রশ্ন</span><span>তারা আর পদক</span></div>
+  <p>আমি পেখম! ছোটদের জন্য গল্প আর খেলায় গীতা, বড়দের জন্য সম্পূর্ণ শ্রীমদ্ভগবদ্গীতা।</p>
+  <div class="feat"><span>১২-র কম: শিশু পাঠ</span><span>১২+: সম্পূর্ণ গীতা</span><span>প্রিয় শ্লোক</span></div>
   ${S.invite?"":`<input id="wcode" placeholder="আমন্ত্রণ কোড (যেমন GITA-XXXX)" aria-label="আমন্ত্রণ কোড" maxlength="12" style="text-transform:uppercase">`}<input id="wname" placeholder="তোমার নাম লেখো" value="${S.name}" aria-label="তোমার নাম" maxlength="20">
+  <input id="wage" placeholder="বয়স (যেমন ৯ বা ৩৫)" value="${S.age?BN(S.age):""}" aria-label="বয়স" inputmode="numeric" maxlength="3">
   <button class="cta" id="wgo">${S.name?"আবার শুরু করি":"চলো শুরু করি"}</button>`;
   document.body.appendChild(w);
-  $("#wgo").onclick=()=>{if(!S.invite){const c=($("#wcode").value||"").trim().toUpperCase();if(!INVITE_CODES.includes(c)){toast("কোডটি সঠিক নয়। যিনি অ্যাপ দিয়েছেন তাঁর কাছ থেকে কোড নাও।");return}S.invite=c}S.name=$("#wname").value.trim()||S.name;const k=todayKey();if(!S.days.includes(k))S.days.push(k);save();w.remove();refresh()};
+  $("#wgo").onclick=()=>{if(!S.invite){const c=($("#wcode").value||"").trim().toUpperCase();if(!INVITE_CODES.includes(c)){toast("কোডটি সঠিক নয়। যিনি অ্যাপ দিয়েছেন তাঁর কাছ থেকে কোড নাও।");return}S.invite=c}S.name=$("#wname").value.trim()||S.name;const ag=parseInt(toENd($("#wage").value));
+    if(!S.name){toast("তোমার নাম লেখো");return}
+    if(!ag||ag<3||ag>110){toast("সঠিক বয়স লেখো (৩ থেকে ১১০)");return}
+    if(ag!==S.age||!S.mode){S.age=ag;S.mode=ag<12?"kids":"full"}const k=todayKey();if(!S.days.includes(k))S.days.push(k);save();w.remove();refresh()};
 }
 
-initDeck();refresh();welcome();nativeSetup();
+initDeck();FULL=fallbackData();buildIndex();refresh();welcome();nativeSetup();loadFull();
 </script>
 
 <script>if("serviceWorker" in navigator&&!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>

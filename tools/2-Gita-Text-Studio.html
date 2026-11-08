@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>গীতা টেক্সট স্টুডিও</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600&family=Baloo+Da+2:wght@600;700&display=swap">
+<style>
+:root{--bg:#F3F6FB;--card:#fff;--ink:#1E2A4A;--muted:#5B6787;--line:#DCE6F2;--blue:#1565C0;--ok:#2FA866;--warn:#E8A10C;--bad:#E8572C;
+  --body:"Hind Siliguri","Noto Sans Bengali",system-ui,sans-serif;--disp:"Baloo Da 2","Hind Siliguri",sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
+header{background:var(--blue);color:#fff;padding:12px 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+header h1{font-family:var(--disp);font-size:1.3rem;margin:0;flex:1;min-width:200px}
+button,.btn{font:inherit;border:0;border-radius:10px;padding:7px 14px;cursor:pointer;background:var(--card);color:var(--ink);border:1px solid var(--line)}
+button.pri{background:var(--blue);color:#fff;border-color:var(--blue)}
+header button{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3)}
+header button.pri{background:#FFB020;color:var(--ink);border-color:#FFB020}
+button:focus-visible{outline:3px solid #FFB020;outline-offset:2px}
+input[type=file]{display:none}
+main{padding:16px 18px;display:flex;flex-direction:column;gap:14px;max-width:1500px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.card h2{font-family:var(--disp);font-size:1.1rem;margin:0 0 8px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.step{display:flex;gap:10px;align-items:flex-start}
+.step b{width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;flex:0 0 auto;font-family:var(--disp)}
+.step p{margin:0;font-size:.9rem;color:var(--muted)}
+.step p strong{color:var(--ink)}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:.9rem}
+th{color:var(--muted);font-weight:600}
+.pill{display:inline-block;border-radius:99px;padding:1px 9px;font-size:.78rem;font-weight:600}
+.p-ok{background:#E3F7EC;color:#1E7A48}.p-warn{background:#FFF3D6;color:#8A5A00}.p-bad{background:#FDE8E1;color:#B23E18}
+.work{display:grid;grid-template-columns:260px minmax(0,1fr) minmax(0,1fr);gap:14px;min-height:70vh}
+@media (max-width:1100px){.work{grid-template-columns:220px minmax(0,1fr)}.imgcol{grid-column:1/-1}}
+@media (max-width:700px){.work{grid-template-columns:1fr}}
+.vlist{overflow:auto;max-height:78vh;display:flex;flex-direction:column;gap:2px}
+.vi{display:flex;gap:8px;align-items:center;padding:5px 8px;border-radius:8px;cursor:pointer;border:0;background:none;text-align:left;width:100%}
+.vi:hover{background:var(--bg)}.vi.on{background:#E4EFFC}
+.dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
+.d-ok{background:var(--ok)}.d-warn{background:var(--warn)}.d-bad{background:var(--bad)}.d-rev{background:var(--blue)}
+.ed{display:flex;flex-direction:column;gap:10px;min-width:0}
+.ed label{font-weight:600;font-size:.85rem;color:var(--muted);display:flex;justify-content:space-between}
+.ed textarea{width:100%;font:inherit;font-size:1.02rem;line-height:1.7;border:1px solid var(--line);border-radius:10px;padding:8px 10px;resize:vertical;color:var(--ink);background:#FCFDFF}
+.ed textarea.sk{font-size:1.15rem;color:#B23E18}
+.ed textarea.empty{border-color:var(--warn);background:#FFFBF0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.imgcol{min-width:0;display:flex;flex-direction:column;gap:8px}
+.imgcol .imgs{overflow:auto;max-height:78vh;display:flex;flex-direction:column;gap:8px}
+.imgcol img{width:100%;border:1px solid var(--line);border-radius:8px}
+.muted{color:var(--muted);font-size:.85rem}
+select{font:inherit;padding:6px 10px;border-radius:10px;border:1px solid var(--line);background:#fff}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:12px;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.show{opacity:1}
+textarea#paste{width:100%;height:120px;font:inherit;border:1px solid var(--line);border-radius:10px;padding:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>গীতা টেক্সট স্টুডিও</h1>
+  <label class="btn" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3)">OCR টেক্সট খুলুন<input type="file" id="fText" accept=".txt"></label>
+  <label class="btn" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3)">পাতার ছবির ফোল্ডার<input type="file" id="fImgs" webkitdirectory multiple></label>
+  <label class="btn" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3)">প্রজেক্ট খুলুন<input type="file" id="fProj" accept=".json"></label>
+  <button id="bSave">প্রজেক্ট সেভ</button>
+  <button class="pri" id="bExport">gita-data.json তৈরি</button>
+</header>
+<main>
+  <section class="card" id="intro">
+    <h2>কীভাবে কাজ করবেন</h2>
+    <div class="steps">
+      <div class="step"><b>১</b><p><strong>OCR টেক্সট খুলুন</strong>: Google Drive থেকে পাওয়া gita-ocr.txt বেছে নিন। স্টুডিও নিজেই প্রতিটি শ্লোক আলাদা করবে।</p></div>
+      <div class="step"><b>২</b><p><strong>পাতার ছবির ফোল্ডার</strong> বেছে নিলে প্রতিটি শ্লোকের পাশে বইয়ের আসল পাতা দেখা যাবে।</p></div>
+      <div class="step"><b>৩</b><p>বাম তালিকার <strong>কমলা বা লাল</strong> শ্লোকগুলো আগে ঠিক করুন। মূল শ্লোক বইয়ের সঙ্গে অক্ষরে অক্ষরে মিলিয়ে "যাচাই হয়েছে" চাপুন।</p></div>
+      <div class="step"><b>৪</b><p>মাঝে মাঝে <strong>প্রজেক্ট সেভ</strong> করুন। সব শেষে <strong>gita-data.json তৈরি</strong> চাপুন এবং ফাইলটি GitHub-এ আপলোড করুন।</p></div>
+    </div>
+    <details style="margin-top:10px"><summary class="muted">টেক্সট ফাইল না থাকলে এখানে পেস্ট করুন</summary>
+      <textarea id="paste" placeholder="OCR টেক্সট এখানে পেস্ট করুন"></textarea>
+      <div class="row" style="margin-top:6px"><button class="pri" id="bPaste">পেস্ট করা টেক্সট বিশ্লেষণ করুন</button></div>
+    </details>
+  </section>
+  <section class="card" id="summary" hidden>
+    <h2>অধ্যায়ভিত্তিক যাচাই</h2>
+    <div style="overflow-x:auto"><table id="sumT"></table></div>
+    <p class="muted" style="margin:8px 0 0">"পাওয়া" মানে স্টুডিও যতগুলো শ্লোক-নম্বর খুঁজে পেয়েছে (যুক্ত শ্লোক যেমন ৪-৬ সব নম্বর হিসেবে গোনা হয়)। কম হলে সেই অধ্যায়ের "নেই" নম্বরগুলো OCR-এ শিরোনাম ভুল পড়েছে; পাশের শ্লোকে "এখান থেকে নতুন শ্লোক" দিয়ে ভাগ করুন।</p>
+  </section>
+  <section class="work" id="work" hidden>
+    <div class="card" style="padding:10px">
+      <div class="row" style="margin-bottom:8px"><select id="chSel" aria-label="অধ্যায়"></select></div>
+      <div class="row muted" style="margin-bottom:6px;gap:10px"><span><i class="dot d-rev" style="display:inline-block"></i> যাচাই হয়েছে</span><span><i class="dot d-ok" style="display:inline-block"></i> ঠিক মনে হচ্ছে</span><span><i class="dot d-warn" style="display:inline-block"></i> দেখুন</span></div>
+      <div class="vlist" id="vlist"></div>
+    </div>
+    <div class="card ed" id="ed"></div>
+    <div class="card imgcol"><div class="row"><b>বইয়ের পাতা</b><span class="muted" id="imgInfo">ছবির ফোল্ডার বেছে নিন</span></div><div class="imgs" id="imgs"></div></div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+const BN="০১২৩৪৫৬৭৮৯", toBN=n=>String(n).replace(/\d/g,d=>BN[d]), toEN=s=>String(s).replace(/[০-৯]/g,d=>BN.indexOf(d));
+const EXPECT=[47,72,43,42,29,47,30,28,34,42,55,20,35,27,20,24,28,78];
+const TITLES=["বিষাদ-যোগ","সাংখ্য-যোগ","কর্মযোগ","জ্ঞানযোগ","কর্মসন্ন্যাস-যোগ","ধ্যানযোগ","বিজ্ঞান-যোগ","অক্ষরব্রহ্ম-যোগ","রাজগুহ্য-যোগ","বিভূতি-যোগ","বিশ্বরূপ-দর্শন-যোগ","ভক্তিযোগ","প্রকৃতি-পুরুষ-বিবেকযোগ","গুণত্রয়-বিভাগ-যোগ","পুরুষোত্তম-যোগ","দৈবাসুর-সম্পদ-বিভাগযোগ","শ্রদ্ধাত্রয়-বিভাগ-যোগ","মোক্ষযোগ"];
+const FIELDS=[["sk","মূল শ্লোক (একটুও বদলাবেন না, বইয়ের সঙ্গে মিলিয়ে নিন)"],["words","শব্দার্থ"],["song","গীতার গান"],["tr","অনুবাদ"],["pur","তাৎপর্য"]];
+let P={chapters:[]}, IMGS={}, cur={c:0,v:0};
+const $=s=>document.querySelector(s);
+let tt;function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2600)}
+
+/* ---------- parsing ---------- */
+const norm=s=>s.replace(/\s+/g,"").replace(/[ঃ:]/g,"");
+const isHeading=l=>/^\s*শ্লোক\s*[০-৯\d]+(\s*[-–]\s*[০-৯\d]+)?\s*$/.test(l);
+const isNoise=l=>{const t=l.trim();if(!t)return false;
+  if(/শ্রীমদ্ভগবদ্গীতা\s*যথাযথ/.test(t))return true;
+  if(/[\[\(]\s*[০-৯\d]+\S*\s*অধ্যায়/.test(t)||/অধ্যায়\s*[\]\)]/.test(t))return true;
+  if(/শ্লোক\s*[০-৯\d\-–\s]+[\]\)]/.test(t)||/[\[\(]\s*শ্লোক/.test(t))return true;
+  if(/^[০-৯\d\s]+$/.test(t))return true;
+  return false};
+const MARK={song:["গীতারগান"],tr:["অনুবাদ"],pur:["তাৎপর্য","তাৎপর্য্য"]};
+const isMark=(l,k)=>{const n=norm(l);return MARK[k].some(m=>n===m||(n.length<=m.length+2&&n.includes(m)))};
+
+function parse(text){
+  const lines=text.replace(/\r/g,"").split("\n");
+  let page="",blocks=[],curB=null;
+  for(const raw of lines){
+    const pm=raw.match(/^===\s*(p\d{4}[ab])\s*===$/);if(pm){page=pm[1];continue}
+    if(isNoise(raw))continue;
+    if(isHeading(raw)){const nums=toEN(raw).match(/\d+/g).map(Number);curB={from:nums[0],to:nums[1]||nums[0],lines:[],pages:[page]};blocks.push(curB);continue}
+    if(curB){curB.lines.push(raw);if(page&&curB.pages[curB.pages.length-1]!==page)curB.pages.push(page)}
+  }
+  // chapters: a new chapter starts when verse numbering restarts at 1
+  const chs=[];let ch=null,last=0;
+  for(const b of blocks){
+    if(!ch||(b.from===1&&last>1)){ch={n:chs.length+1,title:TITLES[chs.length]||"",verses:[]};chs.push(ch)}
+    ch.verses.push(splitFields(b));last=b.to;
+  }
+  return chs;
+}
+function splitFields(b){
+  const L=b.lines;let i=0;const sk=[];
+  while(i<L.length&&!L[i].trim())i++;
+  // śloka runs until the closing ॥ number ॥ marker
+  let end=-1;for(let k=i;k<Math.min(L.length,i+14);k++){if(/॥\s*[০-৯\d\-–\s]+\s*॥/.test(L[k])){end=k;break}}
+  if(end<0){for(let k=i;k<Math.min(L.length,i+10);k++){if(/—|–/.test(L[k])){end=k-1;break}}}
+  if(end<0)end=Math.min(L.length-1,i+3);
+  for(;i<=end;i++)sk.push(L[i]);
+  const out={words:[],song:[],tr:[],pur:[]};let at="words";
+  for(;i<L.length;i++){const l=L[i];
+    if(isMark(l,"song")){at="song";continue}
+    if(isMark(l,"tr")){at="tr";continue}
+    if(isMark(l,"pur")){at="pur";continue}
+    out[at].push(l)}
+  const j=a=>a.join("\n").replace(/\n{3,}/g,"\n\n").trim();
+  const id=b.from===b.to?String(b.from):b.from+"-"+b.to;
+  return {n:id,from:b.from,to:b.to,sk:j(sk),words:j(out.words),song:j(out.song),tr:j(out.tr),pur:j(out.pur),pages:b.pages.filter(Boolean),rev:false};
+}
+function health(v){
+  if(v.rev)return "rev";
+  if(!v.sk||!/॥/.test(v.sk)||!v.tr)return "bad";
+  if(!v.words||!v.song)return "warn";
+  return "ok";
+}
+
+/* ---------- views ---------- */
+function covered(ch){const s=new Set();ch.verses.forEach(v=>{for(let k=v.from;k<=v.to;k++)s.add(k)});return s}
+function renderSummary(){
+  $("#summary").hidden=false;
+  const rows=P.chapters.map((ch,i)=>{const s=covered(ch),exp=EXPECT[i]||0,miss=[];for(let k=1;k<=exp;k++)if(!s.has(k))miss.push(k);
+    const rev=ch.verses.filter(v=>v.rev).length,bad=ch.verses.filter(v=>health(v)==="bad").length;
+    const st=miss.length?`<span class="pill p-bad">${toBN(miss.length)}টি নেই</span>`:bad?`<span class="pill p-warn">${toBN(bad)}টি দেখুন</span>`:`<span class="pill p-ok">সম্পূর্ণ</span>`;
+    return `<tr><td>${toBN(ch.n)}</td><td>${ch.title}</td><td>${toBN(s.size)} / ${toBN(exp)}</td><td>${toBN(rev)} / ${toBN(ch.verses.length)}</td><td>${st}</td><td class="muted">${miss.slice(0,12).map(toBN).join(", ")}${miss.length>12?" …":""}</td></tr>`}).join("");
+  $("#sumT").innerHTML=`<tr><th>অধ্যায়</th><th>নাম</th><th>পাওয়া / মোট</th><th>যাচাই হয়েছে</th><th>অবস্থা</th><th>যে নম্বর নেই</th></tr>${rows}`;
+  if(P.chapters.length!==18)$("#sumT").insertAdjacentHTML("beforeend",`<tr><td colspan="6"><span class="pill p-warn">${toBN(P.chapters.length)}টি অধ্যায় পাওয়া গেছে, হওয়ার কথা ১৮টি। কোনো অধ্যায়ের "শ্লোক ১" শিরোনাম OCR-এ ভুল পড়া হয়েছে কিনা দেখুন।</span></td></tr>`);
+}
+function renderWork(){
+  $("#work").hidden=false;
+  $("#chSel").innerHTML=P.chapters.map((c,i)=>`<option value="${i}" ${i===cur.c?"selected":""}>অধ্যায় ${toBN(c.n)} · ${c.title}</option>`).join("");
+  const ch=P.chapters[cur.c];if(!ch)return;
+  $("#vlist").innerHTML=ch.verses.map((v,i)=>`<button class="vi ${i===cur.v?"on":""}" data-i="${i}"><i class="dot d-${health(v)}"></i>শ্লোক ${toBN(v.n)}</button>`).join("");
+  document.querySelectorAll(".vi").forEach(b=>b.onclick=()=>{cur.v=+b.dataset.i;renderWork()});
+  renderEditor();
+}
+function renderEditor(){
+  const ch=P.chapters[cur.c],v=ch&&ch.verses[cur.v];if(!v){$("#ed").innerHTML="";return}
+  $("#ed").innerHTML=`<div class="row" style="justify-content:space-between"><b style="font-family:var(--disp);font-size:1.2rem">অধ্যায় ${toBN(ch.n)} · শ্লোক ${toBN(v.n)}</b>
+    <label class="row" style="gap:6px;font-weight:600"><input type="checkbox" id="rev" ${v.rev?"checked":""}> যাচাই হয়েছে</label></div>
+    <div class="row"><span class="muted">শ্লোক নম্বর:</span><input id="vnum" value="${toBN(v.n)}" style="width:80px;font:inherit;padding:4px 8px;border:1px solid var(--line);border-radius:8px">
+      <button id="bPrev">← আগের</button><button id="bNext">পরের →</button><button id="bMerge">পরেরটির সঙ্গে যুক্ত করুন</button><button id="bDel">মুছুন</button></div>
+    ${FIELDS.map(([k,l])=>`<div><label for="f-${k}">${l}<span>${v[k]?toBN(v[k].length)+" অক্ষর":"খালি"}</span></label><textarea id="f-${k}" class="${k==="sk"?"sk":""} ${!v[k]&&k!=="pur"?"empty":""}" rows="${k==="pur"?10:k==="sk"?4:4}">${esc(v[k])}</textarea></div>`).join("")}
+    <p class="muted" style="margin:0">কার্সর রেখে <button id="bSplit">এখান থেকে নতুন শ্লোক</button> চাপলে অংশটি আলাদা শ্লোক হবে (OCR শিরোনাম না পড়লে কাজে লাগে)।</p>`;
+  FIELDS.forEach(([k])=>$("#f-"+k).addEventListener("input",e=>{v[k]=e.target.value;queueSave()}));
+  $("#rev").onchange=e=>{v.rev=e.target.checked;queueSave();renderWork();renderSummary()};
+  $("#vnum").onchange=e=>{const nums=toEN(e.target.value).match(/\d+/g);if(!nums)return;v.from=+nums[0];v.to=+(nums[1]||nums[0]);v.n=v.from===v.to?String(v.from):v.from+"-"+v.to;queueSave();renderWork();renderSummary()};
+  $("#bPrev").onclick=()=>{if(cur.v>0)cur.v--;else if(cur.c>0){cur.c--;cur.v=P.chapters[cur.c].verses.length-1}renderWork()};
+  $("#bNext").onclick=()=>{if(cur.v<ch.verses.length-1)cur.v++;else if(cur.c<P.chapters.length-1){cur.c++;cur.v=0}renderWork()};
+  $("#bMerge").onclick=()=>{const nx=ch.verses[cur.v+1];if(!nx)return;FIELDS.forEach(([k])=>{v[k]=[v[k],nx[k]].filter(Boolean).join("\n")});v.to=nx.to;v.n=v.from===v.to?String(v.from):v.from+"-"+v.to;v.pages=[...new Set(v.pages.concat(nx.pages))];ch.verses.splice(cur.v+1,1);queueSave();renderWork();renderSummary();toast("যুক্ত করা হলো")};
+  $("#bDel").onclick=()=>{ch.verses.splice(cur.v,1);cur.v=Math.max(0,cur.v-1);queueSave();renderWork();renderSummary();toast("মুছে ফেলা হলো")};
+  $("#bSplit").onclick=()=>{const el=document.activeElement&&document.activeElement.tagName==="TEXTAREA"?document.activeElement:lastTA;if(!el){toast("আগে কোনো ঘরের ভেতরে কার্সর রাখুন");return}
+    const k=el.id.slice(2),pos=el.selectionStart,rest=v[k].slice(pos);v[k]=v[k].slice(0,pos).trim();
+    const nb=splitFields({from:v.to+1,to:v.to+1,lines:rest.split("\n"),pages:v.pages.slice(-1)});
+    const idx=FIELDS.findIndex(f=>f[0]===k);FIELDS.slice(idx+1).forEach(([kk])=>{if(v[kk]){nb[kk]=[nb[kk],v[kk]].filter(Boolean).join("\n");v[kk]=""}});
+    ch.verses.splice(cur.v+1,0,nb);queueSave();renderWork();renderSummary();toast("নতুন শ্লোক তৈরি হলো; নম্বর ঠিক করে নিন")};
+  document.querySelectorAll("#ed textarea").forEach(t=>t.addEventListener("focus",()=>lastTA=t));
+  renderImgs(v);
+}
+let lastTA=null;
+const esc=s=>(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;");
+function renderImgs(v){
+  const have=Object.keys(IMGS).length;
+  if(!have){$("#imgs").innerHTML="";$("#imgInfo").textContent="ছবির ফোল্ডার বেছে নিন";return}
+  $("#imgInfo").textContent=(v.pages||[]).join(", ")||"পাতা চিহ্ন নেই";
+  $("#imgs").innerHTML=(v.pages||[]).map(p=>IMGS[p]?`<img src="${IMGS[p]}" alt="${p}">`:`<span class="muted">${p} পাওয়া যায়নি</span>`).join("");
+}
+
+/* ---------- storage ---------- */
+let st;function queueSave(){clearTimeout(st);st=setTimeout(()=>{try{localStorage.setItem("gita-studio",JSON.stringify(P))}catch(e){toast("ব্রাউজারে জায়গা কম: 'প্রজেক্ট সেভ' দিয়ে ফাইল রাখুন")}},600)}
+function download(name,text){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"application/json"}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+function load(chs){P={chapters:chs};cur={c:0,v:0};queueSave();renderSummary();renderWork();
+  const total=chs.reduce((a,c)=>a+c.verses.length,0);toast(`${toBN(chs.length)}টি অধ্যায়, ${toBN(total)}টি শ্লোক পাওয়া গেছে`)}
+
+$("#fText").onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>load(parse(t)))};
+$("#bPaste").onclick=()=>{const t=$("#paste").value;if(t.trim())load(parse(t))};
+$("#fProj").onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const d=JSON.parse(t);load(d.chapters||[])}catch(err){toast("ফাইলটি পড়া গেল না")}})};
+$("#fImgs").onchange=e=>{IMGS={};[...e.target.files].forEach(f=>{const m=f.name.match(/^(p\d{4}[ab])\.jpe?g$/i);if(m)IMGS[m[1]]=URL.createObjectURL(f)});toast(`${toBN(Object.keys(IMGS).length)}টি পাতার ছবি যুক্ত হলো`);renderEditor()};
+$("#bSave").onclick=()=>download("gita-studio-project.json",JSON.stringify(P));
+$("#bExport").onclick=()=>{
+  if(!P.chapters.length){toast("আগে OCR টেক্সট খুলুন");return}
+  const data={edition:"শ্রীমদ্ভগবদ্গীতা যথাযথ",generated:new Date().toISOString().slice(0,10),
+    chapters:P.chapters.map(c=>({n:c.n,title:c.title,verses:c.verses.map(v=>({id:c.n+"."+v.n,n:v.n,sk:v.sk,words:v.words,song:v.song,tr:v.tr,pur:v.pur,rev:!!v.rev}))}))};
+  download("gita-data.json",JSON.stringify(data));
+  const rev=P.chapters.reduce((a,c)=>a+c.verses.filter(v=>v.rev).length,0),tot=P.chapters.reduce((a,c)=>a+c.verses.length,0);
+  toast(`gita-data.json তৈরি হলো · ${toBN(rev)}/${toBN(tot)}টি শ্লোক যাচাই করা`)};
+$("#chSel").onchange=e=>{cur={c:+e.target.value,v:0};renderWork()};
+try{const s=JSON.parse(localStorage.getItem("gita-studio")||"null");if(s&&s.chapters&&s.chapters.length){P=s;renderSummary();renderWork();toast("আগের কাজ ফিরিয়ে আনা হয়েছে")}}catch(e){}
+</script>
+</body>
+</html>

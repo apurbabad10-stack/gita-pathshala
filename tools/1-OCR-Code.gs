@@ -7,7 +7,9 @@
  * It works in batches of ~5 minutes and restarts itself until all pages are done.
  *
  * Setup (once):
- *  1. Put all page images in a Drive folder named exactly:  Gita Pages
+ *  1. In Google Drive make a folder named exactly:  Gita Pages
+ *     Upload the 8 files gita-zip-1.zip … gita-zip-8.zip into it (do NOT unzip them).
+ *     The script unzips them inside Drive by itself.
  *  2. script.google.com → New project → paste this file.
  *  3. Left sidebar: Services (+) → "Drive API" → Version v3 → Add.
  *  4. Choose function "start" and press Run. Approve the permissions.
@@ -24,6 +26,7 @@ function start() {
   const props = PropertiesService.getScriptProperties();
   props.setProperty('next', '0');
   props.setProperty('part', '0');
+  props.deleteProperty('unzipped');
   removeTriggers_();
   runOcr();
 }
@@ -32,6 +35,40 @@ function runOcr() {
   const t0 = Date.now();
   const props = PropertiesService.getScriptProperties();
   const folder = getFolder_();
+
+  // Step A: unzip any uploaded gita-zip-*.zip inside Drive (resumes across runs)
+  const doneZips = JSON.parse(props.getProperty('unzipped') || '[]');
+  const zips = [];
+  const zit = folder.getFiles();
+  while (zit.hasNext()) { const z = zit.next(); if (/^gita-zip-\d+\.zip$/i.test(z.getName()) && doneZips.indexOf(z.getName()) < 0) zips.push(z); }
+  zips.sort((a, b) => a.getName().localeCompare(b.getName(), undefined, { numeric: true }));
+  const have = {};
+  listImages_(folder).forEach(f => have[f.getName()] = true);
+  for (const z of zips) {
+    if (Date.now() - t0 > TIME_BUDGET_MS) break;
+    const blob = z.getBlob(); blob.setContentType('application/zip');
+    const parts = Utilities.unzip(blob);
+    let allDone = true;
+    for (const b of parts) {
+      if (have[b.getName()]) continue;
+      if (Date.now() - t0 > TIME_BUDGET_MS) { allDone = false; break; }
+      folder.createFile(b.setContentType('image/jpeg'));
+      have[b.getName()] = true;
+    }
+    if (!allDone) break;
+    doneZips.push(z.getName());
+    props.setProperty('unzipped', JSON.stringify(doneZips));
+    Logger.log('Unzipped ' + z.getName());
+  }
+  const pendingZips = zips.filter(z => doneZips.indexOf(z.getName()) < 0);
+  if (pendingZips.length) {
+    removeTriggers_();
+    ScriptApp.newTrigger('runOcr').timeBased().after(60 * 1000).create();
+    Logger.log('Still unzipping (' + pendingZips.length + ' zip files left). Continuing automatically in 1 minute.');
+    return;
+  }
+
+  // Step B: OCR every page image
   const files = listImages_(folder);
   let next = Number(props.getProperty('next') || 0);
   let part = Number(props.getProperty('part') || 0);
@@ -70,7 +107,8 @@ function runOcr() {
 function status() {
   const props = PropertiesService.getScriptProperties();
   const total = listImages_(getFolder_()).length;
-  Logger.log('Progress: ' + (props.getProperty('next') || 0) + ' / ' + total + ' pages');
+  const z = JSON.parse(props.getProperty('unzipped') || '[]').length;
+  Logger.log('Zip files unzipped: ' + z + ' · Page images in folder: ' + total + ' / 1042 · OCR done: ' + (props.getProperty('next') || 0) + ' pages');
 }
 
 function ocrOne_(file) {

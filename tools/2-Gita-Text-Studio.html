@@ -9,6 +9,7 @@
 :root{--bg:#F3F6FB;--card:#fff;--ink:#1E2A4A;--muted:#5B6787;--line:#DCE6F2;--blue:#1565C0;--ok:#2FA866;--warn:#E8A10C;--bad:#E8572C;
   --body:"Hind Siliguri","Noto Sans Bengali",system-ui,sans-serif;--disp:"Baloo Da 2","Hind Siliguri",sans-serif}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55}
 header{background:var(--blue);color:#fff;padding:12px 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 header h1{font-family:var(--disp);font-size:1.3rem;margin:0;flex:1;min-width:200px}
@@ -61,6 +62,7 @@ textarea#paste{width:100%;height:120px;font:inherit;border:1px solid var(--line)
   <label class="btn" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3)">OCR টেক্সট খুলুন<input type="file" id="fText" accept=".txt"></label>
   <label class="btn" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3)">পাতার ছবির ফোল্ডার<input type="file" id="fImgs" webkitdirectory multiple></label>
   <label class="btn" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3)">প্রজেক্ট খুলুন<input type="file" id="fProj" accept=".json"></label>
+  <button id="bCorr">টেস্টারদের সংশোধন যোগ</button>
   <button id="bSave">প্রজেক্ট সেভ</button>
   <button class="pri" id="bExport">gita-data.json তৈরি</button>
 </header>
@@ -93,6 +95,15 @@ textarea#paste{width:100%;height:120px;font:inherit;border:1px solid var(--line)
     <div class="card imgcol"><div class="row"><b>বইয়ের পাতা</b><span class="muted" id="imgInfo">ছবির ফোল্ডার বেছে নিন</span></div><div class="imgs" id="imgs"></div></div>
   </section>
 </main>
+<div id="corrModal" hidden style="position:fixed;inset:0;background:rgba(21,40,80,.55);display:grid;place-items:center;padding:20px;z-index:50">
+  <div class="card" style="max-width:640px;width:100%;display:flex;flex-direction:column;gap:10px">
+    <h2>টেস্টারদের সংশোধন যোগ করুন</h2>
+    <p class="muted" style="margin:0">টেস্টাররা অ্যাপ থেকে যে লেখা WhatsApp-এ পাঠিয়েছেন সেটি এখানে পেস্ট করুন। একসঙ্গে কয়েকজনেরটা পরপর পেস্ট করা যায়।</p>
+    <textarea id="corrIn" style="width:100%;height:200px;font:inherit;border:1px solid var(--line);border-radius:10px;padding:8px" placeholder='{"type":"gita-corrections", ...}'></textarea>
+    <div class="row"><button class="pri" id="corrApply">যোগ করুন</button><button id="corrClose">বন্ধ</button></div>
+    <div id="corrLog" class="muted"></div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 <script>
 const BN="০১২৩৪৫৬৭৮৯", toBN=n=>String(n).replace(/\d/g,d=>BN[d]), toEN=s=>String(s).replace(/[০-৯]/g,d=>BN.indexOf(d));
@@ -222,10 +233,30 @@ $("#bSave").onclick=()=>download("gita-studio-project.json",JSON.stringify(P));
 $("#bExport").onclick=()=>{
   if(!P.chapters.length){toast("আগে OCR টেক্সট খুলুন");return}
   const data={edition:"শ্রীমদ্ভগবদ্গীতা যথাযথ",generated:new Date().toISOString().slice(0,10),
-    chapters:P.chapters.map(c=>({n:c.n,title:c.title,verses:c.verses.map(v=>({id:c.n+"."+v.n,n:v.n,sk:v.sk,words:v.words,song:v.song,tr:v.tr,pur:v.pur,rev:!!v.rev}))}))};
+    chapters:P.chapters.map(c=>({n:c.n,title:c.title,verses:c.verses.map(v=>({id:c.n+"."+v.n,n:v.n,sk:v.sk,words:v.words,song:v.song,tr:v.tr,pur:v.pur,rev:!!v.rev,pg:v.pages||[]}))}))};
   download("gita-data.json",JSON.stringify(data));
   const rev=P.chapters.reduce((a,c)=>a+c.verses.filter(v=>v.rev).length,0),tot=P.chapters.reduce((a,c)=>a+c.verses.length,0);
   toast(`gita-data.json তৈরি হলো · ${toBN(rev)}/${toBN(tot)}টি শ্লোক যাচাই করা`)};
+$("#bCorr").onclick=()=>{if(!P.chapters.length){toast("আগে OCR টেক্সট বা প্রজেক্ট খুলুন");return}$("#corrModal").hidden=false;$("#corrIn").focus()};
+$("#corrClose").onclick=()=>{$("#corrModal").hidden=true};
+$("#corrApply").onclick=()=>{
+  const raw=$("#corrIn").value;const blobs=[];let depth=0,start=-1,inStr=false,esc=false;
+  for(let i=0;i<raw.length;i++){const ch=raw[i];
+    if(inStr){if(esc)esc=false;else if(ch==="\\")esc=true;else if(ch==='"')inStr=false;continue}
+    if(ch==='"'){inStr=true;continue}
+    if(ch==="{"){if(depth===0)start=i;depth++}else if(ch==="}"){depth--;if(depth===0&&start>=0){blobs.push(raw.slice(start,i+1));start=-1}}}
+  const idx={};P.chapters.forEach(c=>c.verses.forEach(v=>{idx[c.n+"."+v.n]=v;for(let k=v.from;k<=v.to;k++)idx[c.n+"."+k]=idx[c.n+"."+k]||v}));
+  let log=[],nE=0,nOk=0,miss=0;
+  blobs.forEach(b=>{let d;try{d=JSON.parse(b)}catch(e){log.push("একটি অংশ পড়া যায়নি (অসম্পূর্ণ কপি?)");return}
+    if(d.type!=="gita-corrections")return;
+    let e=0,o=0;
+    Object.entries(d.corr||{}).forEach(([id,f])=>{const v=idx[id];if(!v){miss++;return}Object.entries(f).forEach(([k,t])=>{if(["sk","words","song","tr","pur"].includes(k)){v[k]=t;e++}})});
+    (d.ok||[]).forEach(id=>{const v=idx[id];if(v&&!v.rev){v.rev=true;o++}});
+    nE+=e;nOk+=o;log.push(`${d.by||"নামহীন"}: ${toBN(e)}টি সংশোধন, ${toBN(o)}টি শ্লোক যাচাই হিসেবে চিহ্নিত`)});
+  if(miss)log.push(`${toBN(miss)}টি শ্লোক-নম্বর প্রজেক্টে মেলেনি`);
+  $("#corrLog").innerHTML=log.length?log.join("<br>"):"কোনো সংশোধন পাওয়া যায়নি";
+  if(nE||nOk){queueSave();renderSummary();renderWork();toast(`${toBN(nE)}টি সংশোধন ও ${toBN(nOk)}টি যাচাই যোগ হলো`)}
+};
 $("#chSel").onchange=e=>{cur={c:+e.target.value,v:0};renderWork()};
 try{const s=JSON.parse(localStorage.getItem("gita-studio")||"null");if(s&&s.chapters&&s.chapters.length){P=s;renderSummary();renderWork();toast("আগের কাজ ফিরিয়ে আনা হয়েছে")}}catch(e){}
 </script>

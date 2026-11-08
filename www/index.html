@@ -260,6 +260,15 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-conte
 .sw input:checked+i{background:var(--leaf)}
 .sw input:checked+i::after{transform:translateX(22px)}
 .sw input:focus-visible+i{outline:3px solid var(--marigold);outline-offset:2px}
+.pf-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:.85rem}
+.pf-pill{border-radius:99px;padding:2px 10px;font-weight:600;font-size:.78rem}
+.pf-un{background:#FFF3D6;color:#8A5A00}.pf-ok{background:#E3F7EC;color:#1E7A48}.pf-ed{background:#E4EFFC;color:#0D4A91}
+.ed-btn{background:var(--sky);border-radius:10px;padding:3px 10px;font-size:.8rem;font-weight:600;color:var(--peacock)}
+.sec .hrow{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.edbox{width:100%;min-height:120px;font:inherit;font-size:1rem;line-height:1.7;border:2px solid var(--marigold);border-radius:12px;padding:8px 10px;background:#FFFDF6;color:var(--ink)}
+.chpick{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.chpick button{aspect-ratio:1;border-radius:12px;background:var(--card);font-family:var(--display);font-weight:700;border:2px solid var(--line)}
+.chpick button[aria-pressed="true"]{background:var(--peacock);color:#fff;border-color:var(--peacock)}
 .alst{background:#E3F7EC;border-radius:16px;padding:10px 12px}
 .add{border:2px dashed var(--line);border-radius:18px;padding:12px;font-family:var(--display);font-weight:700;color:var(--peacock)}
 .tlist{display:grid;grid-template-columns:1fr;gap:10px}
@@ -491,7 +500,7 @@ const CARDS=[1,2,5,6,9,12,16,18,3,10].map(n=>L[n-1]);
 
 /* ---------- state ---------- */
 const S=(()=>{let s={};try{s=JSON.parse(localStorage.getItem("gita-kids")||"{}")}catch(e){}
-  return Object.assign({name:"",age:0,mode:"",fav:[],readV:[],last:"",xp:0,done:{},days:[],log:{},cards:[],badges:[],pujaDays:[],
+  return Object.assign({name:"",age:0,mode:"",fav:[],readV:[],proof:false,corr:{},okV:[],proofCh:[],last:"",xp:0,done:{},days:[],log:{},cards:[],badges:[],pujaDays:[],
     alarms:[{id:"a1",label:"সকালের পূজা",time:"06:30",tone:"om",on:true},{id:"a2",label:"সন্ধ্যা আরতি",time:"18:30",tone:"aarti",on:true}]},s)})();
 const save=()=>{try{localStorage.setItem("gita-kids",JSON.stringify(S))}catch(e){}};
 const doneCount=()=>Object.keys(S.done).length;
@@ -758,6 +767,7 @@ function renderLibrary(){
   <input class="srch" id="lsrch" type="search" placeholder="শ্লোক, শব্দ বা নম্বর খুঁজুন (যেমন ২.৪৭)" aria-label="খুঁজুন">
   <div id="lres"></div>
   <button class="cta blue" id="libFav" style="font-size:1rem">♥ প্রিয় শ্লোক (${BN(S.fav.length)})</button>
+  ${S.proof&&FULL_REAL?`<button class="cta" id="libProof" style="font-size:1rem;background:var(--marigold);color:var(--ink);box-shadow:0 5px 0 #C98A00">✎ প্রুফ দেখা · ${BN(proofStats().ok)}/${BN(proofStats().total)}</button>`:""}
   <div class="sh"><h2>অধ্যায়</h2><span>১৮টি</span></div>
   <div class="cgrid">${VCOUNT.map((cnt,i)=>{const n=i+1,rd=chReadCount(n);return `<button class="cc" data-ch="${n}" style="background:${COLORS[i%COLORS.length]}">
     <div class="art">${motif(n)}</div><span class="num">${BN(n)}</span><b>${chTitle(n)}</b><span>${BN(cnt)} শ্লোক · ${BN(rd)} পড়া</span>
@@ -765,6 +775,7 @@ function renderLibrary(){
   document.querySelectorAll(".cc").forEach(b=>b.onclick=()=>openChapter(+b.dataset.ch));
   $("#contBtn").onclick=()=>openReader(S.last||firstId());
   $("#libFav").onclick=openFavs;
+  const lp=$("#libProof");if(lp)lp.onclick=openProof;
   const inp=$("#lsrch"),res=$("#lres");
   inp.oninput=()=>{const q=inp.value.trim();if(!q){res.innerHTML="";return}
     const m=toENd(q).match(/^(\d{1,2})\s*[.:।]\s*(\d{1,2})$/);
@@ -777,7 +788,7 @@ function sheetShell(id,title,sub){
   const old=$("#"+id);if(old)old.remove();
   const el=document.createElement("div");el.className="sheet";el.id=id;
   el.innerHTML=`<div class="rd-top"><button class="ib" data-x aria-label="বন্ধ করুন">×</button><div class="ttl">${title}<small>${sub||""}</small></div><span class="rd-extra"></span></div><div class="rd-body"><div class="in"></div></div>`;
-  document.body.appendChild(el);el.querySelector("[data-x]").onclick=()=>{el.remove();refresh()};
+  document.body.appendChild(el);el.querySelector("[data-x]").onclick=()=>{el.remove();refresh();if(id==="reader"&&$("#proof"))openProof()};
   return el;
 }
 function openChapter(n){
@@ -796,14 +807,28 @@ function openReader(id){
   const el=sheetShell("reader",`অধ্যায় ${BN(v.c)} · শ্লোক ${BN(v.n)}`,chTitle(v.c));
   el.querySelector(".rd-extra").innerHTML=`<div style="display:flex;gap:6px"><button class="ib" id="fsm" aria-label="লেখা ছোট">অ-</button><button class="ib" id="fsp" aria-label="লেখা বড়">অ+</button><button class="ib fav" id="rfav" aria-label="প্রিয়">${isFav(v.id)?"♥":"♡"}</button></div>`;
   const body=el.querySelector(".in");body.style.setProperty("--rfs",RFS+"px");
-  const sec=(cls,h,t)=>t?`<div class="sec ${cls}"><h4>${h}</h4><p>${t}</p></div>`:"";
-  body.innerHTML=`<div class="sloka-box"><p class="sk">${v.sk}</p><div class="rf">শ্রীমদ্ভগবদ্গীতা ${BN(v.c)}.${BN(v.n)}</div></div>
+  const PF=S.proof&&isFullMode()&&FULL_REAL&&!v.own,cv=S.corr[v.id]||{},T=k=>cv[k]!=null?cv[k]:(v[k]||"");
+  const eb=k=>PF?`<button class="ed-btn" data-ed="${k}">✎ সংশোধন</button>`:"";
+  const sec=(cls,h,k)=>{const t=T(k);return (t||PF)?`<div class="sec ${cls}"><div class="hrow"><h4>${h}${cv[k]!=null?" · সংশোধিত":""}</h4>${eb(k)}</div><p>${escH(t)||"<i style='color:var(--muted)'>(খালি)</i>"}</p></div>`:""};
+  const pgs=(v.pages||v.pg||[]),pgTxt=pgs.map(x=>{const m=String(x).match(/p(\d{4})([ab])/);return m?"PDF "+BN(+m[1])+(m[2]==="a"?" (বাম)":" (ডান)"):x}).join(", ");
+  body.innerHTML=`${PF?`<div class="sec" style="background:#FFF8E8"><div class="pf-bar"><b style="font-family:var(--display)">প্রুফ দেখা</b>
+      ${S.okV.includes(v.id)?`<span class="pf-pill pf-ok">✓ মিলিয়ে দেখা হয়েছে</span>`:v.rev?`<span class="pf-pill pf-ok">স্টুডিওতে যাচাই করা</span>`:`<span class="pf-pill pf-un">যাচাই হয়নি</span>`}
+      ${Object.keys(cv).length?`<span class="pf-pill pf-ed">${BN(Object.keys(cv).length)}টি সংশোধন</span>`:""}</div>
+      ${pgTxt?`<div class="sample" style="margin-top:4px">বইয়ে দেখুন: ${pgTxt}</div>`:""}
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button class="ed-btn" data-ed="sk">✎ মূল শ্লোক সংশোধন</button>
+      <button class="ed-btn" id="pfOk" style="background:${S.okV.includes(v.id)?"#E3F7EC":"var(--leaf)"};color:${S.okV.includes(v.id)?"#1E7A48":"#fff"}">${S.okV.includes(v.id)?"✓ ঠিক আছে (বাতিল করতে চাপুন)":"✓ বইয়ের সঙ্গে মিলেছে"}</button></div></div>`:""}
+   <div class="sloka-box"><p class="sk">${escH(T("sk"))}</p><div class="rf">শ্রীমদ্ভগবদ্গীতা ${BN(v.c)}.${BN(v.n)}${cv.sk!=null?" · সংশোধিত":""}</div></div>
    ${kid&&l?`<div class="easy"><b>সহজ কথায়</b>${l.easy}</div><div class="lesson">${mascot("","wow")}<p>${l.lesson}</p></div>`:
-    sec("","শব্দার্থ",v.words)+sec("song","গীতার গান",v.song)+sec("tr",v.own?"সহজ অর্থ":"অনুবাদ",v.tr)+
-    (v.pur?`<div class="sec"><details><summary>তাৎপর্য পড়ুন <span>▾</span></summary><p style="margin-top:8px">${v.pur}</p></details></div>`:"")}
+    sec("","শব্দার্থ","words")+sec("song","গীতার গান","song")+sec("tr",v.own?"সহজ অর্থ":"অনুবাদ","tr")+
+    ((T("pur")||PF)?`<div class="sec"><details ${PF?"open":""}><summary>তাৎপর্য ${PF?"":"পড়ুন"}<span>▾</span></summary>${PF?`<div style="margin-top:6px">${eb("pur")}</div>`:""}<p style="margin-top:8px">${escH(T("pur"))}</p></details></div>`:"")}
    ${!FULL_REAL&&!kid?`<div class="notice">এই শ্লোকের শব্দার্থ, গীতার গান, পূর্ণ অনুবাদ ও তাৎপর্য শীঘ্রই যোগ হবে।</div>`:""}`;
   el.insertAdjacentHTML("beforeend",`<div class="rd-nav"><button class="cta blue" id="rprev" ${prev?"":"disabled"}>← আগের</button><button class="cta green" id="rnext" ${next?"":"disabled"}>পরের →</button></div>`);
   $("#rfav").onclick=()=>{toggleFav(v.id);$("#rfav").textContent=isFav(v.id)?"♥":"♡"};
+  if(PF){
+    el.querySelectorAll("[data-ed]").forEach(b=>b.onclick=()=>editField(v,b.dataset.ed));
+    $("#pfOk").onclick=()=>{const i=S.okV.indexOf(v.id);if(i>=0)S.okV.splice(i,1);else{S.okV.push(v.id);addXP(3)}save();
+      if(i<0&&next){toast("✓ মিলিয়ে দেখা হয়েছে · পরের শ্লোক");openReader(next.id)}else openReader(v.id)};
+  }
   const setFs=d=>{RFS=Math.max(14,Math.min(26,RFS+d));body.style.setProperty("--rfs",RFS+"px");try{localStorage.setItem("gita-rfs",RFS)}catch(e){}};
   $("#fsm").onclick=()=>setFs(-2);$("#fsp").onclick=()=>setFs(2);
   if(prev)$("#rprev").onclick=()=>openReader(prev.id);
@@ -820,6 +845,53 @@ function openReader(id){
     if(up!=null)setTimeout(()=>celebrate("নতুন পদমর্যাদা!",RANKS[up][1],"আপনি এখন "+RANKS[up][1]+"।"),600);
     const chDone=chReadCount(v.c)===VCOUNT[v.c-1]&&fresh.length;if(chDone&&!S["chc"+v.c]){S["chc"+v.c]=1;addXP(20);setTimeout(()=>celebrate("অধ্যায় সম্পূর্ণ!","অধ্যায় "+BN(v.c),chTitle(v.c)+" পড়া শেষ হলো। +২০ XP"),700)}}
   save();
+}
+const escH=t=>String(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const FLABEL={sk:"মূল শ্লোক",words:"শব্দার্থ",song:"গীতার গান",tr:"অনুবাদ",pur:"তাৎপর্য"};
+function editField(v,k){
+  const cur=(S.corr[v.id]||{})[k]!=null?S.corr[v.id][k]:(v[k]||"");
+  const o=document.createElement("div");o.className="modal";
+  o.innerHTML=`<div class="box" style="max-width:560px;text-align:left"><h3>${FLABEL[k]} সংশোধন · ${BN(v.c)}.${BN(v.n)}</h3>
+   <p class="sample" style="margin:0">${k==="sk"?"শুধু OCR-এর ভুল ঠিক করুন, বইয়ের সঙ্গে অক্ষরে অক্ষরে মিলিয়ে।":"বইয়ে যেমন আছে ঠিক তেমন লিখুন।"}</p>
+   <textarea class="edbox" id="edT" rows="${k==="pur"?12:6}">${escH(cur)}</textarea>
+   <button class="cta green" id="edS" style="font-size:1rem">সংরক্ষণ</button>
+   ${(S.corr[v.id]||{})[k]!=null?`<button class="cta" id="edU" style="font-size:1rem">আগের লেখায় ফেরত যান</button>`:""}
+   <button class="cta blue" id="edX" style="font-size:1rem">বাতিল</button></div>`;
+  document.body.appendChild(o);
+  $("#edX").onclick=()=>o.remove();
+  $("#edS").onclick=()=>{const t=$("#edT").value.replace(/\s+$/,"");const orig=v[k]||"";
+    S.corr[v.id]=S.corr[v.id]||{};if(t===orig)delete S.corr[v.id][k];else S.corr[v.id][k]=t;
+    if(!Object.keys(S.corr[v.id]).length)delete S.corr[v.id];save();o.remove();toast("সংশোধন সংরক্ষিত");openReader(v.id)};
+  const u=$("#edU");if(u)u.onclick=()=>{delete S.corr[v.id][k];if(!Object.keys(S.corr[v.id]).length)delete S.corr[v.id];save();o.remove();openReader(v.id)};
+}
+function proofStats(){
+  const chs=S.proofCh.length?S.proofCh:[...Array(18)].map((_,i)=>i+1);
+  const vs=VIDX.filter(v=>chs.includes(v.c)&&!v.own);
+  return {chs,total:vs.length,ok:vs.filter(v=>S.okV.includes(v.id)).length,edits:Object.keys(S.corr).length};
+}
+function openProof(){
+  const st=proofStats();
+  const el=sheetShell("proof","প্রুফ দেখা (বেটা)",`${BN(st.ok)}/${BN(st.total)} শ্লোক মিলিয়ে দেখা · ${BN(st.edits)}টি শ্লোকে সংশোধন`);
+  const firstTodo=VIDX.find(v=>st.chs.includes(v.c)&&!v.own&&!S.okV.includes(v.id));
+  el.querySelector(".in").innerHTML=`
+   <div class="sec"><h4>আমার অধ্যায়</h4><p class="sample" style="margin:0 0 8px">আপনাকে যে অধ্যায়গুলো দেওয়া হয়েছে সেগুলো বেছে নিন।</p>
+     <div class="chpick">${[...Array(18)].map((_,i)=>`<button data-pc="${i+1}" aria-pressed="${S.proofCh.includes(i+1)}">${BN(i+1)}</button>`).join("")}</div></div>
+   <div class="xpbar" style="background:var(--line);height:14px"><i style="width:${st.total?Math.round(st.ok/st.total*100):0}%;background:var(--leaf)"></i></div>
+   ${firstTodo?`<button class="cta green" id="pfGo">পরের না-দেখা শ্লোক খুলুন (${BN(firstTodo.c)}.${BN(firstTodo.n)})</button>`:`<div class="notice">আপনার অধ্যায়ের সব শ্লোক মিলিয়ে দেখা হয়েছে!</div>`}
+   <div class="sec"><h4>সংশোধন পাঠান</h4><p class="sample" style="margin:0 0 8px">নিচের বোতাম চাপলে আপনার সব সংশোধন কপি হবে। WhatsApp-এ Mr. Sen-কে পেস্ট করে পাঠান। প্রতিদিন কাজ শেষে একবার পাঠালেই হবে।</p>
+     <button class="cta blue" id="pfCopy" style="font-size:1rem">সংশোধন কপি করুন</button>
+     <textarea class="edbox" id="pfOut" rows="4" readonly style="margin-top:8px;display:none"></textarea></div>
+   <div class="sec"><h4>কীভাবে প্রুফ দেখবেন</h4><p style="font-size:.92em">১. বইয়ের PDF পাশে খুলে রাখুন; প্রতিটি শ্লোকে "বইয়ে দেখুন" অংশে পাতা নম্বর আছে।
+২. মূল শ্লোক অক্ষরে অক্ষরে মেলান; ভুল থাকলে "✎ সংশোধন" চাপুন।
+৩. শব্দার্থ, গীতার গান, অনুবাদ ও তাৎপর্যও দেখে নিন।
+৪. সব ঠিক থাকলে "✓ বইয়ের সঙ্গে মিলেছে" চাপুন; পরের শ্লোক নিজেই খুলবে।</p></div>`;
+  el.querySelectorAll("[data-pc]").forEach(b=>b.onclick=()=>{const n=+b.dataset.pc,i=S.proofCh.indexOf(n);i>=0?S.proofCh.splice(i,1):S.proofCh.push(n);S.proofCh.sort((a,b)=>a-b);save();openProof()});
+  const g=$("#pfGo");if(g)g.onclick=()=>openReader(firstTodo.id);
+  $("#pfCopy").onclick=async()=>{
+    const payload=JSON.stringify({type:"gita-corrections",v:1,by:S.name||"",invite:S.invite||"",date:new Date().toISOString(),chapters:S.proofCh,ok:S.okV,corr:S.corr});
+    const out=$("#pfOut");out.value=payload;
+    try{await navigator.clipboard.writeText(payload);toast("কপি হয়েছে · এখন WhatsApp-এ পেস্ট করুন")}
+    catch(e){out.style.display="block";out.focus();out.select();toast("লেখাটি সিলেক্ট করে কপি করুন")}};
 }
 function favItem(v){
   const c=v.c||+String(v.id).split(".")[0];
@@ -864,12 +936,15 @@ function renderRew(){
         <input id="ag" value="${S.age?BN(S.age):""}" placeholder="বয়স" aria-label="বয়স" inputmode="numeric" style="width:80px;padding:10px 12px;border-radius:12px;border:2px solid var(--line);font:inherit;text-align:center"></div>
       <div class="mode-row"><span>এখনকার সংস্করণ:</span><span class="tag">${isFullMode()?"সম্পূর্ণ গীতা":"শিশু পাঠ"}</span></div>
       <button class="cta blue" style="font-size:1rem;padding:10px 16px" id="nmSave">সেভ করুন</button>
+      ${isFullMode()?`<div class="mode-row" style="justify-content:space-between"><span><b>প্রুফ দেখার মোড (বেটা)</b><br><span class="sample">বইয়ের সঙ্গে মিলিয়ে ভুল ঠিক করার সুবিধা</span></span>
+        <label class="sw"><input type="checkbox" id="pfSw" ${S.proof?"checked":""} aria-label="প্রুফ দেখার মোড"><i></i></label></div>`:""}
       <button class="cta" style="font-size:1rem;padding:10px 16px;background:var(--teal);box-shadow:0 5px 0 #0B7A7A" id="modeSw">${isFullMode()?"শিশু পাঠে যান":"সম্পূর্ণ গীতায় যান"}</button>
       <p class="sample">বয়স ১২-র কম হলে শিশু পাঠ, ১২ বা বেশি হলে সম্পূর্ণ গীতা। শিশু পাঠ থেকে সম্পূর্ণ গীতায় যেতে বড়দের অনুমতি লাগে।</p></div></div>`;
   $("#nmSave").onclick=()=>{S.name=$("#nm").value.trim()||S.name;const ag=parseInt(toENd($("#ag").value));
     if(ag&&ag>=3&&ag<=110){const want=ag<12?"kids":"full";S.age=ag;if(want!==S.mode){if(want==="full")return parentCheck(()=>setMode("full"));setMode("kids");return}}
     save();refresh();toast("সেভ হয়েছে")};
   $("#modeSw").onclick=()=>isFullMode()?setMode("kids"):parentCheck(()=>setMode("full"));
+  const pfs=$("#pfSw");if(pfs)pfs.onchange=()=>{S.proof=pfs.checked;save();refresh();toast(S.proof?(FULL_REAL?"প্রুফ দেখার মোড চালু · গ্রন্থ পাতায় যান":"প্রুফ মোড চালু; পূর্ণ পাঠ যোগ হলে কাজ শুরু করা যাবে"):"প্রুফ দেখার মোড বন্ধ")};
 }
 
 /* ---------- lesson ---------- */

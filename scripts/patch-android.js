@@ -52,6 +52,6 @@ if (!g.includes("signingConfigs")) {
   g = g.replace(/buildTypes\s*\{\s*release\s*\{/, "buildTypes {\n        release {\n            signingConfig signingConfigs.release");
 }
 const run = Number(process.env.GITHUB_RUN_NUMBER || 1);
-g = g.replace(/versionCode \d+/, "versionCode " + run).replace(/versionName "[^"]*"/, 'versionName "1.1.' + run + '"');
+g = g.replace(/versionCode \d+/, "versionCode " + run).replace(/versionName "[^"]*"/, 'versionName "2.0.' + run + '"');
 fs.writeFileSync(gradle, g);
 console.log("Android project patched: permissions, sounds, icons, signing.");

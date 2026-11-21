@@ -1,15 +1,15 @@
 {
   "name": "গীতা পাঠশালা",
   "short_name": "গীতা পাঠশালা",
-  "description": "শিশুদের জন্য গীতা শেখার খেলা, পূজার অ্যালার্ম ও ভক্তি ধ্বনি",
+  "description": "শ্লোক-কার্ডে গীতা পাঠ, প্রদীপের পথ, পূজার অ্যালার্ম ও ভক্তি ধ্বনি",
   "lang": "bn",
   "start_url": "./",
   "scope": "./",
   "id": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#1565C0",
-  "theme_color": "#1565C0",
+  "background_color": "#E8558A",
+  "theme_color": "#E8558A",
   "categories": [
     "education",
     "lifestyle"

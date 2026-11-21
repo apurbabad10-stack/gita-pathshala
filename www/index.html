@@ -1,1279 +1,375 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="bn">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#1565C0">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>গীতা পাঠশালা</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@500;600;700;800&family=Hind+Siliguri:wght@400;500;600&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@500;700&display=swap" rel="stylesheet">
 <style>
-/* Layout: phone game shell — welcome screen → 3 swipeable pages (Home · Journey · Rewards) with bottom nav; lessons open as a full-screen swipeable story sheet. Single bright theme by choice. */
-:root{
-  --sky:#EAF5FF; --sky2:#FFF4E2; --ink:#1E2A4A; --muted:#5B6787; --card:#FFFFFF; --line:#DCE6F2;
-  --peacock:#1565C0; --teal:#0FA3A3; --marigold:#FFB020; --lotus:#FF5E98; --leaf:#2FA866; --sindoor:#E8572C;
-  --display:"Baloo Da 2","Hind Siliguri","Noto Sans Bengali",sans-serif;
-  --body:"Hind Siliguri","Noto Sans Bengali",system-ui,sans-serif;
-  color-scheme:light;
-}
-*{box-sizing:border-box}
-html,body{height:100%;background:var(--sky);color:var(--ink)}
-body{font-family:var(--body);font-size:16px;line-height:1.6;overflow:hidden;
-  background:linear-gradient(180deg,var(--sky) 0%,var(--sky2) 100%)}
+/* VOICE: warm, joyful, gentle — a child's picture book that adults also enjoy
+   IDEA: a lotus pond at dusk; every verse read floats a lit prodip (diya) on the water
+   PICTURE: the journey map — 18 lotus stepping-stones on a winding path, diyas glowing as you go
+   COLOUR and TYPE: blush pink ground, lotus pink lead, lagoon teal support, marigold accent; Hind Siliguri + Noto Serif Bengali for shlokas
+   LAYOUT: phone-first single column, bottom tab bar, big swipeable verse cards */
+:root{color-scheme:light dark;
+--bg:light-dark(#fff3f6,#1d1422);--card:light-dark(#ffffff,#2a1d31);--ink:light-dark(#3a2340,#f7e9f1);--soft:light-dark(#8a6a8f,#c6a9c9);
+--lotus:light-dark(#e8558a,#ff7aa8);--lotus2:light-dark(#ffd6e4,#4a2a45);--teal:light-dark(#1f9e93,#4fd1c4);--teal2:light-dark(#d4f3ef,#173b39);
+--gold:#f5a524;--line:light-dark(#f3d3df,#3d2b44);--shadow:light-dark(0 10px 30px #e8558a22,0 10px 30px #0006)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+body.saffron{--bg:light-dark(#fff6e8,#22170c);--lotus:light-dark(#d9661f,#ff9a4d);--lotus2:light-dark(#ffe3c2,#4a2f17);--line:light-dark(#f3dcc0,#3f2c1a)}
+body.night{color-scheme:dark;--bg:#14112a;--card:#1f1b3d;--ink:#f1ecff;--soft:#a9a1d6;--lotus:#ffc94d;--lotus2:#3a3266;--teal:#7fd6ff;--teal2:#1d3350;--line:#2f2a55}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Hind Siliguri",system-ui,sans-serif;overflow-x:clip;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
-button:focus-visible,input:focus-visible{outline:3px solid var(--marigold);outline-offset:2px}
-.disp{font-family:var(--display)}
-
-/* shell */
-.app{height:100%;display:flex;flex-direction:column}
-.pages{flex:1;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
-.pages::-webkit-scrollbar{display:none}
-.page{flex:0 0 100%;scroll-snap-align:start;overflow-y:auto;overflow-x:hidden;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 110px}
-.page>.in{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
-nav{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:8px calc(10px + env(safe-area-inset-bottom,0px))}
-.navin{display:flex;gap:6px;background:var(--card);border-radius:24px;padding:6px;box-shadow:0 8px 24px rgba(21,101,192,.18)}
-.nb{display:flex;flex-direction:column;align-items:center;gap:0;padding:6px 12px;border-radius:18px;font-family:var(--display);font-weight:600;font-size:.82rem;color:var(--muted)}
-.nb svg{width:24px;height:24px}
-.nb[aria-current="true"]{background:var(--peacock);color:#fff}
-
-/* top bar */
-.top{display:flex;align-items:center;gap:10px}
-.hello{flex:1;min-width:0}
-.hello b{font-family:var(--display);font-size:1.35rem;display:block;line-height:1.2}
-.hello span{color:var(--muted);font-size:.9rem}
-.chip{display:flex;align-items:center;gap:4px;background:var(--card);border-radius:999px;padding:4px 10px;font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums;box-shadow:0 2px 8px rgba(30,42,74,.08)}
-.chip svg{width:20px;height:20px}
-
-/* rank card */
-.rank{background:linear-gradient(135deg,var(--peacock),var(--teal));color:#fff;border-radius:22px;padding:16px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;position:relative;overflow:hidden}
-.rank::after{content:"";position:absolute;right:-30px;top:-30px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.1)}
-.badge-lvl{width:64px;height:64px;border-radius:50%;background:var(--marigold);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.7rem;color:var(--ink);box-shadow:inset 0 -4px 0 rgba(0,0,0,.15)}
-.rank .t{min-width:0;position:relative;z-index:1}
-.rank .t b{font-family:var(--display);font-size:1.2rem;display:block}
-.xpbar{height:12px;background:rgba(255,255,255,.25);border-radius:99px;margin-top:6px;overflow:hidden}
-.xpbar i{display:block;height:100%;background:var(--marigold);border-radius:99px;transition:width .6s}
-.rank small{opacity:.9;font-variant-numeric:tabular-nums}
-
-/* progress */
-.panel{background:var(--card);border-radius:22px;padding:16px;box-shadow:0 4px 16px rgba(30,42,74,.06)}
-.panel h3{font-family:var(--display);margin:0 0 8px;font-size:1.1rem}
-.prog{display:grid;grid-template-columns:120px 1fr;gap:14px;align-items:center}
-.ring text{font-family:var(--display)}
-.bars text{font-family:var(--body);font-size:10px;fill:var(--muted)}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-.stat{background:var(--sky);border-radius:14px;padding:8px;text-align:center}
-.stat b{font-family:var(--display);font-size:1.3rem;display:block;line-height:1.1;font-variant-numeric:tabular-nums}
-.stat span{font-size:.75rem;color:var(--muted)}
-
-/* section head */
-.sh{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
-.sh h2{font-family:var(--display);font-size:1.3rem;margin:0}
-.sh span{font-size:.85rem;color:var(--muted)}
-
-/* swipe cards */
-.deck{position:relative;height:300px;touch-action:none;user-select:none}
-.vcard{position:absolute;inset:0;border-radius:26px;padding:20px;color:#fff;display:flex;flex-direction:column;gap:8px;
-  box-shadow:0 10px 24px rgba(30,42,74,.18);transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s;overflow:hidden}
-.vcard.drag{transition:none}
-.vcard .no{font-family:var(--display);font-weight:700;font-size:.85rem;background:rgba(255,255,255,.25);align-self:flex-start;border-radius:99px;padding:2px 12px}
-.vcard .sk{font-family:var(--display);font-size:1rem;line-height:1.5;opacity:.95;white-space:pre-line}
-.vcard .mn{font-family:var(--display);font-weight:700;font-size:1.25rem;line-height:1.4;margin-top:auto;text-wrap:balance}
-.vcard .rf{font-size:.8rem;opacity:.9}
-.vcard .art{position:absolute;right:-10px;top:-10px;width:120px;height:120px;opacity:.22}
-.deckctl{display:flex;justify-content:center;align-items:center;gap:14px}
-.round{width:48px;height:48px;border-radius:50%;background:var(--card);display:grid;place-items:center;box-shadow:0 3px 10px rgba(30,42,74,.12);font-size:1.3rem;font-weight:700}
-.dots{display:flex;gap:5px}
-.dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}
-.dots i.on{background:var(--peacock);width:20px;border-radius:8px}
-.hint{text-align:center;color:var(--muted);font-size:.82rem;margin:0}
-
-.cta{background:var(--sindoor);color:#fff;font-family:var(--display);font-weight:700;font-size:1.15rem;border-radius:18px;padding:14px 18px;box-shadow:0 5px 0 #B23E18;display:flex;align-items:center;justify-content:center;gap:10px;width:100%}
-.cta:active{transform:translateY(3px);box-shadow:0 2px 0 #B23E18}
-.cta.green{background:var(--leaf);box-shadow:0 5px 0 #1E7A48}
-.cta.blue{background:var(--peacock);box-shadow:0 5px 0 #0D4A91}
-.cta[disabled]{opacity:.45;pointer-events:none}
-
-/* mascot bubble */
-.talk{display:flex;gap:10px;align-items:flex-end}
-.talk svg.m{width:70px;height:70px;flex:0 0 auto}
-.bubble{background:var(--card);border-radius:18px 18px 18px 4px;padding:10px 14px;font-family:var(--display);font-weight:600;box-shadow:0 3px 10px rgba(30,42,74,.08);min-width:0}
-
-/* journey */
-.map{position:relative;margin:0 auto;width:100%;max-width:360px}
-.map svg.path{position:absolute;inset:0;width:100%;height:100%}
-.stone{position:absolute;width:72px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:2px}
-.stone button{width:64px;height:64px;border-radius:50%;font-family:var(--display);font-weight:800;font-size:1.5rem;color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.18);display:grid;place-items:center;position:relative}
-.stone.lock button{background:#C9D3E0!important;color:#8A97AB}
-.stone.cur button{animation:pulse 1.6s infinite}
-.stone .nm{font-size:.72rem;text-align:center;line-height:1.2;font-weight:600;max-width:110px}
-.stars{display:flex;gap:1px}
-.stars svg{width:14px;height:14px}
-@keyframes pulse{0%,100%{box-shadow:0 5px 0 rgba(0,0,0,.18),0 0 0 0 rgba(255,176,32,.7)}50%{box-shadow:0 5px 0 rgba(0,0,0,.18),0 0 0 12px rgba(255,176,32,0)}}
-.zone{font-family:var(--display);font-weight:700;text-align:center;color:var(--peacock);position:absolute;left:0;right:0;font-size:.95rem}
-
-/* rewards */
-.bgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.bdg{background:var(--card);border-radius:20px;padding:14px 10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:0 4px 14px rgba(30,42,74,.06)}
-.bdg svg{width:64px;height:64px}
-.bdg b{font-family:var(--display);font-size:1rem;line-height:1.2}
-.bdg span{font-size:.75rem;color:var(--muted);line-height:1.3}
-.bdg.off{opacity:.55}
-.bdg.off svg{filter:grayscale(1)}
-.ranks{display:flex;flex-direction:column;gap:8px}
-.rk{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;background:var(--sky)}
-.rk b{font-family:var(--display);flex:1}
-.rk span{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
-.rk.on{background:var(--marigold)}
-.rk.on span{color:var(--ink)}
-
-/* welcome */
-.welcome{position:fixed;inset:0;z-index:40;background:linear-gradient(170deg,#1565C0 0%,#0FA3A3 60%,#2FA866 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;
-  padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));padding-block:calc(24px + env(safe-area-inset-top,0px)) calc(24px + env(safe-area-inset-bottom,0px));overflow-y:auto}
-.welcome h1{font-family:var(--display);font-size:2.4rem;line-height:1.1;margin:0}
-.welcome p{margin:0;max-width:30ch;opacity:.95}
-.welcome svg.m{width:170px;height:170px;animation:bob 3s ease-in-out infinite}
-.welcome input{width:100%;max-width:300px;padding:14px 16px;border-radius:16px;border:0;font:inherit;font-size:1.1rem;text-align:center;color:var(--ink);background:#fff}
-.welcome .cta{max-width:300px}
-.welcome .feat{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
-.welcome .feat span{background:rgba(255,255,255,.18);border-radius:99px;padding:4px 12px;font-size:.85rem}
-@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-
-/* lesson sheet */
-.sheet{position:fixed;inset:0;z-index:30;background:var(--sky);display:flex;flex-direction:column}
-.sheet-top{display:flex;align-items:center;gap:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(10px + env(safe-area-inset-top,0px)) 8px}
-.sheet-top .x{width:40px;height:40px;border-radius:50%;background:var(--card);font-size:1.3rem;box-shadow:0 2px 8px rgba(30,42,74,.1)}
-.steps-bar{flex:1;display:flex;gap:5px}
-.steps-bar i{flex:1;height:10px;border-radius:99px;background:var(--line);transition:background .3s}
-.steps-bar i.on{background:var(--leaf)}
-.steps{flex:1;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none}
-.steps::-webkit-scrollbar{display:none}
-.step{flex:0 0 100%;scroll-snap-align:start;overflow-y:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:6px calc(24px + env(safe-area-inset-bottom,0px))}
-.step>.in{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
-.scene{border-radius:24px;height:200px;position:relative;overflow:hidden;display:grid;place-items:center}
-.scene svg{width:86%;height:86%}
-.scene.pop svg{animation:pop .6s}
-@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.12) rotate(-3deg)}100%{transform:scale(1)}}
-.scene .tap{position:absolute;bottom:8px;right:10px;background:rgba(255,255,255,.85);border-radius:99px;padding:2px 10px;font-size:.75rem;font-weight:600;color:var(--ink)}
-.lvl-tag{font-family:var(--display);font-weight:700;color:var(--peacock);font-size:.95rem}
-.step h2{font-family:var(--display);font-size:1.6rem;line-height:1.25;margin:0;text-wrap:balance}
-.story{font-size:1.12rem;line-height:1.8;margin:0}
-.sloka-box{background:linear-gradient(135deg,#FFF1D6,#FFE2EC);border-radius:22px;padding:18px;border:2px dashed var(--marigold)}
-.sloka-box .sk{font-family:var(--display);font-weight:600;color:var(--sindoor);font-size:1.08rem;line-height:1.75;white-space:pre-line;margin:0}
-.sloka-box .rf{font-size:.8rem;color:var(--muted);margin-top:4px}
-.easy{background:var(--card);border-radius:22px;padding:16px}
-.easy b{font-family:var(--display);color:var(--leaf);display:block;margin-bottom:2px}
-.lesson{background:var(--peacock);color:#fff;border-radius:22px;padding:16px;display:flex;gap:12px;align-items:center}
-.lesson svg{width:44px;height:44px;flex:0 0 auto}
-.lesson p{margin:0;font-family:var(--display);font-weight:600;font-size:1.08rem;line-height:1.45}
-.q{font-family:var(--display);font-size:1.45rem;font-weight:700;line-height:1.35;margin:0;text-wrap:balance}
-.opts{display:flex;flex-direction:column;gap:10px}
-.opt{background:var(--card);border-radius:18px;padding:14px 16px;text-align:left;font-size:1.08rem;font-weight:500;border:3px solid var(--line);box-shadow:0 4px 0 var(--line);display:flex;gap:10px;align-items:center}
-.opt .l{width:30px;height:30px;border-radius:50%;background:var(--sky);display:grid;place-items:center;font-family:var(--display);font-weight:700;flex:0 0 auto}
-.opt.ok{border-color:var(--leaf);background:#E3F7EC;box-shadow:0 4px 0 var(--leaf);animation:pop .5s}
-.opt.ok .l{background:var(--leaf);color:#fff}
-.opt.no{border-color:var(--sindoor);background:#FDE8E1;animation:shake .4s}
-.opt.no .l{background:var(--sindoor);color:#fff}
-.opt[disabled]{cursor:default}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
-.feedback{font-family:var(--display);font-weight:700;font-size:1.05rem;min-height:1.6em;margin:0}
-.result{text-align:center;align-items:center}
-.bigstars{display:flex;gap:6px;justify-content:center}
-.bigstars svg{width:68px;height:68px;transform:scale(0);animation:starIn .5s forwards}
-.bigstars svg:nth-child(2){animation-delay:.25s;width:84px;height:84px;margin-top:-14px}
-.bigstars svg:nth-child(3){animation-delay:.5s}
-@keyframes starIn{60%{transform:scale(1.25)}100%{transform:scale(1)}}
-.earn{font-family:var(--display);font-weight:800;font-size:2rem;color:var(--sindoor)}
-.breath{display:flex;flex-direction:column;align-items:center;gap:8px;background:var(--card);border-radius:22px;padding:16px}
-.breath .c{width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,#9BE3E3,var(--teal));transition:transform 4s ease-in-out}
-.breath .c.big{transform:scale(1.8)}
-.breath b{font-family:var(--display)}
-
-/* toast + celebrate */
-.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translate(-50%,-140%);z-index:60;background:var(--ink);color:#fff;border-radius:16px;padding:10px 16px;font-family:var(--display);font-weight:600;transition:transform .35s;max-width:calc(100% - 32px);text-align:center}
-.toast.show{transform:translate(-50%,0)}
-.xp-pop{position:fixed;z-index:61;font-family:var(--display);font-weight:800;color:var(--marigold);font-size:1.6rem;pointer-events:none;animation:rise 1s forwards;text-shadow:0 2px 0 rgba(0,0,0,.15)}
-@keyframes rise{to{transform:translateY(-60px);opacity:0}}
-.celebrate{position:fixed;inset:0;z-index:70;background:rgba(21,40,80,.72);display:grid;place-items:center;padding:24px}
-.celebrate .box{background:var(--card);border-radius:28px;padding:24px;text-align:center;max-width:340px;width:100%;display:flex;flex-direction:column;gap:10px;align-items:center;animation:pop .6s}
-.celebrate h2{font-family:var(--display);margin:0;font-size:1.6rem;color:var(--peacock)}
-.celebrate canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none}
-/* leaders */
-.lb{background:var(--card);border-radius:22px;padding:14px;box-shadow:0 4px 16px rgba(30,42,74,.06);display:flex;flex-direction:column;gap:10px}
-.lb-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
-.lb-head h3{font-family:var(--display);margin:0;font-size:1.1rem}
-.seg{display:flex;gap:3px;background:var(--sky);border-radius:99px;padding:3px}
-.seg button{padding:3px 10px;border-radius:99px;font-size:.78rem;font-weight:600;color:var(--muted)}
-.seg button[aria-pressed="true"]{background:var(--peacock);color:#fff}
-.podium{display:grid;grid-template-columns:repeat(3,1fr);align-items:end;gap:8px}
-.pd{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;min-width:0}
-.av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:var(--display);font-weight:800;font-size:1.15rem;border:3px solid #fff;box-shadow:0 3px 8px rgba(30,42,74,.18);flex:0 0 auto}
-.pd.p1 .av{width:56px;height:56px;font-size:1.4rem}
-.av.me{border-color:var(--marigold)}
-.crown{width:28px;height:18px;margin-bottom:-4px}
-.pd .nmx{font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.pd .px{font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums}
-.blk{width:100%;border-radius:12px 12px 4px 4px;display:grid;place-items:center;font-family:var(--display);font-weight:800;color:#fff;font-size:1.2rem}
-.lrows{display:flex;flex-direction:column;gap:4px}
-.lrow{display:grid;grid-template-columns:24px auto 1fr auto;gap:8px;align-items:center;padding:5px 8px;border-radius:12px}
-.lrow .av{width:32px;height:32px;font-size:.9rem;border-width:2px}
-.lrow b{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lrow .pos{font-family:var(--display);font-weight:700;color:var(--muted);text-align:center}
-.lrow span{font-size:.82rem;font-variant-numeric:tabular-nums;color:var(--muted)}
-.lrow.me{background:#FFF1D6;box-shadow:inset 0 0 0 2px var(--marigold)}
-.chal{display:flex;gap:10px;align-items:center;background:var(--sky);border-radius:16px;padding:10px 12px}
-.chal p{margin:0;flex:1;min-width:0;font-size:.9rem;line-height:1.4}
-.chal p b{font-family:var(--display)}
-.chal .go{background:var(--sindoor);color:#fff;font-family:var(--display);font-weight:700;border-radius:12px;padding:6px 12px;box-shadow:0 3px 0 #B23E18;white-space:nowrap}
-.chal .bar{height:8px;background:#fff;border-radius:99px;overflow:hidden;margin-top:4px}
-.chal .bar i{display:block;height:100%;background:var(--sindoor);border-radius:99px}
-.sample{font-size:.7rem;color:var(--muted);margin:0}
-.myrank{display:flex;gap:12px;align-items:center;background:#FFF1D6;border-radius:16px;padding:10px 12px;box-shadow:inset 0 0 0 2px var(--marigold)}
-.rk-num{width:46px;height:46px;border-radius:14px;background:var(--marigold);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:1.5rem;flex:0 0 auto}
-.rk-num::before{content:"#";font-size:.9rem;margin-right:1px}
-.myrank b{font-family:var(--display);display:block;line-height:1.2}
-.myrank span{font-size:.8rem;color:var(--muted)}
-
+button:focus-visible,input:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 96px;min-height:100vh}
+.view{display:none}.view.on{display:block}
+h1{font-size:30px;line-height:1.15;margin:4px 0 2px;text-wrap:balance}
+h2{font-size:20px;margin:22px 0 10px}
+.muted{color:var(--soft);font-size:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 22px;border-radius:999px;background:var(--lotus);color:#fff;font-weight:600;font-size:17px;box-shadow:var(--shadow)}
+.btn.ghost{background:var(--lotus2);color:var(--ink);box-shadow:none}
+.btn.wide{width:100%}
+.card{background:var(--card);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
+/* onboarding */
+.ob{text-align:center;padding-top:8vh}
+.ob input{width:100%;font:inherit;font-size:18px;padding:14px 16px;border-radius:16px;border:2px solid var(--line);background:var(--card);color:var(--ink);margin:6px 0 14px}
+.ob label{display:block;text-align:left;font-weight:600}
+/* home */
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.lvl{background:var(--teal2);color:var(--teal);padding:6px 12px;border-radius:999px;font-weight:600;font-size:14px;white-space:nowrap}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}
+.stat{background:var(--card);border-radius:18px;padding:12px 8px;text-align:center;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:24px;line-height:1.2}
+.stat span{font-size:13px;color:var(--soft)}
+.goal{display:flex;align-items:center;gap:16px}
+.ring{flex:none;width:84px;height:84px}
+.map{position:relative;height:1180px;margin-top:6px}
+.map svg{position:absolute;inset:0;width:100%;height:100%}
+.node{position:absolute;width:124px;transform:translateX(-50%);text-align:center}
+.node button{width:64px;height:64px;border-radius:50%;background:var(--card);box-shadow:var(--shadow);display:grid;place-items:center;margin:0 auto;position:relative;font-weight:700;font-size:20px;border:3px solid var(--line)}
+.node.done button{background:var(--lotus);color:#fff;border-color:var(--lotus)}
+.node.cur button{border-color:var(--gold);animation:pulse 2s infinite}
+.node.lock button{opacity:.45}
+.node small{display:block;font-size:12px;line-height:1.25;margin-top:4px;color:var(--soft)}
+.node i{position:absolute;inset:-3px;border-radius:50%;background:conic-gradient(var(--teal) var(--p),transparent 0);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 0);mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 0)}
+@keyframes pulse{50%{box-shadow:0 0 0 10px #f5a52433}}
+.vod{background:linear-gradient(140deg,var(--lotus2),var(--teal2));border-radius:24px;padding:18px;margin-top:8px}
+.sa{font-family:"Noto Serif Bengali",serif;font-weight:600;color:var(--lotus);text-align:center;line-height:1.8}
+/* reader */
+.rbar{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.rbar .t{flex:1;font-weight:600;line-height:1.3}
+.icon{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--card);box-shadow:var(--shadow);flex:none}
+.prog{height:8px;border-radius:9px;background:var(--line);overflow:hidden;margin-bottom:14px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--lotus));transition:width .3s}
+.stage{perspective:1400px;touch-action:pan-y;user-select:none}
+.flip{position:relative;min-height:62vh;transition:transform .55s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
+.flip.back{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:28px;background:var(--card);box-shadow:var(--shadow);padding:22px 20px;display:flex;flex-direction:column;overflow:auto}
+.face.b{transform:rotateY(180deg);background:linear-gradient(170deg,var(--card) 55%,var(--teal2))}
+.face .num{display:flex;justify-content:space-between;color:var(--soft);font-size:14px}
+.face .body{flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:18px 0}
+.spk{text-align:center;color:var(--teal);font-weight:600;font-size:15px}
+.tr{font-size:calc(19px * var(--fs,1));line-height:1.75}
+.sl{font-size:calc(21px * var(--fs,1))}
+.hint{text-align:center;color:var(--soft);font-size:13px}
+.ctrl{display:flex;justify-content:space-between;align-items:center;margin-top:16px;gap:10px}
+.fav.on svg{fill:var(--lotus);stroke:var(--lotus)}
+.toast{position:fixed;left:50%;bottom:84px;transform:translate(-50%,200%);opacity:0;background:var(--card);box-shadow:var(--shadow);padding:10px 18px;border-radius:999px;font-weight:600;transition:transform .35s;z-index:9;display:flex;gap:8px;align-items:center}
+.toast.on{transform:translate(-50%,0);opacity:1}
+/* lists */
+.ch{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:var(--card);border-radius:18px;padding:12px 14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.ch .n{flex:none;width:42px;height:42px;border-radius:14px;background:var(--lotus2);display:grid;place-items:center;font-weight:700}
+.ch .x{flex:1}.ch .x b{display:block;line-height:1.3}
+.bar{height:6px;border-radius:6px;background:var(--line);margin-top:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--teal)}
+.empty{text-align:center;padding:40px 10px;color:var(--soft)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}.seg button{min-height:40px;padding:0 14px;border-radius:999px;background:var(--lotus2);font-weight:600}.seg button.on{background:var(--lotus);color:#fff}
 /* puja */
-.next{background:linear-gradient(140deg,#3B2A8C,#5C7CFA 60%,#FF8A5B);color:#fff;border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden}
-.next .lbl{font-size:.85rem;opacity:.9}
-.next .tm{font-family:var(--display);font-weight:800;font-size:2.4rem;line-height:1.05}
-.next .cd{font-family:var(--display);font-weight:600}
-.next .bellart{position:absolute;right:-8px;top:-6px;width:110px;height:110px;opacity:.25}
-.next .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
-.pill{background:rgba(255,255,255,.22);border-radius:99px;padding:5px 12px;font-family:var(--display);font-weight:600;font-size:.9rem;color:#fff}
-.alist{display:flex;flex-direction:column;gap:10px}
-.arow{background:var(--sky);border-radius:18px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
-.arow .r1,.arow .r2{display:flex;gap:8px;align-items:center}
-.arow input[type=time]{font-family:var(--display);font-weight:700;font-size:1.3rem;border:0;background:var(--card);border-radius:12px;padding:4px 8px;color:var(--ink)}
-.arow input[type=text]{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-weight:600;color:var(--ink);padding:4px}
-.arow select{flex:1;min-width:0;border:0;background:var(--card);border-radius:12px;padding:8px;font:inherit;color:var(--ink)}
-.arow .del{width:38px;height:38px;border-radius:12px;background:var(--card);color:var(--sindoor);font-size:1.1rem}
-.sw{position:relative;width:52px;height:30px;flex:0 0 auto}
-.sw input{opacity:0;position:absolute;inset:0;margin:0;cursor:pointer;z-index:1}
-.sw i{position:absolute;inset:0;background:#C9D3E0;border-radius:99px;transition:background .2s}
-.sw i::after{content:"";position:absolute;left:3px;top:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
-.sw input:checked+i{background:var(--leaf)}
-.sw input:checked+i::after{transform:translateX(22px)}
-.sw input:focus-visible+i{outline:3px solid var(--marigold);outline-offset:2px}
-.pf-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:.85rem}
-.pf-pill{border-radius:99px;padding:2px 10px;font-weight:600;font-size:.78rem}
-.pf-un{background:#FFF3D6;color:#8A5A00}.pf-ok{background:#E3F7EC;color:#1E7A48}.pf-ed{background:#E4EFFC;color:#0D4A91}
-.ed-btn{background:var(--sky);border-radius:10px;padding:3px 10px;font-size:.8rem;font-weight:600;color:var(--peacock)}
-.sec .hrow{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.edbox{width:100%;min-height:120px;font:inherit;font-size:1rem;line-height:1.7;border:2px solid var(--marigold);border-radius:12px;padding:8px 10px;background:#FFFDF6;color:var(--ink)}
-.chpick{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
-.chpick button{aspect-ratio:1;border-radius:12px;background:var(--card);font-family:var(--display);font-weight:700;border:2px solid var(--line)}
-.chpick button[aria-pressed="true"]{background:var(--peacock);color:#fff;border-color:var(--peacock)}
-.alst{background:#E3F7EC;border-radius:16px;padding:10px 12px}
-.add{border:2px dashed var(--line);border-radius:18px;padding:12px;font-family:var(--display);font-weight:700;color:var(--peacock)}
-.tlist{display:grid;grid-template-columns:1fr;gap:10px}
-.tcard{border-radius:20px;padding:14px;color:#fff;display:flex;flex-direction:column;gap:8px}
-.tcard .h{display:flex;align-items:center;gap:10px}
-.tcard .h b{font-family:var(--display);font-size:1.15rem;display:block;line-height:1.2}
-.tcard .h span{font-size:.8rem;opacity:.9}
-.tcard .ic{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.22);display:grid;place-items:center;flex:0 0 auto}
-.tcard .ic svg{width:28px;height:28px}
-.play{margin-left:auto;background:#fff;color:var(--ink);font-family:var(--display);font-weight:700;border-radius:99px;padding:6px 14px;white-space:nowrap}
-.play[aria-pressed="true"]{background:var(--ink);color:#fff}
-.mt{display:flex;flex-wrap:wrap;gap:4px 8px;font-family:var(--display);font-weight:600;font-size:1.05rem}
-.mt span{padding:0 4px;border-radius:8px;transition:background .15s,transform .15s}
-.mt span.on{background:#fff;color:var(--ink);transform:scale(1.12)}
-.ringer{position:fixed;inset:0;z-index:80;background:linear-gradient(170deg,#3B2A8C,#5C7CFA);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;
-  padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px));padding-block:calc(24px + env(safe-area-inset-top,0px)) calc(24px + env(safe-area-inset-bottom,0px))}
-.ringer .bigbell{width:110px;height:110px;animation:swing 1s ease-in-out infinite;transform-origin:50% 10%}
-@keyframes swing{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(14deg)}}
-.ringer h2{font-family:var(--display);font-size:1.8rem;margin:0}
-.ringer .tm{font-family:var(--display);font-weight:800;font-size:3rem;line-height:1}
-.ringer .mt{justify-content:center;max-width:340px}
-.ringer .cta{max-width:320px}
-.ringer .soft{background:rgba(255,255,255,.2);color:#fff;border-radius:16px;padding:10px 18px;font-family:var(--display);font-weight:600}
-/* library + reader */
-.cont{background:linear-gradient(135deg,#FF8A5B,#E8572C);color:#fff;border-radius:22px;padding:16px;display:flex;gap:12px;align-items:center;text-align:left;width:100%}
-.cont .t{flex:1;min-width:0}.cont small{opacity:.9;display:block}.cont b{font-family:var(--display);font-size:1.15rem;display:block;line-height:1.3}
-.cont .sk1{font-family:var(--display);font-size:.9rem;opacity:.95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cont .go{background:#fff;color:var(--sindoor);font-family:var(--display);font-weight:700;border-radius:14px;padding:8px 14px;white-space:nowrap}
-.srch{width:100%;padding:12px 14px;border-radius:16px;border:2px solid var(--line);background:var(--card);font:inherit;color:var(--ink)}
-.cgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.cc{border-radius:20px;padding:12px;color:#fff;display:flex;flex-direction:column;gap:4px;text-align:left;min-height:118px;position:relative;overflow:hidden}
-.cc .num{font-family:var(--display);font-weight:800;font-size:1.8rem;line-height:1}
-.cc b{font-family:var(--display);font-size:1rem;line-height:1.25}
-.cc span{font-size:.75rem;opacity:.92}
-.cc .pb{height:6px;background:rgba(255,255,255,.3);border-radius:99px;overflow:hidden;margin-top:auto}
-.cc .pb i{display:block;height:100%;background:#fff;border-radius:99px}
-.cc .art{position:absolute;right:-14px;top:-10px;width:80px;height:80px;opacity:.22}
-.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:8px}
-.vb{aspect-ratio:1;border-radius:14px;background:var(--card);font-family:var(--display);font-weight:700;font-size:1rem;box-shadow:0 2px 6px rgba(30,42,74,.08);position:relative;display:grid;place-items:center;max-width:100%}
-.vb.read{background:#E3F7EC;color:#1E7A48}
-.vb.na{color:#A9B4C6}
-.vb .h{position:absolute;top:2px;right:4px;font-size:.7rem;color:var(--lotus)}
-.rd-top{display:flex;align-items:center;gap:8px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(10px + env(safe-area-inset-top,0px)) 8px}
-.rd-top .ttl{flex:1;min-width:0;font-family:var(--display);font-weight:700;line-height:1.2}
-.rd-top .ttl small{display:block;font-family:var(--body);font-weight:500;color:var(--muted);font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ib{width:40px;height:40px;border-radius:50%;background:var(--card);box-shadow:0 2px 8px rgba(30,42,74,.1);display:grid;place-items:center;font-family:var(--display);font-weight:700;flex:0 0 auto}
-.ib.fav{color:var(--lotus)}
-.rd-body{flex:1;overflow-y:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:4px calc(90px + env(safe-area-inset-bottom,0px));touch-action:pan-y}
-.rd-body>.in{max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:12px;font-size:var(--rfs,17px)}
-.sec{background:var(--card);border-radius:18px;padding:14px 16px}
-.sec h4{margin:0 0 4px;font-family:var(--display);color:var(--peacock);font-size:.95em}
-.sec p{margin:0;white-space:pre-line;line-height:1.85}
-.sec.tr{background:#EAF5FF;border-left:5px solid var(--peacock)}
-.sec.tr p{font-weight:500}
-.sec.song p{font-family:var(--display);font-weight:600;color:#6A3FB5;text-align:center}
-.sec details summary{cursor:pointer;font-family:var(--display);font-weight:700;color:var(--peacock);list-style:none;display:flex;justify-content:space-between}
-.sec details summary::-webkit-details-marker{display:none}
-.sec details[open] summary span{transform:rotate(180deg)}
-.rd-nav{position:fixed;left:0;right:0;bottom:0;display:flex;gap:10px;justify-content:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,var(--sky) 35%)}
-.rd-nav .cta{max-width:240px;font-size:1rem;padding:11px 14px}
-.notice{background:#FFF4E2;border:2px dashed var(--marigold);border-radius:16px;padding:12px 14px;font-size:.9rem}
-.flist{display:flex;flex-direction:column;gap:10px}
-.fi{background:var(--card);border-radius:18px;padding:12px 14px;text-align:left;display:flex;flex-direction:column;gap:4px;box-shadow:0 3px 10px rgba(30,42,74,.06);width:100%}
-.fi .r{display:flex;justify-content:space-between;gap:8px;font-family:var(--display);font-weight:700;color:var(--peacock)}
-.fi .s{font-family:var(--display);color:var(--sindoor);white-space:pre-line;line-height:1.6}
-.fi .m{font-size:.9rem;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.heart{background:none;font-size:1.3rem;color:var(--lotus);line-height:1;padding:4px}
-.vcard .hb{position:absolute;right:14px;bottom:12px;background:rgba(255,255,255,.25);border-radius:99px;width:38px;height:38px;color:#fff;font-size:1.2rem;z-index:2}
-.modal{position:fixed;inset:0;z-index:90;background:rgba(21,40,80,.6);display:grid;place-items:center;padding:24px}
-.modal .box{background:var(--card);border-radius:24px;padding:20px;max-width:340px;width:100%;display:flex;flex-direction:column;gap:10px;text-align:center}
-.modal h3{font-family:var(--display);margin:0;color:var(--peacock)}
-.modal input{padding:12px;border-radius:12px;border:2px solid var(--line);font:inherit;font-size:1.2rem;text-align:center}
-.mode-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.mode-row .tag{background:var(--peacock);color:#fff;border-radius:99px;padding:3px 12px;font-family:var(--display);font-weight:600}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.next{background:linear-gradient(140deg,var(--lotus),#f5a524);color:#fff;border-radius:26px;padding:20px;box-shadow:var(--shadow)}
+.next .tm{font-size:38px;font-weight:700;line-height:1.1;margin:4px 0}
+.next .pill{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border-radius:999px;background:#ffffff33;color:#fff;font-weight:600;margin:10px 8px 0 0}
+.arow{background:var(--card);border-radius:18px;padding:12px;margin-bottom:10px;box-shadow:var(--shadow);display:grid;gap:8px}
+.arow .r{display:flex;gap:8px;align-items:center}
+.arow input[type=time],.arow input[type=text],.arow select{font:inherit;font-size:16px;min-height:44px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink);padding:0 10px}
+.arow input[type=text]{flex:1}.arow select{flex:1}
+.sw{position:relative;width:52px;height:30px;flex:none}.sw input{opacity:0;position:absolute;inset:0;margin:0;cursor:pointer}
+.sw i{position:absolute;inset:0;border-radius:99px;background:var(--line);transition:.2s;pointer-events:none}.sw i::after{content:"";position:absolute;width:24px;height:24px;top:3px;left:3px;border-radius:50%;background:#fff;transition:.2s}
+.sw input:checked+i{background:var(--teal)}.sw input:checked+i::after{left:25px}
+.del{width:44px;height:44px;border-radius:12px;background:var(--lotus2);font-size:22px;flex:none}
+.tone{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:18px;padding:12px 14px;margin-bottom:10px;box-shadow:var(--shadow)}
+.tone b{flex:1}
+.note{background:var(--teal2);border-radius:16px;padding:12px 14px;font-size:14px;margin:10px 0}
+.ringer{position:fixed;inset:0;z-index:11;background:linear-gradient(160deg,#e8558a,#f5a524);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;text-align:center}
+.ringer h2{font-size:28px;margin:6px 0}.ringer .tm{font-size:44px;font-weight:700}
+.ringer .btn{background:#fff;color:#c2185b}.ringer .btn.ghost{background:#ffffff33;color:#fff}
+.bigbell{width:110px;animation:swing 1s ease-in-out infinite alternate;transform-origin:50% 10%}
+@keyframes swing{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
+/* nav */
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);box-shadow:0 -6px 24px #0001;display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom));z-index:5}
+nav button{flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;font-size:12px;padding:6px 0;color:var(--soft);min-height:52px}
+nav button.on{color:var(--lotus);font-weight:700}
+nav svg{width:24px;height:24px}
+.modal{position:fixed;inset:0;background:#0007;display:none;place-items:center;z-index:8;padding:20px}
+.modal.on{display:grid}
+.modal .card{max-width:420px;width:100%;text-align:center}
+.modal img{width:100%;border-radius:18px;margin:10px 0}
+.petal{position:fixed;top:-20px;width:14px;height:20px;border-radius:50% 50% 50% 0;background:var(--lotus);z-index:10;animation:fall 2.6s ease-in forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.2}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+body.kid .tr{font-size:calc(21px * var(--fs,1))}body.kid .face{border:4px dashed var(--lotus2)}
 </style>
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);height:100%}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
+<div class="toast" id="toast"></div>
+<div class="wrap">
 
+<section class="view" id="v-ob"><div class="ob">
+  <svg viewBox="0 0 120 90" width="150" aria-hidden="true"><g transform="translate(60 62)"><path d="M0-48C14-30 14-10 0 6-14-10-14-30 0-48z" fill="#e8558a"/><path d="M0 6C-8-14-26-26-46-24-38-6-20 6 0 6zM0 6C8-14 26-26 46-24 38-6 20 6 0 6z" fill="#f48fb1"/><path d="M0 6C-16-6-34-6-54 2-36 14-16 14 0 6zM0 6C16-6 34-6 54 2 36 14 16 14 0 6z" fill="#ffc1d6"/><ellipse cy="14" rx="48" ry="7" fill="#1f9e93" opacity=".35"/></g></svg>
+  <h1>গীতা পাঠশালায় স্বাগতম</h1>
+  <p class="muted">প্রতিদিন কয়েকটি শ্লোক, প্রতিটি শ্লোকে একটি করে প্রদীপ জ্বালান।</p>
+  <form id="obf" class="card" style="margin-top:20px">
+    <label for="nm">আপনার নাম</label><input id="nm" required maxlength="30" autocomplete="given-name">
+    <label for="ag">বয়স</label><input id="ag" type="number" inputmode="numeric" min="3" max="110" required>
+    <button class="btn wide" type="submit">শুরু করি</button>
+    <p class="muted" style="margin:10px 0 0">১২ বছরের কম বয়সীদের জন্য খেলার মতো শিশু-সংস্করণ খুলবে।</p>
+  </form>
+</div></section>
 
-<div class="app">
-  <div class="pages" id="pages">
-    <section class="page" id="p-home" aria-label="হোম"><div class="in" id="home"></div></section>
-    <section class="page" id="p-map" aria-label="যাত্রাপথ"><div class="in" id="map"></div></section>
-    <section class="page" id="p-puja" aria-label="পূজা"><div class="in" id="puja"></div></section>
-    <section class="page" id="p-rew" aria-label="পুরস্কার"><div class="in" id="rew"></div></section>
+<section class="view" id="v-home">
+  <div class="top"><div><p class="muted" id="hello" style="margin:0"></p><h1 id="htitle">আজকের পাঠ</h1></div><span class="lvl" id="lvl"></span></div>
+  <div class="stats">
+    <div class="stat"><b id="sLit">০</b><span>প্রদীপ জ্বলেছে</span></div>
+    <div class="stat"><b id="sStreak">০</b><span>দিনের ধারা</span></div>
+    <div class="stat"><b id="sFav">০</b><span>প্রিয় শ্লোক</span></div>
   </div>
-  <nav><div class="navin">
-    <button class="nb" data-p="0" aria-current="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>হোম</button>
-    <button class="nb" data-p="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/></svg>যাত্রা</button>
-    <button class="nb" data-p="2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4z"/><path d="M10 21a2 2 0 0 0 4 0"/><path d="M12 3v2"/></svg>পূজা</button>
-    <button class="nb" data-p="3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M8.5 14L7 22l5-3 5 3-1.5-8"/></svg>পুরস্কার</button>
-  </div></nav>
+  <div class="card goal">
+    <svg class="ring" viewBox="0 0 84 84"><circle cx="42" cy="42" r="34" fill="none" stroke="var(--line)" stroke-width="10"/><circle id="ringc" cx="42" cy="42" r="34" fill="none" stroke="var(--lotus)" stroke-width="10" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6" transform="rotate(-90 42 42)" style="transition:stroke-dashoffset .6s"/><text id="ringt" x="42" y="49" text-anchor="middle" font-size="20" font-weight="700" fill="currentColor"></text></svg>
+    <div style="flex:1"><b id="goalT"></b><p class="muted" id="goalS" style="margin:2px 0 10px"></p><button class="btn" id="cont">পড়া চালিয়ে যাই</button></div>
+  </div>
+  <h2>আজকের শ্লোক</h2>
+  <div class="vod" id="vod"></div>
+  <h2>প্রদীপের পথ</h2>
+  <p class="muted" id="mapNote" style="margin-top:-6px"></p>
+  <div class="map" id="map"></div>
+</section>
+
+<section class="view" id="v-read">
+  <div class="rbar"><button class="icon" id="rback" aria-label="অধ্যায় তালিকা"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button><div class="t" id="rtitle"></div><button class="icon fav" id="rfav" aria-label="প্রিয়তে রাখুন"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
+  <div class="prog"><i id="rprog"></i></div>
+  <div class="stage" id="stage"><div class="flip" id="flip">
+    <div class="face a"><div class="num"><span id="fnum"></span><span>মূল শ্লোক</span></div><div class="body" id="fsa"></div><p class="hint">ছুঁয়ে দেখুন অর্থ · পাশে সরিয়ে পরের শ্লোক</p></div>
+    <div class="face b"><div class="num"><span id="bnum"></span><span>বাংলা অনুবাদ</span></div><div class="body"><p class="tr" id="btr"></p></div><p class="hint">ছুঁয়ে আবার শ্লোক দেখুন</p></div>
+  </div></div>
+  <div class="ctrl">
+    <button class="icon" id="prev" aria-label="আগের শ্লোক"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button class="btn ghost" id="share">ছবি-কার্ড বানাই</button>
+    <button class="icon" id="next" aria-label="পরের শ্লোক"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+</section>
+
+<section class="view" id="v-list"><h1>অধ্যায়সমূহ</h1><p class="muted">যে-কোনো অধ্যায় থেকে পড়া শুরু করুন।</p><div id="chlist"></div></section>
+<section class="view" id="v-puja"><h1>পূজার সময়</h1><p class="muted" id="pujaCount"></p>
+  <div class="next" id="pnext"></div>
+  <button class="btn wide" id="pujaDone" style="margin:14px 0 4px"></button>
+  <h2>আমার অ্যালার্ম</h2><div id="alist"></div>
+  <div class="seg"><button id="addA">+ পূজার সময়</button><button id="addL">+ পাঠের সময়</button></div>
+  <div id="alSt"></div>
+  <h2>ভক্তি ধ্বনি</h2><div id="tones"></div>
+  <p class="muted" id="pujaFoot"></p>
+</section>
+<section class="view" id="v-fav"><h1>প্রিয় শ্লোক</h1><p class="muted">যে শ্লোকগুলো বারবার পড়তে চান।</p><div id="favlist"></div></section>
+<section class="view" id="v-set"><h1>সেটিংস</h1>
+  <div class="row"><b>লেখার আকার</b><div class="seg" id="fsSeg"><button data-v="0.9">ছোট</button><button data-v="1">মাঝারি</button><button data-v="1.2">বড়</button></div></div>
+  <div class="row"><b>রং</b><div class="seg" id="thSeg"><button data-v="">পদ্ম</button><button data-v="saffron">গেরুয়া</button><button data-v="night">রাত</button></div></div>
+  <div class="row"><b>দৈনিক লক্ষ্য</b><div class="seg" id="glSeg"><button data-v="3">৩</button><button data-v="5">৫</button><button data-v="10">১০</button></div></div>
+  <div class="row"><div><b id="who"></b><div class="muted" id="mode"></div></div><button class="btn ghost" id="reprof">বদলাই</button></div>
+  <div class="row"><div><b>পুরনো সংস্করণ</b><div class="muted">আগের পাঠ, কুইজ ও প্রুফরিডিং</div></div><a class="btn ghost" href="v1.html" style="text-decoration:none">খুলুন</a></div>
+  <p class="muted" style="margin-top:18px">অগ্রগতি এই ফোনের ব্রাউজারেই সংরক্ষিত থাকে। মূল সংস্কৃত শ্লোক অপরিবর্তিত; বাংলা অনুবাদ সরল চলিত ভাষায়।</p>
+</section>
 </div>
 
-<div class="toast" id="toast" role="status"></div>
+<nav id="nav">
+  <button data-go="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>হোম</button>
+  <button data-go="list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5h7a3 3 0 0 1 3 3v12a3 3 0 0 0-3-3H4zM20 5h-4a2 2 0 0 0-2 2"/></svg>পড়ুন</button>
+  <button data-go="puja"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17V11a5 5 0 0 1 10 0v6l2 2H5z"/><path d="M10 21h4M12 3v3"/></svg>পূজা</button>
+  <button data-go="fav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg>প্রিয়</button>
+  <button data-go="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg>সেটিংস</button>
+</nav>
+
+<div class="modal" id="modal"><div class="card"><b>শ্লোক-কার্ড তৈরি</b><img id="cardImg" alt="শ্লোকের ছবি-কার্ড"><p class="muted">ছবিটি চেপে ধরে সেভ বা শেয়ার করুন।</p><div class="seg" style="justify-content:center"><button id="copyT">লেখা কপি</button><button id="closeM">বন্ধ</button></div></div></div>
 
 <script>
-/* ===== INVITE CODES: add or remove tester codes here ===== */
-const INVITE_CODES=["GITA-AJ97", "GITA-B299", "GITA-A6FZ", "GITA-KEZ4", "GITA-YKSQ", "GITA-XE74", "GITA-6HEF", "GITA-MUMJ", "GITA-EYWP", "GITA-FFC8"];
-/* ---------- helpers ---------- */
-const BN=n=>String(n).replace(/\d/g,d=>"০১২৩৪৫৬৭৮৯"[d]);
-const $=s=>document.querySelector(s);
-const todayKey=(d=new Date())=>d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
-const STAR=(on)=>`<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.5 1.3 6.6L12 17.2l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z" fill="${on?"#FFB020":"#D7DFEA"}" stroke="${on?"#E09400":"#C3CDDA"}" stroke-width="1"/></svg>`;
+{
+const NAMES=['অর্জুনবিষাদযোগ','সাংখ্যযোগ','কর্মযোগ','জ্ঞানকর্মসন্ন্যাসযোগ','কর্মসন্ন্যাসযোগ','ধ্যানযোগ','জ্ঞানবিজ্ঞানযোগ','অক্ষরব্রহ্মযোগ','রাজবিদ্যারাজগুহ্যযোগ','বিভূতিযোগ','বিশ্বরূপদর্শনযোগ','ভক্তিযোগ','ক্ষেত্রক্ষেত্রজ্ঞবিভাগযোগ','গুণত্রয়বিভাগযোগ','পুরুষোত্তমযোগ','দৈবাসুরসম্পদ্বিভাগযোগ','শ্রদ্ধাত্রয়বিভাগযোগ','মোক্ষসন্ন্যাসযোগ'];
+const LEVELS=[[0,'নবীন পাঠক'],[25,'জিজ্ঞাসু'],[75,'শিষ্য'],[150,'সাধক'],[300,'জ্ঞানপথিক'],[500,'যোগী'],[701,'গীতারত্ন']];
+const BN=n=>String(n).replace(/\d/g,d=>'০১২৩৪৫৬৭৮৯'[d]);
+const $=id=>document.getElementById(id);
+const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+let G=[],byCh={},S={lit:{},fav:[],days:{},pos:[1,0],fs:1,theme:'',goal:5,pujaDays:[],
+  alarms:[{id:'a1',label:'সকালের পূজা',time:'06:30',tone:'om',on:true,kind:'puja'},{id:'a2',label:'সন্ধ্যা আরতি',time:'18:30',tone:'aarti',on:true,kind:'puja'},{id:'a3',label:'গীতা পাঠের সময়',time:'20:00',tone:'bell',on:false,kind:'learn'}]};
+try{if(!localStorage.getItem('gitaPathshala')){const o=JSON.parse(localStorage.getItem('gita-kids')||'null');
+  if(o){if(o.name)S.name=o.name;if(o.age)S.age=o.age;if(o.fav)S.fav=o.fav.slice();(o.readV||[]).forEach(k=>S.lit[k]=1);
+    if(o.alarms&&o.alarms.length)S.alarms=o.alarms.map(a=>Object.assign({kind:'puja'},a));if(o.pujaDays)S.pujaDays=o.pujaDays.slice();(o.days||[]).forEach(d=>S.days[d]=S.days[d]||1)}}}catch(e){}
+try{Object.assign(S,JSON.parse(localStorage.getItem('gitaPathshala')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('gitaPathshala',JSON.stringify(S))}catch(e){}};
+const kid=()=>S.age&&S.age<12;
+let cur={ch:1,i:0},timer=null;
 
-/* Original mascot: Pekham the peacock */
-function mascot(cls="m",mood="happy"){
-  const feathers=[...Array(7)].map((_,i)=>{const a=-75+i*25;return `<g transform="rotate(${a} 100 128)"><ellipse cx="100" cy="58" rx="13" ry="38" fill="#2FA866"/><circle cx="100" cy="36" r="9" fill="#1565C0"/><circle cx="100" cy="36" r="4.5" fill="#FFB020"/></g>`}).join("");
-  return `<svg class="${cls}" viewBox="0 0 200 200" aria-hidden="true">${feathers}
-  <ellipse cx="100" cy="150" rx="36" ry="40" fill="#1565C0"/>
-  <ellipse cx="100" cy="160" rx="20" ry="24" fill="#4DA3FF"/>
-  <circle cx="100" cy="98" r="28" fill="#1565C0"/>
-  <g fill="#FFB020"><line x1="100" y1="70" x2="100" y2="52" stroke="#1565C0" stroke-width="3"/><circle cx="100" cy="50" r="5"/><line x1="92" y1="72" x2="86" y2="56" stroke="#1565C0" stroke-width="3"/><circle cx="85" cy="54" r="4.5"/><line x1="108" y1="72" x2="114" y2="56" stroke="#1565C0" stroke-width="3"/><circle cx="115" cy="54" r="4.5"/></g>
-  <circle cx="90" cy="96" r="8" fill="#fff"/><circle cx="110" cy="96" r="8" fill="#fff"/>
-  <circle cx="${mood==="wow"?90:91}" cy="${mood==="wow"?96:97}" r="4" fill="#1E2A4A"/><circle cx="${mood==="wow"?110:111}" cy="${mood==="wow"?96:97}" r="4" fill="#1E2A4A"/>
-  <path d="M95 106 L100 116 L105 106 Z" fill="#FFB020"/>
-  <circle cx="82" cy="108" r="4" fill="#FF5E98" opacity=".6"/><circle cx="118" cy="108" r="4" fill="#FF5E98" opacity=".6"/>
-  <path d="M86 188 v8 M114 188 v8" stroke="#E09400" stroke-width="4" stroke-linecap="round"/></svg>`;
-}
+function toast(t){const e=$('toast');e.innerHTML=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),1600)}
+const diya='<svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 3c2 3 2 5 0 7-2-2-2-4 0-7z" fill="#f5a524"/><path d="M3 13h18c-1 4-5 6-9 6s-8-2-9-6z" fill="#e8558a"/></svg>';
+function show(v){document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===v||(v==='read'&&b.dataset.go==='list')));
+  $('nav').style.display=v==='ob'?'none':'flex';window.scrollTo(0,0);
+  if(v==='home')home();if(v==='list')list();if(v==='fav')favs();if(v==='set')sets();if(v==='puja')puja()}
+function applyLook(){document.body.className=(S.theme||'')+(kid()?' kid':'');document.documentElement.style.setProperty('--fs',S.fs)}
+const litIn=c=>byCh[c].filter(v=>S.lit[c+'.'+v[1]]).length;
+const done=c=>litIn(c)===byCh[c].length;
+const unlocked=c=>!kid()||c===1||done(c-1);
+function streak(){let n=0,d=new Date();if(!S.days[today()])d.setDate(d.getDate()-1);
+  for(;;){const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');if(S.days[k]){n++;d.setDate(d.getDate()-1)}else break}return n}
+function level(n){let l=LEVELS[0];for(const x of LEVELS)if(n>=x[0])l=x;return l[1]}
 
-/* Scene art per chapter (original simple illustrations) */
-function motif(n){
-  const W="#fff";
-  const ray=(cx,cy,r1,r2,k,c)=>[...Array(k)].map((_,i)=>{const a=i*2*Math.PI/k;return `<line x1="${cx+r1*Math.cos(a)}" y1="${cy+r1*Math.sin(a)}" x2="${cx+r2*Math.cos(a)}" y2="${cy+r2*Math.sin(a)}" stroke="${c}" stroke-width="5" stroke-linecap="round"/>`}).join("");
-  const art={
-  1:`<rect x="10" y="118" width="180" height="10" rx="5" fill="#ffffff55"/><path d="M50 70 h86 l10 34 h-106z" fill="${W}"/><circle cx="76" cy="108" r="18" fill="none" stroke="#FFB020" stroke-width="6"/>${ray(76,108,4,16,8,"#FFB020")}<line x1="136" y1="70" x2="146" y2="20" stroke="${W}" stroke-width="4"/><path d="M146 20 l32 9 -32 9z" fill="#FFB020"/><circle cx="96" cy="56" r="10" fill="#FFE2C4"/><rect x="88" y="62" width="16" height="12" rx="4" fill="#1565C0"/>`,
-  2:`<path d="M60 40 l20-12 h40 l20 12 18 26 -18 10 -6-8 v58 h-68 v-58 l-6 8 -18-10z" fill="${W}"/><path d="M80 28 q20 16 40 0" fill="none" stroke="#FF5E98" stroke-width="4"/><circle cx="100" cy="80" r="12" fill="#FFB020"/>${ray(100,80,16,24,8,"#FFB020")}`,
-  3:`<circle cx="100" cy="66" r="30" fill="#FFB020"/>${ray(100,66,38,54,12,"#FFE08A")}<path d="M20 128 q40-30 80 0 t80 0" fill="#ffffff66"/><path d="M40 126 v-24 m-8 8 l8-8 8 8" stroke="${W}" stroke-width="4" fill="none" stroke-linecap="round"/>`,
-  4:`<path d="M30 110 q35-18 70 0 q35-18 70 0 v-60 q-35-18-70 0 q-35-18-70 0z" fill="${W}"/><line x1="100" y1="50" x2="100" y2="110" stroke="#1565C0" stroke-width="3"/><circle cx="100" cy="34" r="14" fill="#FFB020"/>${ray(100,34,18,28,10,"#FFE08A")}`,
-  5:`<path d="M10 116 q30-8 60 0 t60 0 t60 0 v24 h-180z" fill="#ffffff55"/>${[-60,-30,0,30,60].map(a=>`<ellipse cx="100" cy="72" rx="13" ry="34" fill="#FF8FB8" transform="rotate(${a} 100 106)"/>`).join("")}<circle cx="100" cy="100" r="9" fill="#FFB020"/><ellipse cx="150" cy="118" rx="28" ry="8" fill="#2FA866"/><circle cx="146" cy="113" r="3" fill="#A8E0FF"/><circle cx="156" cy="115" r="2.5" fill="#A8E0FF"/>`,
-  6:`<circle cx="100" cy="74" r="56" fill="#ffffff33"/><circle cx="100" cy="74" r="40" fill="#ffffff33"/><circle cx="100" cy="46" r="14" fill="#FFE2C4"/><path d="M100 60 l26 46 h-52z" fill="#FFB020"/><ellipse cx="100" cy="110" rx="40" ry="10" fill="${W}"/><path d="M92 46 h4 M104 46 h4" stroke="#1E2A4A" stroke-width="2" stroke-linecap="round"/>`,
-  7:`<path d="M20 50 q80 80 160 0" fill="none" stroke="${W}" stroke-width="3"/>${[0,1,2,3,4,5,6,7,8].map(i=>{const t=i/8,x=20+160*t,y=50+80*2*t*(1-t)*1;const c=["#FF5E98","#FFB020","#2FA866","#4DA3FF","#B57BFF"][i%5];return `<circle cx="${x}" cy="${y}" r="10" fill="${c}" stroke="${W}" stroke-width="2"/>`}).join("")}`,
-  8:`<path d="M60 92 q40 30 80 0z" fill="#FFB020"/><ellipse cx="100" cy="92" rx="40" ry="7" fill="#E09400"/><path d="M100 86 q-14-22 0-48 q14 26 0 48z" fill="#FFE08A"/><path d="M100 84 q-6-12 0-26 q6 14 0 26z" fill="#FF8A5B"/>${ray(100,60,36,46,9,"#ffffff88")}`,
-  9:`${[0,72,144,216,288].map(a=>`<ellipse cx="70" cy="56" rx="10" ry="18" fill="#FF8FB8" transform="rotate(${a} 70 74)"/>`).join("")}<circle cx="70" cy="74" r="8" fill="#FFB020"/><path d="M120 50 q30 0 30 30 q-30 0 -30-30z" fill="#2FA866"/><circle cx="80" cy="118" r="14" fill="#FF5E2C"/><path d="M80 104 q4-6 10-6" stroke="#2FA866" stroke-width="3" fill="none"/><path d="M140 100 q-12 18 0 26 q12-8 0-26z" fill="#A8E0FF"/>`,
-  10:`<path d="M10 120 l50-80 30 40 25-30 75 70z" fill="${W}"/><path d="M60 40 l12 20 -10-4 -8 6z" fill="#A8E0FF"/><path d="M90 128 q20-20 10-40 q30 20 20 40z" fill="#4DA3FF"/><circle cx="160" cy="34" r="14" fill="#FFB020"/>`,
-  11:`<circle cx="100" cy="70" r="46" fill="#FFE08A"/>${ray(100,70,50,66,16,"#FFF4C2")}${[...Array(12)].map((_,i)=>{const a=i*Math.PI/6;return `<circle cx="${100+30*Math.cos(a)}" cy="${70+30*Math.sin(a)}" r="6" fill="#FFB020"/>`}).join("")}<circle cx="100" cy="70" r="14" fill="#FF8A5B"/>`,
-  12:`<path d="M100 120 C40 80 50 30 80 34 C92 36 98 46 100 52 C102 46 108 36 120 34 C150 30 160 80 100 120z" fill="#FF5E98"/><path d="M80 56 q6-10 14-8" stroke="${W}" stroke-width="5" fill="none" stroke-linecap="round"/>${[30,170].map(x=>`<circle cx="${x}" cy="40" r="6" fill="#FFB020"/>`).join("")}`,
-  13:`<rect x="10" y="96" width="180" height="40" rx="10" fill="#8B5E3C"/>${[30,70,110,150].map(x=>`<g><line x1="${x}" y1="100" x2="${x}" y2="70" stroke="#2FA866" stroke-width="4"/><path d="M${x} 78 q-14-4 -16-16 q14 2 16 16z M${x} 72 q14-4 16-16 q-14 2 -16 16z" fill="#2FA866"/></g>`).join("")}<circle cx="168" cy="30" r="14" fill="#FFB020"/>`,
-  14:`<circle cx="56" cy="74" r="30" fill="#FFFFFF"/><circle cx="100" cy="74" r="30" fill="#FF5E2C" opacity=".95"/><circle cx="144" cy="74" r="30" fill="#2A3352"/><text x="56" y="120" text-anchor="middle" font-size="13" fill="#fff" font-family="Hind Siliguri">সত্ত্ব</text><text x="100" y="120" text-anchor="middle" font-size="13" fill="#fff" font-family="Hind Siliguri">রজঃ</text><text x="144" y="120" text-anchor="middle" font-size="13" fill="#fff" font-family="Hind Siliguri">তমঃ</text>`,
-  15:`<path d="M60 20 q20 20 40 20 q20 0 40-20 M80 14 q10 18 20 26 M120 14 q-10 18 -20 26" stroke="#8B5E3C" stroke-width="5" fill="none" stroke-linecap="round"/><rect x="94" y="38" width="12" height="40" fill="#8B5E3C"/><ellipse cx="100" cy="100" rx="56" ry="30" fill="#2FA866"/><circle cx="70" cy="104" r="5" fill="#FF5E98"/><circle cx="120" cy="96" r="5" fill="#FFB020"/><circle cx="100" cy="114" r="5" fill="#FF5E98"/>`,
-  16:`<path d="M100 130 L100 90 L40 30" stroke="#FFE08A" stroke-width="16" fill="none" stroke-linecap="round"/><path d="M100 90 L160 30" stroke="#2A3352" stroke-width="16" fill="none" stroke-linecap="round"/><circle cx="36" cy="24" r="14" fill="#FFB020"/><path d="M158 18 a12 12 0 1 0 10 18 a9 9 0 1 1 -10-18z" fill="#C9D3E0"/>`,
-  17:`<rect x="56" y="58" width="88" height="66" rx="8" fill="${W}"/><rect x="50" y="46" width="100" height="20" rx="6" fill="#FF5E98"/><rect x="94" y="46" width="12" height="78" fill="#FFB020"/><path d="M100 46 q-26-26 -30-4 q4 10 30 4 q26 6 30-4 q-4-22 -30 4z" fill="#FFB020"/>`,
-  18:`<rect x="30" y="86" width="140" height="10" rx="5" fill="#C98A1A" transform="rotate(-14 100 91)"/>${[60,80,100,120].map((x,i)=>`<circle cx="${x}" cy="${98-i*5}" r="2.5" fill="#5A3A10"/>`).join("")}<g transform="rotate(20 140 50)"><path d="M140 100 q-4-40 0-70" stroke="#2FA866" stroke-width="3" fill="none"/><ellipse cx="140" cy="40" rx="14" ry="22" fill="#2FA866"/><ellipse cx="140" cy="36" rx="8" ry="10" fill="#1565C0"/><circle cx="140" cy="36" r="4" fill="#FFB020"/></g>`
-  };
-  return `<svg viewBox="0 0 200 140" aria-hidden="true">${art[n]||""}</svg>`;
-}
+function home(){const n=Object.keys(S.lit).length,t=S.days[today()]||0,g=S.goal;
+  $('hello').textContent='নমস্কার, '+S.name+'!';$('lvl').textContent=level(n);
+  $('sLit').textContent=BN(n);$('sStreak').textContent=BN(streak());$('sFav').textContent=BN(S.fav.length);
+  $('ringc').style.strokeDashoffset=213.6*(1-Math.min(t/g,1));$('ringt').textContent=BN(Math.min(t,g))+'/'+BN(g);
+  $('goalT').textContent=t>=g?'আজকের লক্ষ্য পূর্ণ!':'আজ আরও '+BN(g-t)+'টি শ্লোক';
+  $('goalS').textContent=t>=g?'চাইলে আরও পড়তে পারেন, প্রতিটিতে একটি প্রদীপ।':'প্রতিটি পড়া শ্লোকে একটি প্রদীপ জ্বলবে।';
+  const k=Math.floor(Date.now()/864e5)%G.length,v=G[k];
+  $('vod').innerHTML=`<p class="muted" style="margin:0 0 6px">অধ্যায় ${BN(v[0])} · শ্লোক ${BN(v[1])}</p><p class="tr" style="margin:0">${v[3]}</p><button class="btn ghost" style="margin-top:12px" data-open="${v[0]},${G.filter(x=>x[0]===v[0]).indexOf(v)}">শ্লোকটি পড়ি</button>`;
+  $('mapNote').textContent=kid()?'একটি অধ্যায় শেষ হলে পরের পদ্মটি খুলবে।':'যে-কোনো পদ্ম ছুঁয়ে সেই অধ্যায় পড়ুন।';
+  map()}
+function map(){const W=$('map').clientWidth||340,step=100,pts=[];
+  for(let c=1;c<=18;c++){const x=W/2+Math.sin(c*1.15)*(W/2-70);pts.push([x,40+(c-1)*step])}
+  let d='M'+pts[0].join(' ');for(let i=1;i<pts.length;i++){const[a,b]=pts[i-1],[e,f]=pts[i];d+=` C${a} ${b+32} ${e} ${f-32} ${e} ${f}`}
+  const firstOpen=[...Array(18)].map((_,i)=>i+1).find(c=>!done(c))||18;
+  $('map').style.height=(pts[17][1]+90)+'px';
+  $('map').innerHTML=`<svg viewBox="0 0 ${W} ${pts[17][1]+90}" aria-hidden="true"><path d="${d}" fill="none" stroke="var(--teal2)" stroke-width="22" stroke-linecap="round"/><path d="${d}" fill="none" stroke="var(--teal)" stroke-width="3" stroke-dasharray="2 12" stroke-linecap="round"/></svg>`+
+  pts.map(([x,y],i)=>{const c=i+1,p=Math.round(100*litIn(c)/byCh[c].length),cls=done(c)?'done':!unlocked(c)?'lock':c===firstOpen?'cur':'';
+    return `<div class="node ${cls}" style="left:${x}px;top:${y-32}px"><button data-ch="${c}" aria-label="অধ্যায় ${c}">${!unlocked(c)?'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>':done(c)?diya:BN(c)}${p&&!done(c)?`<i style="--p:${p}%"></i>`:''}</button><small>${NAMES[i]}</small></div>`}).join('')}
 
-/* ---------- content ---------- */
-const COLORS=["#FF8A5B","#4DA3FF","#2FA866","#B57BFF","#F2A007","#FF5E98","#0FA3A3","#E8572C","#5C7CFA"];
-const L=[
- {n:1,t:"অর্জুনের মন খারাপ",story:"অনেক অনেক দিন আগে কুরুক্ষেত্র নামে এক বিশাল মাঠে দুই দল সৈন্য মুখোমুখি দাঁড়িয়ে ছিল। বীর অর্জুন রথে চড়ে দেখলেন, অপর দলে তাঁর নিজের দাদু, শিক্ষক আর ভাইয়েরা! তাঁর মন খুব খারাপ হয়ে গেল, চোখে জল এল। তখন তাঁর রথের সারথি ও প্রিয় বন্ধু শ্রীকৃষ্ণ তাঁকে বোঝাতে শুরু করলেন। সেই কথাগুলোই হলো গীতা।",
-  sk:"ধর্মক্ষেত্রে কুরুক্ষেত্রে সমবেতা যুযুৎসবঃ।\nমামকাঃ পাণ্ডবাশ্চৈব কিমকুর্বত সঞ্জয়॥",ref:"১.১",easy:"রাজা ধৃতরাষ্ট্র সঞ্জয়কে জিজ্ঞেস করলেন, কুরুক্ষেত্রের মাঠে আমার ছেলেরা আর পাণ্ডবেরা কী করছে? এই প্রশ্ন দিয়েই গীতা শুরু।",
-  lesson:"মন খারাপ হলে কাছের মানুষকে খুলে বলো। ভালো বন্ধু সঠিক পথ দেখায়।",
-  q:[["গীতার কথা কোথায় বলা হয়েছিল?",["কুরুক্ষেত্রের মাঠে","নদীর ধারে","পাহাড়ের চূড়ায়"],0],["অর্জুনের রথের সারথি কে ছিলেন?",["ভীম","শ্রীকৃষ্ণ","সঞ্জয়"],1]]},
- {n:2,t:"আত্মা কখনো হারায় না",story:"শ্রীকৃষ্ণ হেসে বললেন, আমাদের শরীর একটা জামার মতো। জামা পুরনো হলে আমরা নতুন জামা পরি, কিন্তু আমরা তো একই থাকি! আমাদের ভেতরের আসল 'আমি' হলো আত্মা। আগুন তাকে পোড়াতে পারে না, জল ভেজাতে পারে না। তিনি আরও বললেন, মন দিয়ে নিজের কাজ করো, ফল নিয়ে দুশ্চিন্তা কোরো না।",
-  sk:"কর্মণ্যেবাধিকারস্তে মা ফলেষু কদাচন।\nমা কর্মফলহেতুর্ভূর্মা তে সঙ্গোঽস্ত্বকর্মণি॥",ref:"২.৪৭",easy:"তোমার কাজ হলো মন দিয়ে চেষ্টা করা। ফল কী হবে তা নিয়ে ভয় পেয়ো না, আবার কাজ ফেলেও রেখো না।",
-  lesson:"পরীক্ষার জন্য মন দিয়ে পড়ো, নম্বর নিয়ে ভয় পেয়ো না।",
-  q:[["শ্রীকৃষ্ণ শরীরকে কীসের সঙ্গে তুলনা করেছেন?",["বাড়ি","গাছ","জামা"],2],["আমাদের আসল দায়িত্ব কোনটা?",["মন দিয়ে কাজ করা","শুধু ফলের কথা ভাবা","কাজ না করা"],0]]},
- {n:3,t:"কাজই আসল পূজা",story:"সূর্য প্রতিদিন আলো দেয়, নদী জল দেয়, গাছ ফল দেয়। ওরা কেউ বদলে কিছু চায় না। শ্রীকৃষ্ণ বললেন, আমাদেরও এভাবে সবার ভালোর জন্য কাজ করা উচিত। আর মনে রেখো, বড়রা যা করে, ছোটরা দেখে দেখে তা-ই শেখে।",
-  sk:"যদ্যদাচরতি শ্রেষ্ঠস্তত্তদেবেতরো জনঃ।\nস যৎপ্রমাণং কুরুতে লোকস্তদনুবর্ততে॥",ref:"৩.২১",easy:"ভালো মানুষ যেমন করে, অন্যরাও তেমন করে। তাই নিজে ভালো কাজ করলে অন্যরাও শেখে।",
-  lesson:"তুমি যে ভালো কাজ করবে, তোমার ছোট ভাইবোনও তা শিখবে।",
-  q:[["কে কিছু না চেয়েই রোজ আলো দেয়?",["পাথর","সূর্য","বালিশ"],1],["ছোটরা কীভাবে শেখে?",["বড়দের দেখে","শুধু ঘুমিয়ে","কারো কাছেই না"],0]]},
- {n:4,t:"ভগবান বারবার আসেন",story:"শ্রীকৃষ্ণ বললেন, যখনই পৃথিবীতে খারাপ কাজ বেড়ে যায় আর ভালো মানুষ কষ্ট পায়, তখন আমি আসি ভালোদের রক্ষা করতে। তিনি আরও বললেন, জ্ঞান হলো সবচেয়ে উজ্জ্বল আলো। নম্র হয়ে গুরুকে প্রশ্ন করলেই সেই আলো পাওয়া যায়।",
-  sk:"যদা যদা হি ধর্মস্য গ্লানির্ভবতি ভারত।\nঅভ্যুত্থানমধর্মস্য তদাত্মানং সৃজাম্যহম্॥",ref:"৪.৭",easy:"যখনই ভালো জিনিস কমে যায় আর খারাপ জিনিস বেড়ে যায়, তখনই ভগবান সবাইকে রক্ষা করতে আসেন।",
-  lesson:"না বুঝলে প্রশ্ন করতে লজ্জা নেই। শিক্ষককে বিনয়ের সঙ্গে জিজ্ঞেস করো।",
-  q:[["ভগবান কখন আসেন?",["শুধু জন্মদিনে","কখনো না","যখন খারাপ কাজ বেড়ে যায়"],2],["জ্ঞান পাওয়ার ভালো উপায় কী?",["রাগ করা","নম্র হয়ে প্রশ্ন করা","চুপ করে বসে থাকা"],1]]},
- {n:5,t:"পদ্মপাতার জাদু",story:"পুকুরের পদ্মপাতা দেখেছ? জলের মধ্যে থাকলেও পাতাটা একটুও ভেজে না, জলের ফোঁটা গড়িয়ে পড়ে যায়! শ্রীকৃষ্ণ বললেন, যে ভগবানকে মনে রেখে কাজ করে, সে-ও পদ্মপাতার মতো। খারাপ জিনিস তাকে ছুঁতে পারে না।",
-  sk:"ব্রহ্মণ্যাধায় কর্মাণি সঙ্গং ত্যক্ত্বা করোতি যঃ।\nলিপ্যতে ন স পাপেন পদ্মপত্রমিবাম্ভসা॥",ref:"৫.১০",easy:"যে সব কাজ ভগবানকে উৎসর্গ করে, পদ্মপাতা যেমন জলে ভেজে না, তেমনি খারাপ কিছু তাকে ছোঁয় না।",
-  lesson:"চারপাশে কেউ খারাপ কথা বললেও তুমি ভালো থাকতে পারো।",
-  q:[["পদ্মপাতা জলে থাকলে কী হয়?",["ভেজে না","ডুবে যায়","গলে যায়"],0],["পদ্মপাতার মতো হতে কী করতে হবে?",["অন্যের দোষ খোঁজা","কাজ ফেলে রাখা","ভগবানকে মনে রেখে কাজ করা"],2]]},
- {n:6,t:"মন শান্ত করার খেলা",story:"আমাদের মন যেন এক চঞ্চল বানর, এক ডাল থেকে আরেক ডালে লাফায়! শ্রীকৃষ্ণ বললেন, রোজ একটু চুপ করে বসে ধীরে ধীরে শ্বাস নিলে মন শান্ত হয়। আর মনে রেখো, তুমিই তোমার সবচেয়ে বড় বন্ধু।",breath:true,
-  sk:"উদ্ধরেদাত্মনাত্মানং নাত্মানমবসাদয়েৎ।\nআত্মৈব হ্যাত্মনো বন্ধুরাত্মৈব রিপুরাত্মনঃ॥",ref:"৬.৫",easy:"নিজেকে নিজেই এগিয়ে নাও, হাল ছেড়ো না। তুমি নিজেই নিজের বন্ধু হতে পারো, আবার শত্রুও।",
-  lesson:"রাগ হলে চোখ বন্ধ করে পাঁচবার ধীরে শ্বাস নাও।",
-  q:[["চঞ্চল মনকে কীসের সঙ্গে তুলনা করা হয়েছে?",["ঘুমন্ত বিড়াল","লাফানো বানর","পাথর"],1],["মন শান্ত করার উপায় কী?",["ধীরে ধীরে শ্বাস নেওয়া","চিৎকার করা","আরও জোরে দৌড়ানো"],0]]},
- {n:7,t:"মালার অদৃশ্য সুতো",story:"একটা মালায় অনেক রঙের পুঁতি থাকে। কিন্তু সবগুলোকে একসঙ্গে ধরে রাখে একটা সুতো, যেটা চোখে প্রায় দেখাই যায় না। শ্রীকৃষ্ণ বললেন, এই পৃথিবীর সব কিছু, মানুষ, পশু, গাছ, তারা, আমার মধ্যে এভাবেই গাঁথা।",
-  sk:"মত্তঃ পরতরং নান্যৎকিঞ্চিদস্তি ধনঞ্জয়।\nময়ি সর্বমিদং প্রোতং সূত্রে মণিগণা ইব॥",ref:"৭.৭",easy:"ভগবানের চেয়ে বড় কিছু নেই। সুতোয় গাঁথা পুঁতির মতো সব কিছু তাঁর মধ্যেই আছে।",
-  lesson:"আমরা সবাই এক মালার পুঁতি, তাই সবার সঙ্গে মিলেমিশে থাকো।",
-  q:[["মালার পুঁতিগুলোকে কে ধরে রাখে?",["আঠা","বাতাস","সুতো"],2],["এই গল্পের শিক্ষা কী?",["মিলেমিশে থাকা","একা থাকা","ঝগড়া করা"],0]]},
- {n:8,t:"ভালো কথা মনে রাখো",story:"শ্রীকৃষ্ণ বললেন, আমরা সারাদিন যা ভাবি, ধীরে ধীরে আমরা তেমনই হয়ে যাই। তাই খেলতে খেলতে, পড়তে পড়তে ভগবানকে আর ভালো কথাগুলো মনে রাখা দরকার। প্রদীপ যেমন অন্ধকার দূর করে, ভালো চিন্তা তেমনি মনকে আলোয় ভরে দেয়।",
-  sk:"তস্মাৎসর্বেষু কালেষু মামনুস্মর যুধ্য চ।\nময্যর্পিতমনোবুদ্ধির্মামেবৈষ্যস্যসংশয়ঃ॥",ref:"৮.৭",easy:"তাই সবসময় আমাকে মনে রাখো আর নিজের কাজ করে যাও। মন আমাতে রাখলে তুমি আমার কাছেই আসবে।",
-  lesson:"ঘুমানোর আগে দিনের একটা ভালো কাজের কথা ভাবো।",
-  q:[["আমরা ধীরে ধীরে কেমন হয়ে যাই?",["যা সারাদিন ভাবি তেমন","যে রঙের জামা পরি তেমন","কিছুই বদলায় না"],0],["ঘুমানোর আগে কী ভাবা ভালো?",["ভয়ের গল্প","দিনের একটা ভালো কাজ","কারো উপর রাগ"],1]]},
- {n:9,t:"একটি ফুলের উপহার",story:"ভগবানকে খুশি করতে কি অনেক টাকা লাগে? একদম না! শ্রীকৃষ্ণ বললেন, ভালোবেসে একটা পাতা, একটা ফুল, একটা ফল বা একটু জল দিলেও আমি খুশি হই। আসল জিনিস হলো মনের ভালোবাসা।",
-  sk:"পত্রং পুষ্পং ফলং তোয়ং যো মে ভক্ত্যা প্রযচ্ছতি।\nতদহং ভক্ত্যুপহৃতমশ্নামি প্রযতাত্মনঃ॥",ref:"৯.২৬",easy:"কেউ ভালোবেসে একটা পাতা, ফুল, ফল বা জল দিলে ভগবান তা খুশি মনে নেন।",
-  lesson:"উপহারের দাম নয়, ভালোবাসাটাই আসল।",
-  q:[["ভগবান কোন উপহার খুশি হয়ে নেন?",["শুধু সোনা","ভালোবেসে দেওয়া একটা ফুল","শুধু দামি খেলনা"],1],["উপহারে আসল জিনিস কী?",["দাম","প্যাকেটের রঙ","ভালোবাসা"],2]]},
- {n:10,t:"সবকিছুতে ভগবান",story:"অর্জুন জানতে চাইলেন, আপনাকে কোথায় কোথায় দেখতে পাব? শ্রীকৃষ্ণ বললেন, পাহাড়দের মধ্যে আমি হিমালয়, নদীদের মধ্যে গঙ্গা, গাছেদের মধ্যে অশ্বত্থ। যেখানে সুন্দর আর ভালো কিছু দেখবে, জানবে সেখানে আমি আছি।",
-  sk:"অহমাত্মা গুড়াকেশ সর্বভূতাশয়স্থিতঃ।\nঅহমাদিশ্চ মধ্যং চ ভূতানামন্ত এব চ॥",ref:"১০.২০",easy:"আমি সবার হৃদয়ের ভেতরে থাকি। সব কিছুর শুরু, মাঝখান আর শেষ আমিই।",
-  lesson:"সুন্দর ফুল বা উজ্জ্বল তারা দেখলে ভগবানকে ধন্যবাদ দাও।",
-  q:[["পাহাড়দের মধ্যে শ্রীকৃষ্ণ কোনটি?",["হিমালয়","ছোট টিলা","বালির ঢিবি"],0],["নদীদের মধ্যে তিনি কোনটি?",["পুকুর","নালা","গঙ্গা"],2]]},
- {n:11,t:"বিশাল বিশ্বরূপ",story:"অর্জুন বললেন, আপনার আসল রূপ দেখতে চাই! শ্রীকৃষ্ণ তাঁকে বিশেষ দিব্য চোখ দিলেন। অর্জুন দেখলেন হাজার হাজার মুখ, অগণিত হাত, আর হাজার সূর্যের মতো উজ্জ্বল আলো! সারা বিশ্ব যেন তাঁর মধ্যে। অর্জুন অবাক হয়ে প্রণাম করলেন।",
-  sk:"দিবি সূর্যসহস্রস্য ভবেদ্যুগপদুত্থিতা।\nযদি ভাঃ সদৃশী সা স্যাদ্ভাসস্তস্য মহাত্মনঃ॥",ref:"১১.১২",easy:"আকাশে একসঙ্গে হাজারটা সূর্য উঠলে যত আলো হতো, বিশ্বরূপের আলো ছিল ঠিক তেমন।",
-  lesson:"পৃথিবী অনেক বড় আর আশ্চর্য, সবসময় নতুন কিছু জানার আগ্রহ রাখো।",
-  q:[["বিশ্বরূপের আলো কেমন ছিল?",["একটা মোমবাতির মতো","হাজার সূর্যের মতো","একদম অন্ধকার"],1],["বিশ্বরূপ দেখতে অর্জুন কী পেয়েছিলেন?",["দিব্য চোখ","চশমা","দূরবীন"],0]]},
- {n:12,t:"ভগবানের প্রিয় বন্ধু",story:"শ্রীকৃষ্ণ বললেন, আমার সবচেয়ে প্রিয় সে, যে কাউকে হিংসা করে না, সবার সঙ্গে বন্ধুর মতো মেশে, দুঃখী মানুষকে দয়া করে, অহংকার করে না আর সহজেই ক্ষমা করে দেয়।",
-  sk:"অদ্বেষ্টা সর্বভূতানাং মৈত্রঃ করুণ এব চ।\nনির্মমো নিরহঙ্কারঃ সমদুঃখসুখঃ ক্ষমী॥",ref:"১২.১৩",easy:"যে কাউকে ঘৃণা করে না, সবার বন্ধু, দয়ালু, অহংকার নেই, সুখে-দুঃখে শান্ত আর ক্ষমা করতে পারে, সে-ই ভগবানের প্রিয়।",
-  lesson:"বন্ধু ভুল করলে তাকে ক্ষমা করে দাও।",
-  q:[["ভগবানের প্রিয় কে?",["যে সবার সঙ্গে ঝগড়া করে","যে অহংকার করে","যে দয়ালু আর ক্ষমাশীল"],2],["বন্ধু ভুল করলে কী করবে?",["ক্ষমা করে দেব","আর কথা বলব না","প্রতিশোধ নেব"],0]]},
- {n:13,t:"শরীর একটা বাগান",story:"শ্রীকৃষ্ণ বললেন, আমাদের শরীর একটা খেতের মতো, আর আমরা হলাম তার মালী। খেতে যে বীজ বুনবে, সেই গাছ হবে। তেমনি ভালো চিন্তা আর ভালো কাজের বীজ বুনলে আমরা ভালো ফল পাই।",
-  sk:"সমং সর্বেষু ভূতেষু তিষ্ঠন্তং পরমেশ্বরম্।\nবিনশ্যৎস্ববিনশ্যন্তং যঃ পশ্যতি স পশ্যতি॥",ref:"১৩.২৭",easy:"যে সব প্রাণীর মধ্যে একই ভগবানকে দেখতে পায়, সে-ই আসলে ঠিকঠাক দেখে।",
-  lesson:"রোজ অন্তত একটা ভালো কাজের বীজ বোনো।",
-  q:[["শরীরকে কীসের সঙ্গে তুলনা করা হয়েছে?",["গাড়ি","খেত বা বাগান","বাক্স"],1],["ভালো ফল পেতে কী বুনতে হয়?",["ভালো কাজের বীজ","রাগের বীজ","কিছুই না"],0]]},
- {n:14,t:"তিন রঙের গুণ",story:"শ্রীকৃষ্ণ বললেন, আমাদের ভেতরে তিনটি গুণ আছে। সাদা আলোর মতো সত্ত্ব, শান্ত আর ভালো। লাল আগুনের মতো রজঃ, ছটফটে, শুধু চাই আর চাই। কালো অন্ধকারের মতো তমঃ, অলস আর ঘুমঘুম। আমাদের চেষ্টা করতে হবে সাদা আলোর দিকে যেতে।",
-  sk:"সত্ত্বং রজস্তম ইতি গুণাঃ প্রকৃতিসম্ভবাঃ।\nনিবধ্নন্তি মহাবাহো দেহে দেহিনমব্যয়ম্॥",ref:"১৪.৫",easy:"সত্ত্ব, রজঃ আর তমঃ, প্রকৃতির এই তিন গুণ আমাদের আত্মাকে শরীরের সঙ্গে বেঁধে রাখে।",
-  lesson:"অলসতা ঝেড়ে ফেলে শান্ত মনে কাজ করো।",
-  q:[["কোন গুণ শান্ত আর ভালো?",["রজঃ","তমঃ","সত্ত্ব"],2],["অলসতা কোন গুণের লক্ষণ?",["তমঃ","সত্ত্ব","রজঃ"],0]]},
- {n:15,t:"আজব উল্টো গাছ",story:"একটা আজব গাছ কল্পনা করো, যার শিকড় আকাশের দিকে আর ডালপালা মাটির দিকে! শ্রীকৃষ্ণ বললেন, এই সংসার এমনই এক গাছ। এর শিকড় হলেন ভগবান, উপরে। তাই শুধু ডালপালা নিয়ে, মানে খেলনা আর জিনিসপত্র নিয়ে, ব্যস্ত না থেকে শিকড়ের কথা মনে রাখো।",
-  sk:"ঊর্ধ্বমূলমধঃশাখমশ্বত্থং প্রাহুরব্যয়ম্।\nছন্দাংসি যস্য পর্ণানি যস্তং বেদ স বেদবিৎ॥",ref:"১৫.১",easy:"সংসার এক উল্টো অশ্বত্থ গাছ, শিকড় উপরে, ডাল নিচে, বেদের মন্ত্র তার পাতা। যে এটা বোঝে, সে-ই আসল জ্ঞানী।",
-  lesson:"খেলনার চেয়ে মানুষ আর ভালোবাসা অনেক বেশি দামি।",
-  q:[["উল্টো গাছের শিকড় কোথায়?",["নিচে","উপরে","পাশে"],1],["এই গাছের শিকড় কে?",["খেলনা","মেঘ","ভগবান"],2]]},
- {n:16,t:"আলো আর অন্ধকারের পথ",story:"একদিকে আলোর পথ: সত্যি বলা, সাহসী হওয়া, দান করা। অন্যদিকে অন্ধকার পথ: রাগ, লোভ আর অহংকার। শ্রীকৃষ্ণ বললেন, বাজে ইচ্ছা, রাগ আর লোভ, এই তিনটি হলো দুঃখের দরজা। এগুলো থেকে দূরে থাকো।",
-  sk:"ত্রিবিধং নরকস্যেদং দ্বারং নাশনমাত্মনঃ।\nকামঃ ক্রোধস্তথা লোভস্তস্মাদেতত্ত্রয়ং ত্যজেৎ॥",ref:"১৬.২১",easy:"বাজে ইচ্ছা, রাগ আর লোভ, এই তিনটি দরজা দিয়ে দুঃখ ঢোকে। তাই এই তিনটিকে বিদায় দাও।",
-  lesson:"বাজে ইচ্ছা, রাগ আর লোভ, এই তিন দুষ্টুকে মনে ঢুকতে দিও না।",
-  q:[["দুঃখের তিন দরজা কী কী?",["খেলা, পড়া, গান","বাজে ইচ্ছা, রাগ, লোভ","ঘুম, খাওয়া, হাঁটা"],1],["আলোর পথে কী থাকে?",["সত্যি বলা আর সাহস","মিথ্যা বলা","অহংকার"],0]]},
- {n:17,t:"সবচেয়ে ভালো দান",story:"শ্রীকৃষ্ণ বললেন, দানও তিন রকম। সবচেয়ে ভালো দান হলো যখন কিছু ফেরত পাওয়ার আশা না করে, ঠিক সময়ে, ঠিক মানুষকে আনন্দের সঙ্গে দেওয়া হয়। আর আমরা যা খাই, তা-ও আমাদের মনকে তৈরি করে। তাজা আর সাদাসিধে খাবার মনকে ভালো রাখে।",
-  sk:"দাতব্যমিতি যদ্দানং দীয়তেঽনুপকারিণে।\nদেশে কালে চ পাত্রে চ তদ্দানং সাত্ত্বিকং স্মৃতম্॥",ref:"১৭.২০",easy:"দেওয়া উচিত, এই ভেবে বদলে কিছু না চেয়ে ঠিক জায়গায়, ঠিক সময়ে, ঠিক মানুষকে যা দেওয়া হয়, সেটাই সেরা দান।",
-  lesson:"বন্ধুর টিফিন না থাকলে নিজের টিফিন ভাগ করে নাও।",
-  q:[["সবচেয়ে ভালো দান কোনটা?",["বদলে কিছু চেয়ে দেওয়া","দেখানোর জন্য দেওয়া","কিছু ফেরত না চেয়ে দেওয়া"],2],["কোন খাবার মনকে ভালো রাখে?",["তাজা সাদাসিধে খাবার","বাসি খাবার","শুধু চিপস"],0]]},
- {n:18,t:"অর্জুনের নতুন সাহস",story:"সব শেষে শ্রীকৃষ্ণ বললেন, তুমি নিজের দায়িত্ব পালন করো আর আমার উপর ভরসা রাখো, ভয় পেয়ো না। অর্জুনের মনের সব দুঃখ আর দ্বিধা চলে গেল। তিনি হাসিমুখে বললেন, আমি বুঝেছি! এবার আমি প্রস্তুত।",
-  sk:"সর্বধর্মান্পরিত্যজ্য মামেকং শরণং ব্রজ।\nঅহং ত্বাং সর্বপাপেভ্যো মোক্ষয়িষ্যামি মা শুচঃ॥",ref:"১৮.৬৬",easy:"সব চিন্তা ছেড়ে শুধু আমার উপর ভরসা রাখো। আমি তোমাকে সব বিপদ থেকে রক্ষা করব, দুঃখ কোরো না।",
-  lesson:"ভয় পেলে মনে রেখো, ভগবান সবসময় তোমার পাশে আছেন।",
-  q:[["গীতা শোনার পর অর্জুনের কী হলো?",["আরও কাঁদলেন","ঘুমিয়ে পড়লেন","ভয় চলে গেল, সাহস পেলেন"],2],["ভয় পেলে কী মনে রাখব?",["ভগবান পাশে আছেন","কেউ নেই","পালিয়ে যাব"],0]]}
-];
-const ZONES=[[1,"কুরুক্ষেত্রের মাঠ"],[7,"জ্ঞানের বাগান"],[13,"আলোর পাহাড়"]];
-const RANKS=[[0,"নতুন পথিক"],[60,"ছোট্ট শিক্ষার্থী"],[160,"জ্ঞানের তারা"],[320,"গীতা বন্ধু"],[520,"গীতা বীর"]];
-const CARDS=[1,2,5,6,9,12,16,18,3,10].map(n=>L[n-1]);
+function list(){$('chlist').innerHTML=NAMES.map((n,i)=>{const c=i+1,l=litIn(c),t=byCh[c].length;
+  return `<button class="ch" data-ch="${c}" ${unlocked(c)?'':'aria-disabled="true" style="opacity:.5"'}><span class="n">${BN(c)}</span><span class="x"><b>${n}</b><span class="muted">${BN(l)}/${BN(t)} শ্লোক পড়া${unlocked(c)?'':' · বন্ধ'}</span><span class="bar"><i style="width:${100*l/t}%"></i></span></span></button>`}).join('')}
+function favs(){$('favlist').innerHTML=S.fav.length?S.fav.map(k=>{const[c,v]=k.split('.').map(Number),x=byCh[c].find(y=>y[1]===v);
+  return `<button class="ch" data-open="${c},${byCh[c].indexOf(x)}"><span class="n">${BN(c)}.${BN(v)}</span><span class="x"><span>${x[3].slice(0,90)}…</span></span></button>`}).join(''):'<div class="empty">এখনও কোনো প্রিয় শ্লোক নেই।<br>পড়ার সময় হৃদয় চিহ্ন ছুঁয়ে রাখুন।</div>'}
+function sets(){const mark=(id,v)=>document.querySelectorAll('#'+id+' button').forEach(b=>b.classList.toggle('on',b.dataset.v==String(v)));
+  mark('fsSeg',S.fs);mark('thSeg',S.theme||'');mark('glSeg',S.goal);$('who').textContent=S.name+' · '+BN(S.age)+' বছর';$('mode').textContent=kid()?'শিশু-সংস্করণ চালু':'পূর্ণ সংস্করণ'}
 
-/* ---------- state ---------- */
-const S=(()=>{let s={};try{s=JSON.parse(localStorage.getItem("gita-kids")||"{}")}catch(e){}
-  return Object.assign({name:"",age:0,mode:"",fav:[],readV:[],proof:false,corr:{},okV:[],proofCh:[],last:"",xp:0,done:{},days:[],log:{},cards:[],badges:[],pujaDays:[],
-    alarms:[{id:"a1",label:"সকালের পূজা",time:"06:30",tone:"om",on:true},{id:"a2",label:"সন্ধ্যা আরতি",time:"18:30",tone:"aarti",on:true}]},s)})();
-const save=()=>{try{localStorage.setItem("gita-kids",JSON.stringify(S))}catch(e){}};
-const doneCount=()=>Object.keys(S.done).length;
-const unlocked=n=>n===1||!!S.done[n-1];
-const rankOf=xp=>{let i=0;RANKS.forEach((r,k)=>{if(xp>=r[0])i=k});return i};
-function streak(){
-  const set=new Set(S.days);let d=new Date(),c=0;
-  if(!set.has(todayKey(d))){d.setDate(d.getDate()-1)}
-  while(set.has(todayKey(d))){c++;d.setDate(d.getDate()-1)}
-  return c;
-}
+function open(ch,i){if(!unlocked(ch)){toast('আগের অধ্যায়টি শেষ করুন');return}cur={ch,i:Math.max(0,Math.min(i,byCh[ch].length-1))};S.pos=[ch,cur.i];save();show('read');render()}
+function render(){const v=byCh[cur.ch][cur.i],k=v[0]+'.'+v[1],tot=byCh[cur.ch].length;
+  $('flip').classList.remove('back');$('rtitle').innerHTML=`${BN(cur.ch)}. ${NAMES[cur.ch-1]}<br><span class="muted">শ্লোক ${BN(cur.i+1)} / ${BN(tot)}</span>`;
+  $('rprog').style.width=(100*litIn(cur.ch)/tot)+'%';$('fnum').textContent=$('bnum').textContent=BN(v[0])+'.'+BN(v[1]);
+  $('fsa').innerHTML=v[2].map(l=>/উবাচ$/.test(l)?`<div class="spk">${l}</div>`:`<div class="sa sl">${l}</div>`).join('');
+  $('btr').textContent=v[3];$('rfav').classList.toggle('on',S.fav.includes(k));
+  clearTimeout(timer);timer=setTimeout(()=>light(k),kid()?3000:4500)}
+function light(k){if(S.lit[k])return;S.lit[k]=1;const t=today();S.days[t]=(S.days[t]||0)+1;save();
+  $('rprog').style.width=(100*litIn(cur.ch)/byCh[cur.ch].length)+'%';toast(diya+' প্রদীপ জ্বলল');
+  if(S.days[t]===S.goal)setTimeout(()=>{petals();toast('আজকের লক্ষ্য পূর্ণ!')},900);
+  if(done(cur.ch))setTimeout(()=>{petals();toast(BN(cur.ch)+' নম্বর অধ্যায় সম্পূর্ণ!')},1200)}
+function petals(){if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;for(let i=0;i<26;i++){const p=document.createElement('div');p.className='petal';p.style.left=Math.random()*100+'vw';p.style.animationDelay=Math.random()*.8+'s';p.style.background=['#e8558a','#f48fb1','#f5a524','#1f9e93'][i%4];document.body.appendChild(p);setTimeout(()=>p.remove(),3600)}}
+function step(d){const tot=byCh[cur.ch].length;let i=cur.i+d,ch=cur.ch;
+  if(i>=tot){if(ch<18&&unlocked(ch+1)){ch++;i=0}else{toast(ch<18?'আগে এই অধ্যায়টি শেষ করুন':'গীতা সম্পূর্ণ!');return}}
+  if(i<0){if(ch>1){ch--;i=byCh[ch].length-1}else return}
+  cur={ch,i};S.pos=[ch,i];save();render()}
+function flipCard(){$('flip').classList.toggle('back');const v=byCh[cur.ch][cur.i];if($('flip').classList.contains('back'))light(v[0]+'.'+v[1])}
 
-/* ---------- feedback ---------- */
-let tt;function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2400)}
-function xpPop(n,x,y){const e=document.createElement("div");e.className="xp-pop";e.textContent="+"+BN(n)+" XP";e.style.left=(x-30)+"px";e.style.top=(y-20)+"px";document.body.appendChild(e);setTimeout(()=>e.remove(),1000)}
+async function makeCard(){const v=byCh[cur.ch][cur.i],c=document.createElement('canvas'),W=1080,H=1350;c.width=W;c.height=H;const x=c.getContext('2d');
+  try{await document.fonts.load('600 40px "Noto Serif Bengali"');await document.fonts.load('40px "Hind Siliguri"')}catch(e){}
+  const g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,'#ffe0ea');g.addColorStop(1,'#d4f3ef');x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.fillStyle='#ffffffcc';x.beginPath();x.roundRect(60,60,W-120,H-120,48);x.fill();
+  x.textAlign='center';const sl=v[2].filter(l=>!/উবাচ$/.test(l));
+  x.font='44px "Hind Siliguri"';const words=v[3].split(' '),lines=[];let line='';
+  for(const w of words){const t=line?line+' '+w:w;if(x.measureText(t).width>W-240){lines.push(line);line=w}else line=t}lines.push(line);
+  const total=sl.length*76+110+lines.length*68;let y=Math.max(190,(H-total)/2+40);
+  x.fillStyle='#e8558a';x.font='600 48px "Noto Serif Bengali"';sl.forEach(l=>{x.fillText(l,W/2,y,W-200);y+=76});
+  y+=20;x.strokeStyle='#1f9e93';x.lineWidth=3;x.beginPath();x.moveTo(W/2-80,y);x.lineTo(W/2+80,y);x.stroke();y+=90;
+  x.fillStyle='#3a2340';x.font='44px "Hind Siliguri"';lines.forEach(l=>{x.fillText(l,W/2,y);y+=68});
+  x.fillStyle='#8a6a8f';x.font='600 34px "Hind Siliguri"';x.fillText('শ্রীমদ্ভগবদ্গীতা · '+BN(v[0])+'.'+BN(v[1]),W/2,H-120);
+  $('cardImg').src=c.toDataURL('image/png');$('modal').classList.add('on')}
 
-const BADGES=[
- {id:"first",t:"প্রথম পা",d:"প্রথম স্তর পার করো",c:"#FF8A5B",ok:()=>doneCount()>=1},
- {id:"perfect",t:"নির্ভুল উত্তর",d:"কোনো স্তরে ৩ তারা পাও",c:"#FFB020",ok:()=>Object.values(S.done).some(v=>v>=3)},
- {id:"cards",t:"কার্ড সংগ্রাহক",d:"১০টি শ্লোক-কার্ড দেখো",c:"#B57BFF",ok:()=>S.cards.length>=10},
- {id:"streak3",t:"তিন দিনের ধারা",d:"পরপর ৩ দিন শেখো",c:"#E8572C",ok:()=>streak()>=3},
- {id:"five",t:"পাঁচ স্তর পার",d:"৫টি স্তর শেষ করো",c:"#2FA866",ok:()=>doneCount()>=5},
- {id:"half",t:"অর্ধেক পথ",d:"৯টি স্তর শেষ করো",c:"#4DA3FF",ok:()=>doneCount()>=9},
- {id:"xp300",t:"৩০০ পয়েন্ট",d:"মোট ৩০০ XP জমাও",c:"#0FA3A3",ok:()=>S.xp>=300},
- {id:"hero",t:"গীতা বীর",d:"১৮টি স্তরই শেষ করো",c:"#FF5E98",ok:()=>doneCount()>=18}
-];
-const BADGES_FULL=[
- {id:"f_first",t:"প্রথম শ্লোক",d:"প্রথম শ্লোক পড়ুন",c:"#FF8A5B",ok:()=>S.readV.length>=1},
- {id:"f_ch",t:"অধ্যায় সম্পূর্ণ",d:"একটি অধ্যায় পুরো পড়ুন",c:"#2FA866",ok:()=>chaptersDone()>=1},
- {id:"f_50",t:"৫০ শ্লোক",d:"৫০টি শ্লোক পড়ুন",c:"#4DA3FF",ok:()=>S.readV.length>=50},
- {id:"streak3",t:"তিন দিনের ধারা",d:"পরপর ৩ দিন পড়ুন",c:"#E8572C",ok:()=>streak()>=3},
- {id:"f_fav10",t:"প্রিয় সংগ্রহ",d:"১০টি প্রিয় শ্লোক রাখুন",c:"#FF5E98",ok:()=>S.fav.length>=10},
- {id:"f_half",t:"অর্ধেক গীতা",d:"৩৫০টি শ্লোক পড়ুন",c:"#B57BFF",ok:()=>S.readV.length>=350},
- {id:"xp300",t:"৩০০ পয়েন্ট",d:"মোট ৩০০ XP জমান",c:"#0FA3A3",ok:()=>S.xp>=300},
- {id:"f_all",t:"সম্পূর্ণ গীতা",d:"সব শ্লোক পড়ুন",c:"#FFB020",ok:()=>chaptersDone()>=18}
-];
-const curBadges=()=>isFullMode()?BADGES_FULL:BADGES;
-function chaptersDone(){let n=0;const set=new Set(S.readV);VCOUNT.forEach((cnt,i)=>{let all=true;for(let k=1;k<=cnt;k++){if(!set.has(vid(i+1,k))){all=false;break}}if(all)n++});return n}
-function medal(c,i){return `<svg viewBox="0 0 64 64"><path d="M20 4h10l4 14H24z" fill="#4DA3FF"/><path d="M44 4H34l-4 14h10z" fill="#FF5E98"/><circle cx="32" cy="38" r="20" fill="${c}"/><circle cx="32" cy="38" r="14" fill="#ffffff44"/><text x="32" y="45" text-anchor="middle" font-size="18" font-weight="800" fill="#fff" font-family="Baloo Da 2">${BN(i+1)}</text></svg>`}
-
-function checkBadges(){
-  BADGES.concat(BADGES_FULL).forEach(b=>{if(!S.badges.includes(b.id)&&b.ok()){S.badges.push(b.id);setTimeout(()=>toast("নতুন পদক: "+b.t+"!"),900)}});
-}
-function addXP(n,x,y){
-  const before=rankOf(S.xp);S.xp+=n;const k=todayKey();S.log[k]=(S.log[k]||0)+n;
-  if(!S.days.includes(k))S.days.push(k);
-  if(x!=null)xpPop(n,x,y);
-  checkBadges();save();
-  checkChallenge();
-  const after=rankOf(S.xp);
-  return after>before?after:null;
-}
-
-/* ---------- learning leaders (sample learners until the app has real accounts) ---------- */
-const LB={
-  area:{label:"আমার এলাকা",list:[["অরিত্র",168,"#4DA3FF"],["মৌমিতা",142,"#FF5E98"],["ঋষভ",118,"#2FA866"],["তৃষা",86,"#B57BFF"],["সৌম্য",54,"#F2A007"],["পূজা",30,"#0FA3A3"],["অনিক",14,"#E8572C"]]},
-  class:{label:"আমার ক্লাস",list:[["দিয়া",96,"#FF5E98"],["অয়ন",72,"#4DA3FF"],["শ্রেয়া",48,"#2FA866"],["তন্ময়",26,"#B57BFF"],["রিয়া",12,"#F2A007"]]},
-  friends:{label:"বন্ধুরা",list:[["ঈশান",64,"#0FA3A3"],["প্রিয়াঙ্কা",38,"#FF8A5B"],["নীল",20,"#5C7CFA"]]}
-};
-let lbScope="area";
-function weekXP(){let t=0;for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()-i);t+=S.log[todayKey(d)]||0}return t}
-function board(){
-  const me={name:S.name||"তুমি",xp:weekXP(),c:"#E8572C",me:true};
-  return LB[lbScope].list.map(([name,xp,c])=>({name,xp,c})).concat(me).sort((a,b)=>b.xp-a.xp||(a.me?-1:1));
-}
-const av=(p,cls="")=>`<div class="av ${p.me?"me":""} ${cls}" style="background:${p.c}">${p.name.charAt(0)}</div>`;
-function renderLB(){
-  const el=$("#lb");if(!el)return;
-  const FM=isFullMode(),scopes=Object.entries(LB).filter(([k])=>!(FM&&k==="class"));
-  if(FM&&lbScope==="class")lbScope="area";
-  const you=FM?"আপনি":"তুমি",your=FM?"আপনার":"তোমার";
-  const b=board(),myPos=b.findIndex(p=>p.me),me=b[myPos],above=b[myPos-1];
-  const order=[1,0,2],hts=[54,72,40],cols=["#9FB3C8","#FFB020","#E0915A"];
-  const podium=order.map(i=>{const p=b[i];if(!p)return "<div></div>";return `<div class="pd p${i+1}">
-    ${i===0?`<svg class="crown" viewBox="0 0 28 18"><path d="M2 16 L4 4 L10 10 L14 2 L18 10 L24 4 L26 16z" fill="#FFB020"/></svg>`:""}
-    ${av(p.me?{...p,name:you.charAt(0)}:p)}<div class="nmx">${p.me?you:p.name}</div><div class="px">${BN(p.xp)} XP</div>
-    <div class="blk" style="height:${hts[order.indexOf(i)]}px;background:${cols[order.indexOf(i)]}">${BN(i+1)}</div></div>`}).join("");
-  const myrank=`<div class="myrank"><div class="rk-num">${BN(myPos+1)}</div><div style="min-width:0"><b>${LB[lbScope].label}য় ${your} স্থান</b><span>${BN(b.length)} জনের মধ্যে · এই সপ্তাহে ${BN(me.xp)} XP</span></div></div>`;
-  let chal="";
-  const C=S.challenge&&S.challenge.scope===lbScope?S.challenge:null;
-  if(C){const pct=Math.min(100,Math.round(me.xp/(C.target+1)*100));
-    chal=`<div class="chal"><div style="flex:1;min-width:0"><p>চ্যালেঞ্জ চলছে: <b>${C.name}</b>-কে ছাড়াতে আর <b>${BN(Math.max(1,C.target+1-me.xp))} XP</b></p><div class="bar"><i style="width:${pct}%"></i></div></div><button class="go" id="lbPlay">খেলো</button></div>`}
-  else if(above){chal=`<div class="chal"><p><b>${above.name}</b> ${your} ঠিক আগে। আর <b>${BN(above.xp-me.xp+1)} XP</b> পেলেই ${you} ${BN(myPos)} নম্বরে!</p><button class="go" id="lbChal">চ্যালেঞ্জ ${FM?"করুন":"করো"}</button></div>`}
-  else{chal=`<div class="chal"><p><b>${you}ই শীর্ষে!</b> প্রথম স্থান ধরে রাখতে রোজ একটু ${FM?"পড়ুন":"শেখো"}।</p><button class="go" id="lbPlay">খেলো</button></div>`}
-  el.innerHTML=`
-  <div class="lb-head"><h3>এই সপ্তাহের শেখার নেতা</h3>
-    <div class="seg">${scopes.map(([k,v])=>`<button data-sc="${k}" aria-pressed="${k===lbScope}">${v.label}</button>`).join("")}</div></div>
-  <div class="podium">${podium}</div>
-  ${myrank}
-  ${chal}
-  <p class="sample">${FM?"নমুনা তালিকা: আসল অ্যাপে এলাকার পাঠক ও বন্ধুরা ডাকনামে দেখা যাবে।":"নমুনা তালিকা: আসল অ্যাপে অভিভাবকের অনুমতি নিয়ে ক্লাস বা এলাকার শিক্ষার্থীরা ডাকনামে দেখা যাবে।"}</p>`;
-  el.querySelectorAll("[data-sc]").forEach(x=>x.onclick=()=>{lbScope=x.dataset.sc;renderLB()});
-  const play=()=>{if(FM){openReader(S.last||firstId());return}const n=L.find(l=>!S.done[l.n]);n?openLesson(n.n):goPage(1)};
-  const cb=$("#lbChal");if(cb)cb.onclick=()=>{S.challenge={name:above.name,target:above.xp,scope:lbScope};save();renderLB();toast(above.name+"-কে চ্যালেঞ্জ! এবার শিখে XP জেতো।")};
-  const pb=$("#lbPlay");if(pb)pb.onclick=play;
-}
-function checkChallenge(){
-  const C=S.challenge;if(!C)return;
-  if(weekXP()>C.target){const nm=C.name;delete S.challenge;save();
-    setTimeout(()=>celebrate("চ্যালেঞ্জ জিতেছ!","তুমি "+nm+"-কে ছাড়িয়ে গেছ","দারুণ! এবার পরের জনকে চ্যালেঞ্জ করো।"),1400)}
-}
-
-/* ---------- complete Gita data (gita-data.json, made with the Text Studio) ---------- */
-const VCOUNT=[47,72,43,42,29,47,30,28,34,42,55,20,35,27,20,24,28,78];
-const CH=["বিষাদ-যোগ","সাংখ্য-যোগ","কর্মযোগ","জ্ঞানযোগ","কর্মসন্ন্যাস-যোগ","ধ্যানযোগ","জ্ঞানবিজ্ঞান-যোগ","অক্ষরব্রহ্ম-যোগ","রাজগুহ্য-যোগ","বিভূতি-যোগ","বিশ্বরূপ-দর্শন-যোগ","ভক্তিযোগ","প্রকৃতি-পুরুষ-বিবেকযোগ","গুণত্রয়-বিভাগ-যোগ","পুরুষোত্তম-যোগ","দৈবাসুর-সম্পদ-বিভাগযোগ","শ্রদ্ধাত্রয়-বিভাগ-যোগ","মোক্ষযোগ"].map((name,i)=>({n:i+1,name,v:VCOUNT[i]}));
-let FULL=null,FULL_REAL=false;
-const toENd=s=>String(s||"").replace(/[০-৯]/g,d=>"০১২৩৪৫৬৭৮৯".indexOf(d));
-const vid=(c,n)=>c+"."+n;
-const idFromRef=r=>toENd(r);
-function fallbackData(){
-  return {chapters:CH.map((c,i)=>{const l=L[i],vs=[];
-    const own=l?{id:idFromRef(l.ref),n:idFromRef(l.ref).split(".")[1],sk:l.sk,words:"",song:"",tr:l.easy,pur:"",own:true}:null;
-    return {n:c.n,title:c.name,verses:own?[own]:[]}})};
-}
-async function loadFull(){
-  try{const r=await fetch("gita-data.json",{cache:"no-store"});if(!r.ok)throw 0;const d=await r.json();
-    if(d&&d.chapters&&d.chapters.length){FULL=d;FULL_REAL=true}}catch(e){}
-  if(!FULL)FULL=fallbackData();
-  buildIndex();refresh();
-}
-let VIDX=[],VMAP={};
-function buildIndex(){VIDX=[];VMAP={};FULL.chapters.forEach(c=>c.verses.forEach(v=>{const id=v.id||vid(c.n,v.n);v.id=id;v.c=c.n;VIDX.push(v);VMAP[id]=v;
-  const m=String(v.n).match(/^(\d+)-(\d+)$/);if(m)for(let k=+m[1];k<=+m[2];k++)VMAP[vid(c.n,k)]=v}))}
-const chTitle=n=>{const c=FULL&&FULL.chapters.find(x=>x.n===n);return (c&&c.title)||(CH[n-1]||{}).name||""};
-const isFav=id=>S.fav.includes(id);
-function toggleFav(id){const i=S.fav.indexOf(id);if(i>=0){S.fav.splice(i,1);toast("প্রিয় তালিকা থেকে সরানো হলো")}else{S.fav.push(id);toast("প্রিয় শ্লোকে যোগ হলো ♥")}save();checkBadges();save()}
-const isFullMode=()=>S.mode==="full";
-
-/* ---------- home ---------- */
-let deckOrder=[];
-function initDeck(){const start=Math.floor((Date.now()/864e5))%CARDS.length;deckOrder=CARDS.map((_,i)=>(i+start)%CARDS.length)}
-function renderHome(){
-  const r=rankOf(S.xp),next=RANKS[r+1],cur=RANKS[r];
-  const pct=next?Math.round((S.xp-cur[0])/(next[0]-cur[0])*100):100;
-  const dc=doneCount(),nextL=L.find(l=>!S.done[l.n]);
-  const st=streak();
-  // last 7 days xp bars
-  const days=[...Array(7)].map((_,i)=>{const d=new Date();d.setDate(d.getDate()-(6-i));return {k:todayKey(d),w:["রবি","সোম","মঙ্গল","বুধ","বৃহঃ","শুক্র","শনি"][d.getDay()],v:S.log[todayKey(d)]||0}});
-  const mx=Math.max(20,...days.map(d=>d.v));
-  const bw=22,gap=10,h=78;
-  const bars=days.map((d,i)=>{const bh=Math.max(4,d.v/mx*h);const x=i*(bw+gap)+4;return `<rect x="${x}" y="${h-bh+8}" width="${bw}" height="${bh}" rx="6" fill="${i===6?"#E8572C":"#4DA3FF"}"/>${d.v?`<text x="${x+bw/2}" y="${h-bh+3}" text-anchor="middle" style="fill:#1E2A4A;font-weight:600">${BN(d.v)}</text>`:""}<text x="${x+bw/2}" y="${h+24}" text-anchor="middle">${d.w}</text>`}).join("");
-  const FM=isFullMode(),totalV=VCOUNT.reduce((a,b)=>a+b,0),rv=S.readV.length;
-  const C=2*Math.PI*46,off=C*(1-(FM?Math.min(1,rv/totalV):dc/18));
-  $("#home").innerHTML=`
-  <div class="top">
-    <div class="hello"><b>নমস্কার, ${S.name||"বন্ধু"}!</b><span>${isFullMode()?"আজ কোন শ্লোক পড়বেন?":"আজ কী শিখবে?"}</span></div>
-    <button class="chip" id="favChip" title="প্রিয় শ্লোক" aria-label="প্রিয় শ্লোক"><span style="color:var(--lotus);font-size:1.1rem">♥</span>${BN(S.fav.length)}</button>
-    <div class="chip" title="টানা দিন"><svg viewBox="0 0 24 24"><path d="M12 2c1 4 6 6 6 12a6 6 0 0 1-12 0c0-3 2-5 3-7 0 3 2 4 3 4 0-3-1-6 0-9z" fill="#E8572C"/><path d="M12 12c1 2 3 3 3 5a3 3 0 0 1-6 0c0-1 1-2 1.5-3 0 1 .8 1.5 1.5 1.5 0-1.5-.5-2.5 0-3.5z" fill="#FFB020"/></svg>${BN(st)}</div>
-    <div class="chip" title="মোট তারা">${STAR(true).replace("<svg","<svg width='20' height='20'")}${BN(Object.values(S.done).reduce((a,b)=>a+b,0))}</div>
-  </div>
-  <section class="lb" id="lb" aria-label="শেখার নেতারা"></section>
-  <div class="rank">
-    <div class="badge-lvl">${BN(r+1)}</div>
-    <div class="t"><small>তোমার পদমর্যাদা</small><b>${cur[1]}</b>
-      <div class="xpbar"><i style="width:${pct}%"></i></div>
-      <small>${BN(S.xp)} XP ${next?`· "${next[1]}" হতে আর ${BN(next[0]-S.xp)} XP`:"· সর্বোচ্চ পদ!"}</small></div>
-  </div>
-  ${isFullMode()?contCard():""}
-  <div class="panel">
-    <h3>আমার অগ্রগতি</h3>
-    <div class="prog">
-      <svg class="ring" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="progress">
-        <circle cx="60" cy="60" r="46" fill="none" stroke="#E5EDF7" stroke-width="14"/>
-        <circle cx="60" cy="60" r="46" fill="none" stroke="#2FA866" stroke-width="14" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}" transform="rotate(-90 60 60)"/>
-        <text x="60" y="60" text-anchor="middle" font-size="${FM?24:28}" font-weight="800" fill="#1E2A4A">${BN(FM?rv:dc)}</text>
-        <text x="60" y="80" text-anchor="middle" font-size="12" fill="#5B6787">${FM?BN(totalV)+" শ্লোকের":"১৮ স্তরের"}</text>
-      </svg>
-      <div style="min-width:0"><div style="font-size:.82rem;color:var(--muted);margin-bottom:2px">এই সপ্তাহের XP</div>
-        <svg class="bars" viewBox="0 0 230 112" width="100%" role="img" aria-label="last 7 days XP">${bars}</svg></div>
-    </div>
-    <div class="stats">
-      ${FM?`<div class="stat"><b>${BN(chaptersDone())}</b><span>অধ্যায় শেষ</span></div><div class="stat"><b>${BN(S.fav.length)}</b><span>প্রিয় শ্লোক</span></div>`
-        :`<div class="stat"><b>${BN(dc)}</b><span>স্তর পার</span></div><div class="stat"><b>${BN(S.cards.length)}</b><span>কার্ড দেখা</span></div>`}
-      <div class="stat"><b>${BN(S.badges.length)}</b><span>পদক</span></div>
-    </div>
-  </div>
-  <div class="sh"><h2>আজকের শ্লোক-কার্ড</h2><span>সোয়াইপ করো</span></div>
-  <div class="deck" id="deck"></div>
-  <div class="deckctl"><button class="round" id="prevC" aria-label="আগের কার্ড">‹</button><div class="dots" id="dots"></div><button class="round" id="nextC" aria-label="পরের কার্ড">›</button></div>
-  ${FM?`<button class="cta" id="goNext">সম্পূর্ণ গীতা খুলুন</button>`
-   :`<div class="talk">${mascot()}<div class="bubble">${nextL?`চলো, স্তর ${BN(nextL.n)}: "${nextL.t}" খেলি!`:"অসাধারণ! তুমি পুরো গীতা যাত্রা শেষ করেছ!"}</div></div>
-  <button class="cta" id="goNext">${nextL?`স্তর ${BN(nextL.n)} শুরু করো`:"যাত্রাপথ দেখো"}</button>`}`;
-  $("#goNext").onclick=()=>FM?goPage(1):nextL?openLesson(nextL.n):goPage(1);
-  $("#favChip").onclick=openFavs;
-  const cb2=$("#contBtn");if(cb2)cb2.onclick=()=>openReader(S.last||firstId());
-  renderLB();
-  renderDeck();
-  $("#prevC").onclick=()=>{deckOrder.unshift(deckOrder.pop());renderDeck()};
-  $("#nextC").onclick=()=>flyTop(-1);
-}
-function cardHTML(c,i,depth){
-  const col=COLORS[(c.n-1)%COLORS.length];
-  const first=c.sk.split("\n")[0];
-  return `<div class="vcard" data-i="${i}" style="background:${col};z-index:${10-depth};transform:translateY(${depth*12}px) scale(${1-depth*.05});${depth>2?"opacity:0":""}" ${depth?`aria-hidden="true"`:""}>
-   <div class="art">${motif(c.n)}</div>
-   <span class="no">শ্লোক ${c.ref}</span>
-   <div class="sk">${first}…</div>
-   <div class="mn">${c.easy}</div>
-   <div class="rf">${c.t} · অধ্যায় ${BN(c.n)}</div>
-   ${depth===0?`<button class="hb" data-fav="${idFromRef(c.ref)}" aria-label="প্রিয়তে যোগ করুন">${isFav(idFromRef(c.ref))?"♥":"♡"}</button>`:""}</div>`;
-}
-function renderDeck(){
-  const deck=$("#deck");if(!deck)return;
-  deck.innerHTML=deckOrder.slice(0,4).map((ci,d)=>cardHTML(CARDS[ci],ci,d)).reverse().join("");
-  $("#dots").innerHTML=CARDS.map((_,i)=>`<i class="${i===deckOrder[0]?"on":""}"></i>`).join("");
-  markSeen(deckOrder[0]);
-  const top=deck.querySelector(`.vcard[data-i="${deckOrder[0]}"]`);
-  const hb=top.querySelector(".hb");if(hb){hb.addEventListener("pointerdown",e=>e.stopPropagation());hb.onclick=e=>{e.stopPropagation();toggleFav(hb.dataset.fav);hb.textContent=isFav(hb.dataset.fav)?"♥":"♡";const fc=$("#favChip");if(fc)fc.lastChild.textContent=BN(S.fav.length)}}
-  let sx=0,dx=0,drag=false;
-  top.addEventListener("pointerdown",e=>{drag=true;sx=e.clientX;dx=0;top.classList.add("drag");top.setPointerCapture(e.pointerId)});
-  top.addEventListener("pointermove",e=>{if(!drag)return;dx=e.clientX-sx;top.style.transform=`translateX(${dx}px) rotate(${dx/14}deg)`});
-  const end=()=>{if(!drag)return;drag=false;top.classList.remove("drag");
-    if(Math.abs(dx)>80)flyTop(dx>0?1:-1);else top.style.transform="";};
-  top.addEventListener("pointerup",end);top.addEventListener("pointercancel",end);
-}
-function flyTop(dir){
-  const top=$(`#deck .vcard[data-i="${deckOrder[0]}"]`);if(!top)return;
-  top.style.transform=`translateX(${dir*window.innerWidth}px) rotate(${dir*30}deg)`;top.style.opacity="0";
-  setTimeout(()=>{deckOrder.push(deckOrder.shift());renderDeck()},280);
-}
-function markSeen(ci){
-  const id=CARDS[ci].ref;if(S.cards.includes(id))return;
-  S.cards.push(id);const up=addXP(2);
-  const c=document.querySelector(".stat:nth-child(2) b");if(c)c.textContent=BN(S.cards.length);
-  if(up!=null)celebrate("নতুন পদমর্যাদা!",RANKS[up][1],"তুমি এখন একজন "+RANKS[up][1]+"।");
-}
-
-/* ---------- journey map ---------- */
-function renderMap(){
-  if(isFullMode()){renderLibrary();return}
-  const step=104,top=60,H=top+L.length*step+40;
-  const pos=L.map((l,i)=>({x:50+30*Math.sin(i*1.05),y:top+i*step}));
-  let d=`M ${pos[0].x} ${pos[0].y+32}`;
-  for(let i=1;i<pos.length;i++){const a=pos[i-1],b=pos[i];d+=` C ${a.x} ${a.y+32+step/2}, ${b.x} ${b.y+32-step/2}, ${b.x} ${b.y+32}`}
-  const curN=(L.find(l=>!S.done[l.n])||{}).n;
-  $("#map").innerHTML=`
-  <div class="sh"><h2>গীতার যাত্রাপথ</h2><span>${BN(doneCount())}/১৮ স্তর</span></div>
-  <div class="talk">${mascot()}<div class="bubble">প্রতিটি পাথর একটি স্তর। গল্প পড়ো, প্রশ্নের উত্তর দাও, তারা জেতো!</div></div>
-  <div class="map" style="height:${H}px">
-    <svg class="path" viewBox="0 0 100 ${H}" preserveAspectRatio="none"><path d="${d}" fill="none" stroke="#C9D8EA" stroke-width="2.4" stroke-dasharray="1 3" stroke-linecap="round" vector-effect="non-scaling-stroke" style="stroke-width:8px"/></svg>
-    ${ZONES.map(z=>`<div class="zone" style="top:${pos[z[0]-1].y-48}px">— ${z[1]} —</div>`).join("")}
-    ${L.map((l,i)=>{const lk=!unlocked(l.n),st=S.done[l.n]||0,col=COLORS[i%COLORS.length];
-      return `<div class="stone ${lk?"lock":""} ${l.n===curN?"cur":""}" style="left:${pos[i].x}%;top:${pos[i].y}px">
-      <button data-l="${l.n}" style="background:${col}" aria-label="স্তর ${BN(l.n)}: ${l.t}${lk?" (বন্ধ)":""}">${lk?`<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>`:BN(l.n)}</button>
-      <div class="stars">${[1,2,3].map(k=>STAR(k<=st)).join("")}</div>
-      <div class="nm">${l.t}</div></div>`}).join("")}
-  </div>`;
-  document.querySelectorAll(".stone button").forEach(b=>b.onclick=()=>{const n=+b.dataset.l;unlocked(n)?openLesson(n):toast("আগে স্তর "+BN(n-1)+" শেষ করো!")});
-}
-
-/* ---------- library (complete version) ---------- */
-function firstId(){return (VIDX[0]&&VIDX[0].id)||"1.1"}
-function contCard(){
-  const v=VMAP[S.last];
-  if(!v)return `<button class="cont" id="contBtn"><div class="t"><small>সম্পূর্ণ গীতা</small><b>প্রথম অধ্যায় থেকে শুরু করুন</b><div class="sk1">${chTitle(1)}</div></div><span class="go">শুরু</span></button>`;
-  return `<button class="cont" id="contBtn"><div class="t"><small>যেখানে থেমেছিলেন</small><b>অধ্যায় ${BN(v.c)} · শ্লোক ${BN(v.n)}</b><div class="sk1">${(v.sk||"").split("\n")[0]}</div></div><span class="go">পড়ুন</span></button>`;
-}
-function chReadCount(n){const set=new Set(S.readV);let k=0;for(let i=1;i<=VCOUNT[n-1];i++)if(set.has(vid(n,i)))k++;return k}
-function renderLibrary(){
-  $("#map").innerHTML=`
-  <div class="sh"><h2>সম্পূর্ণ গীতা</h2><span>${BN(S.readV.length)} শ্লোক পড়া</span></div>
-  ${FULL_REAL?"":`<div class="notice">সম্পূর্ণ গীতার পাঠ তৈরি হচ্ছে। আপাতত প্রতিটি অধ্যায়ের নির্বাচিত শ্লোক পড়া যাবে; শীঘ্রই সব শ্লোক, শব্দার্থ, অনুবাদ ও তাৎপর্য যোগ হবে।</div>`}
-  ${contCard()}
-  <input class="srch" id="lsrch" type="search" placeholder="শ্লোক, শব্দ বা নম্বর খুঁজুন (যেমন ২.৪৭)" aria-label="খুঁজুন">
-  <div id="lres"></div>
-  <button class="cta blue" id="libFav" style="font-size:1rem">♥ প্রিয় শ্লোক (${BN(S.fav.length)})</button>
-  ${S.proof&&FULL_REAL?`<button class="cta" id="libProof" style="font-size:1rem;background:var(--marigold);color:var(--ink);box-shadow:0 5px 0 #C98A00">✎ প্রুফ দেখা · ${BN(proofStats().ok)}/${BN(proofStats().total)}</button>`:""}
-  <div class="sh"><h2>অধ্যায়</h2><span>১৮টি</span></div>
-  <div class="cgrid">${VCOUNT.map((cnt,i)=>{const n=i+1,rd=chReadCount(n);return `<button class="cc" data-ch="${n}" style="background:${COLORS[i%COLORS.length]}">
-    <div class="art">${motif(n)}</div><span class="num">${BN(n)}</span><b>${chTitle(n)}</b><span>${BN(cnt)} শ্লোক · ${BN(rd)} পড়া</span>
-    <div class="pb"><i style="width:${Math.round(rd/cnt*100)}%"></i></div></button>`}).join("")}</div>`;
-  document.querySelectorAll(".cc").forEach(b=>b.onclick=()=>openChapter(+b.dataset.ch));
-  $("#contBtn").onclick=()=>openReader(S.last||firstId());
-  $("#libFav").onclick=openFavs;
-  const lp=$("#libProof");if(lp)lp.onclick=openProof;
-  const inp=$("#lsrch"),res=$("#lres");
-  inp.oninput=()=>{const q=inp.value.trim();if(!q){res.innerHTML="";return}
-    const m=toENd(q).match(/^(\d{1,2})\s*[.:।]\s*(\d{1,2})$/);
-    let hits=[];if(m){const v=VMAP[vid(+m[1],+m[2])];if(v)hits=[v]}
-    else hits=VIDX.filter(v=>[v.sk,v.words,v.tr,v.pur].some(x=>x&&x.includes(q))).slice(0,30);
-    res.innerHTML=hits.length?`<div class="flist">${hits.map(favItem).join("")}</div>`:`<p class="sample">"${q}" পাওয়া যায়নি।</p>`;
-    res.querySelectorAll(".fi").forEach(b=>b.onclick=()=>openReader(b.dataset.id))};
-}
-function sheetShell(id,title,sub){
-  const old=$("#"+id);if(old)old.remove();
-  const el=document.createElement("div");el.className="sheet";el.id=id;
-  el.innerHTML=`<div class="rd-top"><button class="ib" data-x aria-label="বন্ধ করুন">×</button><div class="ttl">${title}<small>${sub||""}</small></div><span class="rd-extra"></span></div><div class="rd-body"><div class="in"></div></div>`;
-  document.body.appendChild(el);el.querySelector("[data-x]").onclick=()=>{el.remove();refresh();if(id==="reader"&&$("#proof"))openProof()};
-  return el;
-}
-function openChapter(n){
-  const cnt=VCOUNT[n-1],set=new Set(S.readV);
-  const el=sheetShell("chsheet",`অধ্যায় ${BN(n)} · ${chTitle(n)}`,`${BN(cnt)}টি শ্লোক · ${BN(chReadCount(n))}টি পড়া`);
-  el.querySelector(".in").innerHTML=`<div class="scene" style="background:${COLORS[(n-1)%COLORS.length]};height:150px">${motif(n)}</div>
-   <div class="vgrid">${[...Array(cnt)].map((_,i)=>{const k=i+1,id=vid(n,k),v=VMAP[id];return `<button class="vb ${set.has(id)?"read":""} ${v?"":"na"}" data-id="${id}" aria-label="শ্লোক ${BN(k)}">${BN(k)}${isFav(v?v.id:id)?`<span class="h">♥</span>`:""}</button>`}).join("")}</div>
-   ${FULL_REAL?"":`<p class="sample">ধূসর নম্বরের শ্লোকগুলো শীঘ্রই যোগ হবে।</p>`}`;
-  el.querySelectorAll(".vb").forEach(b=>b.onclick=()=>{const v=VMAP[b.dataset.id];v?openReader(v.id):toast("এই শ্লোকের পাঠ এখনো যোগ হয়নি")});
-}
-let RFS=17;try{RFS=+localStorage.getItem("gita-rfs")||17}catch(e){}
-function openReader(id){
-  const v=VMAP[id];if(!v){toast("এই শ্লোকের পাঠ এখনো যোগ হয়নি");return}
-  const pos=VIDX.indexOf(v),prev=VIDX[pos-1],next=VIDX[pos+1];
-  const kid=!isFullMode(),l=L.find(x=>idFromRef(x.ref)===v.id);
-  const el=sheetShell("reader",`অধ্যায় ${BN(v.c)} · শ্লোক ${BN(v.n)}`,chTitle(v.c));
-  el.querySelector(".rd-extra").innerHTML=`<div style="display:flex;gap:6px"><button class="ib" id="fsm" aria-label="লেখা ছোট">অ-</button><button class="ib" id="fsp" aria-label="লেখা বড়">অ+</button><button class="ib fav" id="rfav" aria-label="প্রিয়">${isFav(v.id)?"♥":"♡"}</button></div>`;
-  const body=el.querySelector(".in");body.style.setProperty("--rfs",RFS+"px");
-  const PF=S.proof&&isFullMode()&&FULL_REAL&&!v.own,cv=S.corr[v.id]||{},T=k=>cv[k]!=null?cv[k]:(v[k]||"");
-  const eb=k=>PF?`<button class="ed-btn" data-ed="${k}">✎ সংশোধন</button>`:"";
-  const sec=(cls,h,k)=>{const t=T(k);return (t||PF)?`<div class="sec ${cls}"><div class="hrow"><h4>${h}${cv[k]!=null?" · সংশোধিত":""}</h4>${eb(k)}</div><p>${escH(t)||"<i style='color:var(--muted)'>(খালি)</i>"}</p></div>`:""};
-  const pgs=(v.pages||v.pg||[]),pgTxt=pgs.map(x=>{const m=String(x).match(/p(\d{4})([ab])/);return m?"PDF "+BN(+m[1])+(m[2]==="a"?" (বাম)":" (ডান)"):x}).join(", ");
-  body.innerHTML=`${PF?`<div class="sec" style="background:#FFF8E8"><div class="pf-bar"><b style="font-family:var(--display)">প্রুফ দেখা</b>
-      ${S.okV.includes(v.id)?`<span class="pf-pill pf-ok">✓ মিলিয়ে দেখা হয়েছে</span>`:v.rev?`<span class="pf-pill pf-ok">স্টুডিওতে যাচাই করা</span>`:`<span class="pf-pill pf-un">যাচাই হয়নি</span>`}
-      ${Object.keys(cv).length?`<span class="pf-pill pf-ed">${BN(Object.keys(cv).length)}টি সংশোধন</span>`:""}</div>
-      ${pgTxt?`<div class="sample" style="margin-top:4px">বইয়ে দেখুন: ${pgTxt}</div>`:""}
-      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button class="ed-btn" data-ed="sk">✎ মূল শ্লোক সংশোধন</button>
-      <button class="ed-btn" id="pfOk" style="background:${S.okV.includes(v.id)?"#E3F7EC":"var(--leaf)"};color:${S.okV.includes(v.id)?"#1E7A48":"#fff"}">${S.okV.includes(v.id)?"✓ ঠিক আছে (বাতিল করতে চাপুন)":"✓ বইয়ের সঙ্গে মিলেছে"}</button></div></div>`:""}
-   <div class="sloka-box"><p class="sk">${escH(T("sk"))}</p><div class="rf">শ্রীমদ্ভগবদ্গীতা ${BN(v.c)}.${BN(v.n)}${cv.sk!=null?" · সংশোধিত":""}</div></div>
-   ${kid&&l?`<div class="easy"><b>সহজ কথায়</b>${l.easy}</div><div class="lesson">${mascot("","wow")}<p>${l.lesson}</p></div>`:
-    sec("","শব্দার্থ","words")+sec("song","গীতার গান","song")+sec("tr",v.own?"সহজ অর্থ":"অনুবাদ","tr")+
-    ((T("pur")||PF)?`<div class="sec"><details ${PF?"open":""}><summary>তাৎপর্য ${PF?"":"পড়ুন"}<span>▾</span></summary>${PF?`<div style="margin-top:6px">${eb("pur")}</div>`:""}<p style="margin-top:8px">${escH(T("pur"))}</p></details></div>`:"")}
-   ${!FULL_REAL&&!kid?`<div class="notice">এই শ্লোকের শব্দার্থ, গীতার গান, পূর্ণ অনুবাদ ও তাৎপর্য শীঘ্রই যোগ হবে।</div>`:""}`;
-  el.insertAdjacentHTML("beforeend",`<div class="rd-nav"><button class="cta blue" id="rprev" ${prev?"":"disabled"}>← আগের</button><button class="cta green" id="rnext" ${next?"":"disabled"}>পরের →</button></div>`);
-  $("#rfav").onclick=()=>{toggleFav(v.id);$("#rfav").textContent=isFav(v.id)?"♥":"♡"};
-  if(PF){
-    el.querySelectorAll("[data-ed]").forEach(b=>b.onclick=()=>editField(v,b.dataset.ed));
-    $("#pfOk").onclick=()=>{const i=S.okV.indexOf(v.id);if(i>=0)S.okV.splice(i,1);else{S.okV.push(v.id);addXP(3)}save();
-      if(i<0&&next){toast("✓ মিলিয়ে দেখা হয়েছে · পরের শ্লোক");openReader(next.id)}else openReader(v.id)};
-  }
-  const setFs=d=>{RFS=Math.max(14,Math.min(26,RFS+d));body.style.setProperty("--rfs",RFS+"px");try{localStorage.setItem("gita-rfs",RFS)}catch(e){}};
-  $("#fsm").onclick=()=>setFs(-2);$("#fsp").onclick=()=>setFs(2);
-  if(prev)$("#rprev").onclick=()=>openReader(prev.id);
-  if(next)$("#rnext").onclick=()=>openReader(next.id);
-  // swipe left/right for next/previous verse
-  const sc=el.querySelector(".rd-body");let sx=0,sy=0;
-  sc.addEventListener("touchstart",e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
-  sc.addEventListener("touchend",e=>{const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
-    if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.5){if(dx<0&&next)openReader(next.id);else if(dx>0&&prev)openReader(prev.id)}},{passive:true});
-  // reading progress
-  S.last=v.id;const m=String(v.n).match(/^(\d+)-(\d+)$/),ids=m?[...Array(+m[2]-+m[1]+1)].map((_,i)=>vid(v.c,+m[1]+i)):[v.id];
-  const fresh=ids.filter(x=>!S.readV.includes(x));
-  if(fresh.length){S.readV.push(...fresh);const up=addXP(2*fresh.length);
-    if(up!=null)setTimeout(()=>celebrate("নতুন পদমর্যাদা!",RANKS[up][1],"আপনি এখন "+RANKS[up][1]+"।"),600);
-    const chDone=chReadCount(v.c)===VCOUNT[v.c-1]&&fresh.length;if(chDone&&!S["chc"+v.c]){S["chc"+v.c]=1;addXP(20);setTimeout(()=>celebrate("অধ্যায় সম্পূর্ণ!","অধ্যায় "+BN(v.c),chTitle(v.c)+" পড়া শেষ হলো। +২০ XP"),700)}}
-  save();
-}
-const escH=t=>String(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;");
-const FLABEL={sk:"মূল শ্লোক",words:"শব্দার্থ",song:"গীতার গান",tr:"অনুবাদ",pur:"তাৎপর্য"};
-function editField(v,k){
-  const cur=(S.corr[v.id]||{})[k]!=null?S.corr[v.id][k]:(v[k]||"");
-  const o=document.createElement("div");o.className="modal";
-  o.innerHTML=`<div class="box" style="max-width:560px;text-align:left"><h3>${FLABEL[k]} সংশোধন · ${BN(v.c)}.${BN(v.n)}</h3>
-   <p class="sample" style="margin:0">${k==="sk"?"শুধু OCR-এর ভুল ঠিক করুন, বইয়ের সঙ্গে অক্ষরে অক্ষরে মিলিয়ে।":"বইয়ে যেমন আছে ঠিক তেমন লিখুন।"}</p>
-   <textarea class="edbox" id="edT" rows="${k==="pur"?12:6}">${escH(cur)}</textarea>
-   <button class="cta green" id="edS" style="font-size:1rem">সংরক্ষণ</button>
-   ${(S.corr[v.id]||{})[k]!=null?`<button class="cta" id="edU" style="font-size:1rem">আগের লেখায় ফেরত যান</button>`:""}
-   <button class="cta blue" id="edX" style="font-size:1rem">বাতিল</button></div>`;
-  document.body.appendChild(o);
-  $("#edX").onclick=()=>o.remove();
-  $("#edS").onclick=()=>{const t=$("#edT").value.replace(/\s+$/,"");const orig=v[k]||"";
-    S.corr[v.id]=S.corr[v.id]||{};if(t===orig)delete S.corr[v.id][k];else S.corr[v.id][k]=t;
-    if(!Object.keys(S.corr[v.id]).length)delete S.corr[v.id];save();o.remove();toast("সংশোধন সংরক্ষিত");openReader(v.id)};
-  const u=$("#edU");if(u)u.onclick=()=>{delete S.corr[v.id][k];if(!Object.keys(S.corr[v.id]).length)delete S.corr[v.id];save();o.remove();openReader(v.id)};
-}
-function proofStats(){
-  const chs=S.proofCh.length?S.proofCh:[...Array(18)].map((_,i)=>i+1);
-  const vs=VIDX.filter(v=>chs.includes(v.c)&&!v.own);
-  return {chs,total:vs.length,ok:vs.filter(v=>S.okV.includes(v.id)).length,edits:Object.keys(S.corr).length};
-}
-function openProof(){
-  const st=proofStats();
-  const el=sheetShell("proof","প্রুফ দেখা (বেটা)",`${BN(st.ok)}/${BN(st.total)} শ্লোক মিলিয়ে দেখা · ${BN(st.edits)}টি শ্লোকে সংশোধন`);
-  const firstTodo=VIDX.find(v=>st.chs.includes(v.c)&&!v.own&&!S.okV.includes(v.id));
-  el.querySelector(".in").innerHTML=`
-   <div class="sec"><h4>আমার অধ্যায়</h4><p class="sample" style="margin:0 0 8px">আপনাকে যে অধ্যায়গুলো দেওয়া হয়েছে সেগুলো বেছে নিন।</p>
-     <div class="chpick">${[...Array(18)].map((_,i)=>`<button data-pc="${i+1}" aria-pressed="${S.proofCh.includes(i+1)}">${BN(i+1)}</button>`).join("")}</div></div>
-   <div class="xpbar" style="background:var(--line);height:14px"><i style="width:${st.total?Math.round(st.ok/st.total*100):0}%;background:var(--leaf)"></i></div>
-   ${firstTodo?`<button class="cta green" id="pfGo">পরের না-দেখা শ্লোক খুলুন (${BN(firstTodo.c)}.${BN(firstTodo.n)})</button>`:`<div class="notice">আপনার অধ্যায়ের সব শ্লোক মিলিয়ে দেখা হয়েছে!</div>`}
-   <div class="sec"><h4>সংশোধন পাঠান</h4><p class="sample" style="margin:0 0 8px">নিচের বোতাম চাপলে আপনার সব সংশোধন কপি হবে। WhatsApp-এ Mr. Sen-কে পেস্ট করে পাঠান। প্রতিদিন কাজ শেষে একবার পাঠালেই হবে।</p>
-     <button class="cta blue" id="pfCopy" style="font-size:1rem">সংশোধন কপি করুন</button>
-     <textarea class="edbox" id="pfOut" rows="4" readonly style="margin-top:8px;display:none"></textarea></div>
-   <div class="sec"><h4>কীভাবে প্রুফ দেখবেন</h4><p style="font-size:.92em">১. বইয়ের PDF পাশে খুলে রাখুন; প্রতিটি শ্লোকে "বইয়ে দেখুন" অংশে পাতা নম্বর আছে।
-২. মূল শ্লোক অক্ষরে অক্ষরে মেলান; ভুল থাকলে "✎ সংশোধন" চাপুন।
-৩. শব্দার্থ, গীতার গান, অনুবাদ ও তাৎপর্যও দেখে নিন।
-৪. সব ঠিক থাকলে "✓ বইয়ের সঙ্গে মিলেছে" চাপুন; পরের শ্লোক নিজেই খুলবে।</p></div>`;
-  el.querySelectorAll("[data-pc]").forEach(b=>b.onclick=()=>{const n=+b.dataset.pc,i=S.proofCh.indexOf(n);i>=0?S.proofCh.splice(i,1):S.proofCh.push(n);S.proofCh.sort((a,b)=>a-b);save();openProof()});
-  const g=$("#pfGo");if(g)g.onclick=()=>openReader(firstTodo.id);
-  $("#pfCopy").onclick=async()=>{
-    const payload=JSON.stringify({type:"gita-corrections",v:1,by:S.name||"",invite:S.invite||"",date:new Date().toISOString(),chapters:S.proofCh,ok:S.okV,corr:S.corr});
-    const out=$("#pfOut");out.value=payload;
-    try{await navigator.clipboard.writeText(payload);toast("কপি হয়েছে · এখন WhatsApp-এ পেস্ট করুন")}
-    catch(e){out.style.display="block";out.focus();out.select();toast("লেখাটি সিলেক্ট করে কপি করুন")}};
-}
-function favItem(v){
-  const c=v.c||+String(v.id).split(".")[0];
-  return `<button class="fi" data-id="${v.id}"><div class="r"><span>অধ্যায় ${BN(c)} · শ্লোক ${BN(v.n)}</span>${isFav(v.id)?`<span style="color:var(--lotus)">♥</span>`:""}</div>
-   <div class="s">${(v.sk||"").split("\n").slice(0,2).join("\n")}</div>${v.tr?`<div class="m">${v.tr}</div>`:""}</button>`;
-}
-function openFavs(){
-  const list=S.fav.map(id=>VMAP[id]).filter(Boolean);
-  const el=sheetShell("favs","প্রিয় শ্লোক",`${BN(list.length)}টি শ্লোক`);
-  el.querySelector(".in").innerHTML=list.length?`<div class="flist">${list.map(favItem).join("")}</div>`:
-   `<div class="talk">${mascot()}<div class="bubble">এখনো কোনো প্রিয় শ্লোক নেই। যেকোনো শ্লোকের পাশে ♡ চাপলে এখানে জমা হবে।</div></div>`;
-  el.querySelectorAll(".fi").forEach(b=>b.onclick=()=>openReader(b.dataset.id));
-}
-function setMode(m){S.mode=m;save();goPage(0);refresh();toast(m==="full"?"সম্পূর্ণ গীতা চালু হলো":"শিশু পাঠ চালু হলো")}
-function parentCheck(ok){
-  const a=3+Math.floor(Math.random()*7),b=4+Math.floor(Math.random()*6);
-  const o=document.createElement("div");o.className="modal";
-  o.innerHTML=`<div class="box"><h3>বড়দের অনুমতি</h3><p style="margin:0">সম্পূর্ণ গীতায় যেতে একজন বড় মানুষ উত্তর দিন:</p><b style="font-family:var(--display);font-size:1.6rem">${BN(a)} × ${BN(b)} = ?</b>
-   <input id="pc" inputmode="numeric" aria-label="উত্তর"><button class="cta green" id="pcok">নিশ্চিত করুন</button><button class="cta blue" id="pcx" style="font-size:1rem">বাতিল</button></div>`;
-  document.body.appendChild(o);$("#pc").focus();
-  $("#pcx").onclick=()=>o.remove();
-  $("#pcok").onclick=()=>{if(parseInt(toENd($("#pc").value))===a*b){o.remove();ok()}else{toast("উত্তর ঠিক হয়নি");$("#pc").value=""}};
-}
-
-/* ---------- rewards ---------- */
-function renderRew(){
-  const r=rankOf(S.xp);
-  $("#rew").innerHTML=`
-  <div class="sh"><h2>আমার পদক</h2><span>${BN(curBadges().filter(b=>S.badges.includes(b.id)).length)}/${BN(curBadges().length)}</span></div>
-  <div class="bgrid">${curBadges().map((b,i)=>`<div class="bdg ${S.badges.includes(b.id)?"":"off"}">${medal(b.c,i)}<b>${b.t}</b><span>${b.d}</span></div>`).join("")}</div>
-  <div class="panel"><h3>পদমর্যাদার সিঁড়ি</h3><div class="ranks">${RANKS.map((x,i)=>`<div class="rk ${i===r?"on":""}"><div class="badge-lvl" style="width:36px;height:36px;font-size:1rem">${BN(i+1)}</div><b>${x[1]}</b><span>${BN(x[0])} XP</span></div>`).join("")}</div></div>
-  <div class="panel"><h3>কীভাবে XP পাবে</h3>
-   <div class="ranks" style="font-size:.95rem">
-    <div class="rk"><b>${isFullMode()?"নতুন শ্লোক পড়া":"নতুন শ্লোক-কার্ড দেখা"}</b><span>+২</span></div>
-    <div class="rk"><b>স্তরের গল্প শেষ করা</b><span>+১০</span></div>
-    <div class="rk"><b>প্রতিটি সঠিক উত্তর</b><span>+১০</span></div>
-    <div class="rk"><b>৩ তারা বোনাস</b><span>+১০</span></div>
-    <div class="rk"><b>আজকের পূজা করেছি</b><span>+৫</span></div></div></div>
-  <div class="panel"><h3>প্রোফাইল</h3>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <div style="display:flex;gap:8px"><input id="nm" value="${S.name}" placeholder="নাম" aria-label="নাম" style="flex:1;min-width:0;padding:10px 12px;border-radius:12px;border:2px solid var(--line);font:inherit">
-        <input id="ag" value="${S.age?BN(S.age):""}" placeholder="বয়স" aria-label="বয়স" inputmode="numeric" style="width:80px;padding:10px 12px;border-radius:12px;border:2px solid var(--line);font:inherit;text-align:center"></div>
-      <div class="mode-row"><span>এখনকার সংস্করণ:</span><span class="tag">${isFullMode()?"সম্পূর্ণ গীতা":"শিশু পাঠ"}</span></div>
-      <button class="cta blue" style="font-size:1rem;padding:10px 16px" id="nmSave">সেভ করুন</button>
-      ${isFullMode()?`<div class="mode-row" style="justify-content:space-between"><span><b>প্রুফ দেখার মোড (বেটা)</b><br><span class="sample">বইয়ের সঙ্গে মিলিয়ে ভুল ঠিক করার সুবিধা</span></span>
-        <label class="sw"><input type="checkbox" id="pfSw" ${S.proof?"checked":""} aria-label="প্রুফ দেখার মোড"><i></i></label></div>`:""}
-      <button class="cta" style="font-size:1rem;padding:10px 16px;background:var(--teal);box-shadow:0 5px 0 #0B7A7A" id="modeSw">${isFullMode()?"শিশু পাঠে যান":"সম্পূর্ণ গীতায় যান"}</button>
-      <p class="sample">বয়স ১২-র কম হলে শিশু পাঠ, ১২ বা বেশি হলে সম্পূর্ণ গীতা। শিশু পাঠ থেকে সম্পূর্ণ গীতায় যেতে বড়দের অনুমতি লাগে।</p></div></div>`;
-  $("#nmSave").onclick=()=>{S.name=$("#nm").value.trim()||S.name;const ag=parseInt(toENd($("#ag").value));
-    if(ag&&ag>=3&&ag<=110){const want=ag<12?"kids":"full";S.age=ag;if(want!==S.mode){if(want==="full")return parentCheck(()=>setMode("full"));setMode("kids");return}}
-    save();refresh();toast("সেভ হয়েছে")};
-  $("#modeSw").onclick=()=>isFullMode()?setMode("kids"):parentCheck(()=>setMode("full"));
-  const pfs=$("#pfSw");if(pfs)pfs.onchange=()=>{S.proof=pfs.checked;save();refresh();toast(S.proof?(FULL_REAL?"প্রুফ দেখার মোড চালু · গ্রন্থ পাতায় যান":"প্রুফ মোড চালু; পূর্ণ পাঠ যোগ হলে কাজ শুরু করা যাবে"):"প্রুফ দেখার মোড বন্ধ")};
-}
-
-/* ---------- lesson ---------- */
-let LS=null;
-function openLesson(n){
-  const l=L[n-1];LS={n,correct:0,answered:[false,false],idx:0};
-  const col=COLORS[(n-1)%COLORS.length];
-  const el=document.createElement("div");el.className="sheet";el.id="sheet";
-  const letters=["ক","খ","গ"];
-  el.innerHTML=`
-  <div class="sheet-top"><button class="x" id="closeL" aria-label="বন্ধ করো">×</button><div class="steps-bar">${[0,1,2,3,4].map(i=>`<i class="${i===0?"on":""}"></i>`).join("")}</div></div>
-  <div class="steps" id="steps">
-    <section class="step"><div class="in">
-      <div class="scene" id="scene" style="background:${col}">${motif(n)}<span class="tap">ছবিতে ছোঁও</span></div>
-      <div class="lvl-tag">স্তর ${BN(n)} · গল্প</div>
-      <h2>${l.t}</h2>
-      <p class="story">${l.story}</p>
-      ${l.breath?`<div class="breath"><div class="c" id="bc"></div><b id="bt">বৃত্তের সঙ্গে শ্বাস নাও</b><button class="cta green" style="width:auto;padding:8px 18px;font-size:1rem" id="bb">শ্বাসের খেলা শুরু</button></div>`:""}
-      <button class="cta blue nx">পরের ধাপ →</button></div></section>
-    <section class="step"><div class="in">
-      <div class="lvl-tag">স্তর ${BN(n)} · আজকের শ্লোক</div>
-      <div class="sloka-box"><p class="sk">${l.sk}</p><div class="rf" style="display:flex;justify-content:space-between;align-items:center">শ্রীমদ্ভগবদ্গীতা ${l.ref}<button class="heart" id="lfav" aria-label="প্রিয়তে যোগ করো">${isFav(idFromRef(l.ref))?"♥":"♡"}</button></div></div>
-      <div class="easy"><b>সহজ কথায়</b>${l.easy}</div>
-      <div class="lesson">${mascot("","wow")}<p>${l.lesson}</p></div>
-      <button class="cta blue nx">প্রশ্নের খেলা →</button></div></section>
-    ${l.q.map((q,qi)=>`<section class="step"><div class="in">
-      <div class="lvl-tag">প্রশ্ন ${BN(qi+1)}/২</div>
-      <div class="talk">${mascot()}<div class="bubble">ভেবে উত্তর দাও!</div></div>
-      <p class="q">${q[0]}</p>
-      <div class="opts">${q[1].map((o,oi)=>`<button class="opt" data-q="${qi}" data-o="${oi}"><span class="l">${letters[oi]}</span>${o}</button>`).join("")}</div>
-      <p class="feedback" id="fb${qi}"></p>
-      <button class="cta blue nx" id="nq${qi}" disabled>${qi===0?"পরের প্রশ্ন →":"ফলাফল দেখো →"}</button></div></section>`).join("")}
-    <section class="step"><div class="in result" id="result"></div></section>
-  </div>`;
-  document.body.appendChild(el);
-  const steps=$("#steps");
-  // keep learner on the right step: block swiping ahead of unanswered questions
-  steps.addEventListener("scroll",()=>{
-    const i=Math.round(steps.scrollLeft/steps.clientWidth);
-    const maxAllowed=LS.answered[0]?(LS.answered[1]?4:3):2;
-    if(i>maxAllowed){steps.scrollTo({left:maxAllowed*steps.clientWidth,behavior:"smooth"});return}
-    if(i!==LS.idx){LS.idx=i;document.querySelectorAll(".steps-bar i").forEach((b,k)=>b.classList.toggle("on",k<=i));if(i===4)finishLesson()}
-  },{passive:true});
-  el.querySelectorAll(".nx").forEach(b=>b.onclick=()=>steps.scrollTo({left:(LS.idx+1)*steps.clientWidth,behavior:"smooth"}));
-  $("#closeL").onclick=closeLesson;
-  $("#lfav").onclick=()=>{const id=idFromRef(l.ref);toggleFav(id);$("#lfav").textContent=isFav(id)?"♥":"♡"};
-  $("#scene").onclick=e=>{const s=e.currentTarget;s.classList.remove("pop");void s.offsetWidth;s.classList.add("pop")};
-  if(l.breath){let on=false,tm;$("#bb").onclick=()=>{on=!on;$("#bb").textContent=on?"থামাও":"শ্বাসের খেলা শুরু";clearInterval(tm);
-    const bc=$("#bc"),bt=$("#bt");if(!on){bc.classList.remove("big");bt.textContent="বৃত্তের সঙ্গে শ্বাস নাও";return}
-    let inh=true;const tick=()=>{bc.classList.toggle("big",inh);bt.textContent=inh?"ধীরে শ্বাস নাও…":"ধীরে ছাড়ো…";inh=!inh};tick();tm=setInterval(tick,4000)}}
-  el.querySelectorAll(".opt").forEach(b=>b.onclick=e=>{
-    const qi=+b.dataset.q,oi=+b.dataset.o,q=l.q[qi];if(LS.answered[qi])return;
-    LS.answered[qi]=true;
-    const opts=el.querySelectorAll(`.opt[data-q="${qi}"]`);opts.forEach(o=>o.disabled=true);
-    if(oi===q[2]){b.classList.add("ok");LS.correct++;$("#fb"+qi).innerHTML=`<span style="color:var(--leaf)">দারুণ! একদম ঠিক!</span>`;const r=b.getBoundingClientRect();xpPop(10,r.right-40,r.top)}
-    else{b.classList.add("no");opts[q[2]].classList.add("ok");$("#fb"+qi).innerHTML=`<span style="color:var(--sindoor)">উঁহু! সঠিক উত্তর সবুজ রঙে দেখো।</span>`}
-    $("#nq"+qi).disabled=false;
-  });
-}
-function finishLesson(){
-  if(LS.finished)return;LS.finished=true;
-  const n=LS.n,prev=S.done[n]||0,stars=1+LS.correct;
-  let gain=0;
-  if(!prev){gain=10+LS.correct*10+(stars===3?10:0)}
-  else if(stars>prev){gain=(stars-prev)*10}
-  if(stars>prev)S.done[n]=stars;
-  const up=gain?addXP(gain):(save(),null);
-  checkBadges();save();
-  const nextL=n<18?L[n]:null;
-  $("#result").innerHTML=`
-    <div class="lvl-tag">স্তর ${BN(n)} সম্পূর্ণ!</div>
-    <div class="bigstars">${[1,2,3].map(k=>STAR(k<=stars)).join("")}</div>
-    <h2>${["","ভালো চেষ্টা!","খুব ভালো!","অসাধারণ!"][stars]}</h2>
-    <div class="earn">${gain?"+"+BN(gain)+" XP":"আবার খেলেছ!"}</div>
-    <p class="story" style="text-align:center">${BN(LS.correct)}/২টি প্রশ্নের সঠিক উত্তর দিয়েছ।${stars<3?" আবার খেললে আরও তারা পাবে।":""}</p>
-    ${mascot()}
-    ${nextL?`<button class="cta green" id="goNextL">স্তর ${BN(nextL.n)} খুলে গেছে! চলো →</button>`:""}
-    <button class="cta blue" id="backMap">যাত্রাপথে ফিরি</button>`;
-  if(nextL)$("#goNextL").onclick=()=>{closeLesson();openLesson(nextL.n)};
-  $("#backMap").onclick=()=>{closeLesson();goPage(1)};
-  if(up!=null)setTimeout(()=>celebrate("নতুন পদমর্যাদা!",RANKS[up][1],"তুমি এখন একজন "+RANKS[up][1]+"। এগিয়ে চলো!"),900);
-  else if(n===18&&!prev)setTimeout(()=>celebrate("অভিনন্দন!","গীতা যাত্রা সম্পূর্ণ","তুমি ১৮টি স্তরই পার করেছ!"),900);
-}
-function closeLesson(){const s=$("#sheet");if(s)s.remove();refresh()}
-
-/* ---------- celebration ---------- */
-function celebrate(h,big,txt){
-  const o=document.createElement("div");o.className="celebrate";
-  o.innerHTML=`<canvas></canvas><div class="box">${mascot("","wow").replace("<svg","<svg width='120' height='120'")}<h2>${h}</h2><div class="earn" style="font-size:1.5rem">${big}</div><p style="margin:0">${txt}</p><button class="cta green">দারুণ!</button></div>`;
-  document.body.appendChild(o);o.querySelector("button").onclick=()=>o.remove();
-  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
-  const cv=o.querySelector("canvas"),cx=cv.getContext("2d");cv.width=innerWidth;cv.height=innerHeight;
-  const P=[...Array(120)].map(()=>({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,vy:2+Math.random()*3,vx:-1+Math.random()*2,r:4+Math.random()*5,c:COLORS[Math.floor(Math.random()*COLORS.length)],a:Math.random()*6}));
-  let f=0;(function run(){if(!o.isConnected||f++>240)return;cx.clearRect(0,0,cv.width,cv.height);P.forEach(p=>{p.y+=p.vy;p.x+=p.vx;p.a+=.1;cx.save();cx.translate(p.x,p.y);cx.rotate(p.a);cx.fillStyle=p.c;cx.fillRect(-p.r,-p.r/2,p.r*2,p.r);cx.restore()});requestAnimationFrame(run)})();
-}
-
-/* ---------- devotional sound engine (original melodies, synthesized in the browser) ---------- */
-const SA=220,RT={S:1,R:9/8,G:5/4,M:4/3,P:3/2,D:5/3,N:15/8};
-let AC=null,player=null,NB=null;
-function ac(){if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;AC=new C()}if(AC.state==="suspended")AC.resume();return AC}
-function newOut(){const g=AC.createGain();g.gain.value=.9;g.connect(AC.destination);return g}
-function voice(out,f,t,d,vol=.16){const o=AC.createOscillator(),o2=AC.createOscillator(),g=AC.createGain(),lf=AC.createOscillator(),lg=AC.createGain(),fl=AC.createBiquadFilter();
-  o.type="triangle";o2.type="sine";o.frequency.value=f;o2.frequency.value=f*2;fl.type="lowpass";fl.frequency.value=2200;
-  lf.frequency.value=5.2;lg.gain.value=f*.007;lf.connect(lg);lg.connect(o.frequency);lg.connect(o2.frequency);
-  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.07);g.gain.setValueAtTime(vol,t+Math.max(.08,d-.1));g.gain.exponentialRampToValueAtTime(.0005,t+d+.3);
-  const g2=AC.createGain();g2.gain.value=.25;o.connect(fl);o2.connect(g2);g2.connect(fl);fl.connect(g);g.connect(out);
-  [o,o2,lf].forEach(x=>{x.start(t);x.stop(t+d+.35)})}
-function drone(out,t,d){[[SA/2,.045],[SA*.75,.035],[SA,.022]].forEach(([f,v])=>{const o=AC.createOscillator(),g=AC.createGain(),fl=AC.createBiquadFilter();o.type="sawtooth";o.frequency.value=f;fl.type="lowpass";fl.frequency.value=650;
-  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.8);g.gain.setValueAtTime(v,t+d-.5);g.gain.linearRampToValueAtTime(0,t+d);o.connect(fl);fl.connect(g);g.connect(out);o.start(t);o.stop(t+d+.05)})}
-function noise(){if(NB)return NB;const b=AC.createBuffer(1,AC.sampleRate*.3,AC.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return NB=b}
-function kartal(out,t,v=.22){const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=noise();f.type="highpass";f.frequency.value=5500;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+.18);s.connect(f);f.connect(g);g.connect(out);s.start(t);s.stop(t+.2)}
-function drum(out,t,v=.32){const o=AC.createOscillator(),g=AC.createGain();o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(55,t+.25);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+.4);o.connect(g);g.connect(out);o.start(t);o.stop(t+.45)}
-function bell(out,t,f=520,v=.2){[[1,1],[2.76,.5],[5.4,.28],[8.93,.14]].forEach(([m,a])=>{const o=AC.createOscillator(),g=AC.createGain();o.type="sine";o.frequency.value=f*m;
-  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v*a,t+.005);g.gain.exponentialRampToValueAtTime(.0005,t+3.6/Math.sqrt(m));o.connect(g);g.connect(out);o.start(t);o.stop(t+4)})}
-function conch(out,t){const o=AC.createOscillator(),o2=AC.createOscillator(),f=AC.createBiquadFilter(),g=AC.createGain(),lf=AC.createOscillator(),lg=AC.createGain();
-  o.type="sawtooth";o2.type="square";o.frequency.setValueAtTime(233,t);o.frequency.setValueAtTime(233,t+2.3);o.frequency.linearRampToValueAtTime(262,t+3);o2.frequency.value=116.5;
-  f.type="lowpass";f.frequency.value=1000;f.Q.value=4;lf.frequency.value=4.5;lg.gain.value=3;lf.connect(lg);lg.connect(o.frequency);
-  const g2=AC.createGain();g2.gain.value=.3;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.15,t+.7);g.gain.setValueAtTime(.15,t+2.8);g.gain.linearRampToValueAtTime(0,t+3.4);
-  o.connect(f);o2.connect(g2);g2.connect(f);f.connect(g);g.connect(out);[o,o2,lf].forEach(x=>{x.start(t);x.stop(t+3.5)})}
-
-const HK=["G","G","R","G","P","G","R","S","S","R","G","P","D","P","G","R"];
-const TONES={
- om:{name:"ওঁ নমঃ শিবায়",kind:"মন্ত্রের সুর · তানপুরা",col:"#5C7CFA",syl:["ওঁ","ন","মঃ","শি","বা","য়"],drone:true,
-   seq:[["S",1.2,0],["R",.45,1],["G",.45,2],["P",.7,3],["G",.45,4],["R",1,5],["P",1.2,0],["D",.45,1],["P",.45,2],["G",.7,3],["R",.45,4],["S",1.3,5]]},
- hk:{name:"হরে কৃষ্ণ কীর্তন",kind:"মহামন্ত্রের সুর · করতাল",col:"#FF8A5B",kartal:true,
-   syl:["হরে","কৃষ্ণ","হরে","কৃষ্ণ","কৃষ্ণ","কৃষ্ণ","হরে","হরে","হরে","রাম","হরে","রাম","রাম","রাম","হরে","হরে"],
-   seq:HK.map((n,k)=>[n,k===7?.8:k===15?.9:.5,k])},
- bell:{name:"মন্দিরের ঘণ্টা",kind:"ঘণ্টাধ্বনি",col:"#0FA3A3"},
- conch:{name:"শঙ্খধ্বনি",kind:"শঙ্খের আওয়াজ",col:"#2FA866"},
- aarti:{name:"সন্ধ্যা আরতি",kind:"ঘণ্টা, ঢাক ও করতাল",col:"#E8572C"}
-};
-const TICON={
- om:`<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M16 26c-6 0-9-4-9-8s3-6 6-6c4 0 5 3 5 5"/><circle cx="16" cy="6" r="2" fill="#fff"/><path d="M22 14c3 0 4 2 4 4s-1 4-4 4"/></svg>`,
- hk:`<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4"><circle cx="11" cy="16" r="6"/><circle cx="21" cy="16" r="6"/></svg>`,
- bell:`<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M9 22V15a7 7 0 0 1 14 0v7l2 2H7z"/><path d="M14 27h4M16 4v4"/></svg>`,
- conch:`<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M6 20c4-10 14-14 20-12-2 6-6 16-16 16-2 0-3-2-4-4z"/><path d="M12 18c2-3 6-5 9-5"/></svg>`,
- aarti:`<svg viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M8 20h16l-2 4H10z"/><path d="M16 18c-3-3-1-7 0-10 1 3 3 7 0 10z" fill="#fff"/></svg>`
-};
-function schedule(id,out,t0,timers){
-  const T=TONES[id];
-  if(T.seq){const total=T.seq.reduce((a,s)=>a+s[1],0)+.6;if(T.drone)drone(out,t0,total+.4);let t=t0;
-    T.seq.forEach(([n,d,si],k)=>{voice(out,SA*RT[n],t,d*.95);if(T.kartal){kartal(out,t);if(k%2===0)drum(out,t,.18)}
-      timers.push(setTimeout(()=>hilite(id,si),Math.max(0,(t-AC.currentTime)*1000)));t+=d});
-    timers.push(setTimeout(()=>hilite(id,-1),Math.max(0,(t-AC.currentTime)*1000)));return total}
-  if(id==="bell"){[0,2.4,4.8].forEach(x=>bell(out,t0+x,520));return 7.2}
-  if(id==="conch"){conch(out,t0);return 5}
-  if(id==="aarti"){for(let i=0;i<8;i++){const x=t0+i*.6;if(i%2===0)bell(out,x,660,.13);kartal(out,x+.3,.16);if(i%4===0)drum(out,x)}return 4.8}
-  return 3;
-}
-function hilite(id,si){document.querySelectorAll(`[data-mt="${id}"] span`).forEach((s,i)=>s.classList.toggle("on",i===si))}
-function playTone(id,loop=true){
-  stopTone();if(!ac()){toast("এই ডিভাইসে শব্দ চালানো যাচ্ছে না");return}
-  const out=newOut(),timers=[];player={id,out,timers};
-  const run=t=>{if(!player||player.out!==out)return;const d=schedule(id,out,t,timers);
-    if(loop)timers.push(setTimeout(()=>run(t+d),Math.max(0,(t+d-AC.currentTime-.3)*1000)))};
-  run(AC.currentTime+.08);updatePlay();
-}
-function stopTone(){if(!player)return;const{out,timers,id}=player;player=null;timers.forEach(clearTimeout);
-  try{out.gain.setTargetAtTime(0,AC.currentTime,.05);setTimeout(()=>out.disconnect(),500)}catch(e){}
-  hilite(id,-1);updatePlay()}
-function updatePlay(){document.querySelectorAll("[data-play]").forEach(b=>{const on=player&&player.id===b.dataset.play;b.setAttribute("aria-pressed",!!on);b.textContent=on?"■ থামাও":"▶ শুনুন"})}
-const mtHTML=id=>TONES[id].syl?`<div class="mt" data-mt="${id}">${TONES[id].syl.map(s=>`<span>${s}</span>`).join("")}</div>`:"";
-
-/* ---------- native phone alarms (active only inside the installed Android app) ---------- */
+/* ---------- puja alarms: phone alarms in the installed app, in-page alarms in a browser ---------- */
+const TONES={om:'ওঁ নমঃ শিবায়',hk:'হরে কৃষ্ণ কীর্তন',bell:'মন্দিরের ঘণ্টা',conch:'শঙ্খধ্বনি',aarti:'সন্ধ্যা আরতি'};
 const NATIVE=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
-// Plain-HTML Capacitor apps get no plugin proxies (those come from @capacitor/core's bundler build),
-// so call the native LocalNotifications plugin through the bridge ourselves.
-const LN=NATIVE?(()=>{const C=window.Capacitor,P="LocalNotifications";
-  const call=m=>(o)=>(C.nativePromise?C.nativePromise(P,m,o||{}):Promise.reject(new Error("bridge missing")));
-  const api={};["createChannel","checkPermissions","requestPermissions","checkExactNotificationSetting","changeExactNotificationSetting","getPending","cancel","schedule","areEnabled"].forEach(m=>api[m]=call(m));
+const LN=NATIVE?(()=>{const C=window.Capacitor,P='LocalNotifications',call=m=>o=>(C.nativePromise?C.nativePromise(P,m,o||{}):Promise.reject(new Error('bridge missing'))),api={};
+  ['createChannel','checkPermissions','requestPermissions','checkExactNotificationSetting','changeExactNotificationSetting','getPending','cancel','schedule'].forEach(m=>api[m]=call(m));
   api.addListener=(ev,cb)=>C.addListener?C.addListener(P,ev,cb):null;return api})():null;
-let exactOK=true,alarmState={perm:"",pending:0,err:""};
-async function nativeSetup(){
-  if(!LN)return;
-  try{
-    for(const[k,v]of Object.entries(TONES)){
-      await LN.createChannel({id:"alarm_"+k,name:v.name,description:"পূজা ও পাঠের অ্যালার্ম",importance:5,visibility:1,sound:k+".wav",vibration:true,lights:true,lightColor:"#FFB020"});
-    }
-    let p=await LN.checkPermissions();if(p.display!=="granted")p=await LN.requestPermissions();alarmState.perm=p.display;
-    try{const ex=await LN.checkExactNotificationSetting();exactOK=ex.exact_alarm==="granted"}catch(e){}
-    LN.addListener("localNotificationActionPerformed",ev=>{
-      const id=ev.notification&&ev.notification.extra&&ev.notification.extra.alarmId;
-      const a=S.alarms.find(x=>x.id===id);if(a){goPage(2);setTimeout(()=>ring(a),500)}
-    });
-    await nativeSchedule();renderPuja();
-  }catch(e){alarmState.err=String(e&&e.message||e);renderPuja()}
-}
-async function nativeSchedule(){
-  if(!LN)return;
-  try{
-    const pend=await LN.getPending();
-    if(pend.notifications&&pend.notifications.length)await LN.cancel({notifications:pend.notifications.map(n=>({id:n.id}))});
-    const list=S.alarms.filter(a=>a.on).map((a,i)=>{const[h,m]=a.time.split(":").map(Number);
-      return {id:1000+i,title:a.label+"-র সময় হয়েছে",body:TONES[a.tone].name+" · ছুঁয়ে অ্যাপ খোলো",
-        channelId:"alarm_"+a.tone,sound:a.tone+".wav",smallIcon:"ic_stat_bell",iconColor:"#1565C0",
-        schedule:{on:{hour:h,minute:m},allowWhileIdle:true},extra:{alarmId:a.id}}});
-    if(list.length)await LN.schedule({notifications:list});
-    const after=await LN.getPending();alarmState.pending=(after.notifications||[]).length;alarmState.err="";
-  }catch(e){alarmState.err=String(e&&e.message||e);toast("অ্যালার্ম সেট করা যায়নি: অনুমতি দেখুন")}
-  const st=$("#alSt");if(st)st.innerHTML=alarmStatusHTML();
-}
-function alarmStatusHTML(){
-  if(!NATIVE)return "";
-  const ok=alarmState.perm==="granted"&&!alarmState.err;
-  return `<div class="${ok?"alst":"notice"}" style="font-size:.88rem;display:flex;flex-direction:column;gap:4px">
-    <b style="font-family:var(--display)">${ok?"✓ ফোনের অ্যালার্ম চালু":"⚠ অ্যালার্মে সমস্যা"}</b>
-    <span>নোটিফিকেশন অনুমতি: ${alarmState.perm==="granted"?"আছে":"নেই"} · ঠিক সময়ে বাজানোর অনুমতি: ${exactOK?"আছে":"নেই"} · সেট করা অ্যালার্ম: ${BN(alarmState.pending)}টি</span>
-    ${alarmState.err?`<span>ত্রুটি: ${alarmState.err}</span>`:""}</div>`;
-}
-async function testAlarm(){
-  if(!LN){toast("ফোনে ইনস্টল করা অ্যাপে এটি কাজ করবে");return}
-  try{const a=S.alarms[0]||{id:"t",label:"পরীক্ষা",tone:"bell"};
-    await LN.schedule({notifications:[{id:999,title:"পরীক্ষামূলক অ্যালার্ম",body:"অ্যালার্ম ঠিকমতো কাজ করছে · ছুঁয়ে অ্যাপ খোলো",
-      channelId:"alarm_"+a.tone,sound:a.tone+".wav",smallIcon:"ic_stat_bell",iconColor:"#1565C0",
-      schedule:{at:new Date(Date.now()+60000),allowWhileIdle:true},extra:{alarmId:a.id}}]});
-    toast("১ মিনিট পরে বাজবে। এখন অ্যাপ বন্ধ করে দেখো।")}catch(e){alarmState.err=String(e&&e.message||e);renderPuja();toast("পরীক্ষা ব্যর্থ: অনুমতি দেখুন")}
-}
-async function fixAlarmPermission(){
-  if(!LN)return;
-  try{await LN.requestPermissions();await LN.changeExactNotificationSetting();
-    const ex=await LN.checkExactNotificationSetting();exactOK=ex.exact_alarm==="granted";await nativeSchedule();renderPuja();
-    toast(exactOK?"অ্যালার্মের অনুমতি ঠিক আছে":"সেটিংসে 'অ্যালার্ম ও রিমাইন্ডার' চালু করো")}catch(e){toast("ফোনের সেটিংসে নোটিফিকেশন চালু করো")}
-}
+let exactOK=true,AS={perm:'',pending:0,err:''},audio=null,playing='';
+const due=l=>/সময়$/.test(l)?l+' হয়েছে':l+'-র সময় হয়েছে';
+const PERIOD=h=>h<4?'রাত':h<12?'সকাল':h<16?'দুপুর':h<18?'বিকেল':h<20?'সন্ধ্যা':'রাত';
+const fmt=t=>{const[h,m]=t.split(':').map(Number);return PERIOD(h)+' '+BN(h%12||12)+':'+BN(String(m).padStart(2,'0'))};
+function nextAl(){const now=new Date();let b=null;S.alarms.filter(a=>a.on).forEach(a=>{const[h,m]=a.time.split(':').map(Number),d=new Date();d.setHours(h,m,0,0);if(d<=now)d.setDate(d.getDate()+1);if(!b||d<b.d)b={a,d}});return b}
+function cd(){const n=nextAl();if(!n)return'';const mn=Math.ceil((n.d-new Date())/6e4),h=Math.floor(mn/60);return 'আর '+(h?BN(h)+' ঘণ্টা ':'')+BN(mn%60)+' মিনিট বাকি'}
+function play(k){stopT();try{audio=new Audio('sounds/'+k+'.wav');audio.loop=true;audio.play().catch(()=>{});playing=k}catch(e){}tonesUI()}
+function stopT(){if(audio){audio.pause();audio=null}playing='';tonesUI()}
+function tonesUI(){const el=$('tones');if(!el)return;el.innerHTML=Object.entries(TONES).map(([k,n])=>`<div class="tone"><b>${n}</b><button class="btn ${playing===k?'':'ghost'}" data-tone="${k}">${playing===k?'থামাও':'শুনুন'}</button></div>`).join('')}
+async function nSetup(){if(!LN)return;try{
+  for(const[k,n]of Object.entries(TONES))await LN.createChannel({id:'alarm_'+k,name:n,description:'পূজা ও পাঠের অ্যালার্ম',importance:5,visibility:1,sound:k+'.wav',vibration:true,lights:true,lightColor:'#F5A524'});
+  let p=await LN.checkPermissions();if(p.display!=='granted')p=await LN.requestPermissions();AS.perm=p.display;
+  try{const ex=await LN.checkExactNotificationSetting();exactOK=ex.exact_alarm==='granted'}catch(e){}
+  LN.addListener('localNotificationActionPerformed',ev=>{const id=ev.notification&&ev.notification.extra&&ev.notification.extra.alarmId,a=S.alarms.find(x=>x.id===id);if(a)setTimeout(()=>ring(a),500)});
+  await nSched()}catch(e){AS.err=String(e&&e.message||e)}if($('v-puja').classList.contains('on'))puja()}
+async function nSched(){if(!LN)return;try{const pd=await LN.getPending();if(pd.notifications&&pd.notifications.length)await LN.cancel({notifications:pd.notifications.map(n=>({id:n.id}))});
+  const list=S.alarms.filter(a=>a.on).map((a,i)=>{const[h,m]=a.time.split(':').map(Number);return{id:1000+i,title:due(a.label),body:TONES[a.tone]+' · ছুঁয়ে অ্যাপ খুলুন',channelId:'alarm_'+a.tone,sound:a.tone+'.wav',smallIcon:'ic_stat_bell',iconColor:'#E8558A',schedule:{on:{hour:h,minute:m},allowWhileIdle:true},extra:{alarmId:a.id}}});
+  if(list.length)await LN.schedule({notifications:list});const af=await LN.getPending();AS.pending=(af.notifications||[]).length;AS.err=''}catch(e){AS.err=String(e&&e.message||e);toast('অ্যালার্ম সেট করা যায়নি')}
+  const st=$('alSt');if(st)st.innerHTML=alStatus()}
+function alStatus(){if(!NATIVE)return'';const ok=AS.perm==='granted'&&!AS.err;
+  return `<div class="note"><b>${ok?'ফোনের অ্যালার্ম চালু':'অ্যালার্মে সমস্যা'}</b><br>নোটিফিকেশন অনুমতি: ${AS.perm==='granted'?'আছে':'নেই'} · ঠিক সময়ের অনুমতি: ${exactOK?'আছে':'নেই'} · সেট করা: ${BN(AS.pending)}টি${AS.err?'<br>ত্রুটি: '+AS.err:''}</div>
+  ${(!exactOK||AS.perm!=='granted')?'<button class="btn wide" id="fixPerm">অ্যালার্মের অনুমতি দিন</button>':''}<button class="btn ghost wide" id="testAl" style="margin-top:8px">১ মিনিট পরে পরীক্ষা অ্যালার্ম</button>`}
+function puja(){const n=nextAl(),dn=S.pujaDays.includes(today());
+  $('pujaCount').textContent=BN(S.pujaDays.length)+' দিন পূজা করেছেন';
+  $('pnext').innerHTML=n?`<div>পরের অ্যালার্ম · ${n.a.label}</div><div class="tm">${fmt(n.a.time)}</div><div id="cdt">${cd()}</div><button class="pill" id="tryRing">এখনই বাজিয়ে দেখি</button>`:'<b>কোনো অ্যালার্ম চালু নেই</b><div>নিচে সময় যোগ করুন বা চালু করুন।</div>';
+  $('pujaDone').textContent=dn?'আজকের পূজা হয়েছে':'আজ পূজা করেছি';$('pujaDone').classList.toggle('ghost',dn);
+  $('alist').innerHTML=S.alarms.map(a=>`<div class="arow" data-a="${a.id}"><div class="r"><input type="time" value="${a.time}" data-f="time" aria-label="সময়"><input type="text" value="${a.label}" data-f="label" maxlength="24" aria-label="নাম"><label class="sw"><input type="checkbox" data-f="on" ${a.on?'checked':''} aria-label="চালু বা বন্ধ"><i></i></label></div>
+    <div class="r"><select data-f="tone" aria-label="ধ্বনি">${Object.entries(TONES).map(([k,v])=>`<option value="${k}" ${k===a.tone?'selected':''}>${v}</option>`).join('')}</select><button class="del" aria-label="মুছুন">×</button></div></div>`).join('');
+  $('alSt').innerHTML=alStatus();tonesUI();
+  $('pujaFoot').textContent=NATIVE?'অ্যাপ বন্ধ থাকলেও ফোন ঠিক সময়ে অ্যালার্ম বাজাবে। নোটিফিকেশন ছুঁলে অ্যাপ খুলবে।':'ব্রাউজারে পাতাটি খোলা থাকলে অ্যালার্ম বাজবে। ফোনে ইনস্টল করা অ্যাপে বন্ধ থাকলেও বাজবে।'}
+function ring(a){const o=document.createElement('div');o.className='ringer';o.id='ringer';o.setAttribute('role','alertdialog');
+  o.innerHTML=`<svg class="bigbell" viewBox="0 0 32 32" fill="#fff"><path d="M9 22V15a7 7 0 0 1 14 0v7l2 2H7z"/><circle cx="16" cy="27" r="2"/></svg><h2>${due(a.label)}</h2><div class="tm">${fmt(a.time)}</div><div>${TONES[a.tone]}</div>
+  <button class="btn" id="rGo">${a.kind==='learn'?'পাঠ শুরু করি':'পূজা শুরু করি'}</button><div class="seg" style="justify-content:center"><button class="btn ghost" id="rSn">৫ মিনিট পরে</button><button class="btn ghost" id="rSd">শব্দ চালু</button></div>`;
+  $('ringer')&&$('ringer').remove();document.body.appendChild(o);play(a.tone);
+  const close=()=>{stopT();o.remove()};
+  $('rGo').onclick=()=>{close();if(a.kind==='learn')open(S.pos[0],S.pos[1]);else markPuja()};
+  $('rSn').onclick=()=>{close();snz={a,t:Date.now()+3e5};toast('৫ মিনিট পরে আবার মনে করাব')};$('rSd').onclick=()=>play(a.tone)}
+function markPuja(){if(S.pujaDays.includes(today())){toast('আজকের পূজা আগেই হয়েছে');return}S.pujaDays.push(today());save();petals();toast('জয় শ্রীকৃষ্ণ! আজকের পূজা হল');if($('v-puja').classList.contains('on'))puja()}
+let snz=null;const fired=new Set();
+setInterval(()=>{const n=new Date(),hm=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+  if(!NATIVE)S.alarms.forEach(a=>{const k=a.id+today()+a.time;if(a.on&&a.time===hm&&!fired.has(k)){fired.add(k);ring(a)}});
+  if(snz&&Date.now()>=snz.t){const a=snz.a;snz=null;ring(a)}const c=$('cdt');if(c)c.textContent=cd()},10000);
+$('v-puja').addEventListener('change',e=>{const r=e.target.closest('.arow');if(!r)return;const a=S.alarms.find(x=>x.id===r.dataset.a),f=e.target.dataset.f;
+  if(f==='on')a.on=e.target.checked;else if(f==='label')a.label=e.target.value.trim()||'পূজা';else a[f]=e.target.value;save();nSched();if(f==='on'){toast(a.label+(a.on?' চালু হল':' বন্ধ হল'));puja()}else{const c=$('cdt');if(c)c.textContent=cd()}});
+$('v-puja').addEventListener('click',async e=>{const t=e.target.closest('button');if(!t)return;
+  if(t.classList.contains('del')){const id=t.closest('.arow').dataset.a;S.alarms=S.alarms.filter(x=>x.id!==id);save();nSched();puja();toast('অ্যালার্ম মুছে ফেলা হল')}
+  else if(t.dataset.tone){playing===t.dataset.tone?stopT():play(t.dataset.tone)}
+  else if(t.id==='addA'||t.id==='addL'){const L=t.id==='addL';S.alarms.push({id:'a'+Date.now(),label:L?'গীতা পাঠের সময়':'পূজা',time:L?'17:00':'12:00',tone:'bell',on:true,kind:L?'learn':'puja'});save();nSched();puja()}
+  else if(t.id==='pujaDone')markPuja();
+  else if(t.id==='tryRing'){const n=nextAl();if(n)ring(n.a)}
+  else if(t.id==='fixPerm'&&LN){try{await LN.requestPermissions();await LN.changeExactNotificationSetting();const ex=await LN.checkExactNotificationSetting();exactOK=ex.exact_alarm==='granted';await nSched();puja()}catch(err){toast('ফোনের সেটিংসে নোটিফিকেশন চালু করুন')}}
+  else if(t.id==='testAl'&&LN){try{const a=S.alarms[0]||{id:'t',tone:'bell'};await LN.schedule({notifications:[{id:999,title:'পরীক্ষামূলক অ্যালার্ম',body:'অ্যালার্ম ঠিকমতো কাজ করছে',channelId:'alarm_'+a.tone,sound:a.tone+'.wav',smallIcon:'ic_stat_bell',iconColor:'#E8558A',schedule:{at:new Date(Date.now()+6e4),allowWhileIdle:true},extra:{alarmId:a.id}}]});toast('১ মিনিট পরে বাজবে। অ্যাপ বন্ধ করে দেখুন।')}catch(err){toast('পরীক্ষা ব্যর্থ: অনুমতি দেখুন')}}});
 
-/* ---------- puja alarms ---------- */
-const PERIOD=h=>h<4?"রাত":h<12?"সকাল":h<16?"দুপুর":h<18?"বিকেল":h<20?"সন্ধ্যা":"রাত";
-function fmtTime(t){const[h,m]=t.split(":").map(Number);const h12=h%12||12;return PERIOD(h)+" "+BN(h12)+":"+BN(String(m).padStart(2,"0"))}
-function nextAlarm(){const now=new Date();let best=null;
-  S.alarms.filter(a=>a.on).forEach(a=>{const[h,m]=a.time.split(":").map(Number);const d=new Date();d.setHours(h,m,0,0);if(d<=now)d.setDate(d.getDate()+1);if(!best||d<best.d)best={a,d}});return best}
-function cdText(){const nx=nextAlarm();if(!nx)return "";const mins=Math.ceil((nx.d-new Date())/60000),h=Math.floor(mins/60),m=mins%60;
-  return "আর "+(h?BN(h)+" ঘণ্টা ":"")+BN(m)+" মিনিট বাকি"}
-function renderPuja(){
-  const el=$("#puja");if(!el)return;
-  const nx=nextAlarm(),doneToday=S.pujaDays.includes(todayKey());
-  el.innerHTML=`
-  <div class="sh"><h2>পূজার সময়</h2><span>${BN(S.pujaDays.length)} দিন পূজা করেছ</span></div>
-  <div class="next">
-    <svg class="bellart" viewBox="0 0 32 32" fill="none" stroke="#fff" stroke-width="2"><path d="M9 22V15a7 7 0 0 1 14 0v7l2 2H7z"/><path d="M14 27h4M16 4v4"/></svg>
-    ${nx?`<div class="lbl">পরের পূজা · ${nx.a.label}</div><div class="tm">${fmtTime(nx.a.time)}</div><div class="cd" id="cd">${cdText()}</div>
-    <div class="row"><span class="pill">${TONES[nx.a.tone].name}</span><button class="pill" id="testRing">▶ এখনই বাজিয়ে দেখো</button></div>`
-    :`<div class="lbl">কোনো অ্যালার্ম চালু নেই</div><div class="cd">নিচে পূজার সময় যোগ করো বা চালু করো।</div>`}
-  </div>
-  <button class="cta ${doneToday?"green":""}" id="pujaDone">${doneToday?"✓ আজকের পূজা হয়েছে":"আজ পূজা করেছি · +৫ XP"}</button>
-  <div class="panel"><h3>আমার পূজার অ্যালার্ম</h3><div class="alist">
-    ${S.alarms.map(a=>`<div class="arow" data-a="${a.id}">
-      <div class="r1"><input type="time" id="t-${a.id}" value="${a.time}" aria-label="সময়"><input type="text" id="l-${a.id}" value="${a.label}" aria-label="নাম" maxlength="24">
-        <label class="sw"><input type="checkbox" id="o-${a.id}" ${a.on?"checked":""} aria-label="চালু/বন্ধ"><i></i></label></div>
-      <div class="r2"><select id="s-${a.id}" aria-label="অ্যালার্মের ধ্বনি">${Object.entries(TONES).map(([k,v])=>`<option value="${k}" ${k===a.tone?"selected":""}>${v.name}</option>`).join("")}</select>
-        <button class="del" aria-label="মুছে ফেলো">×</button></div></div>`).join("")}
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="add" id="addA">+ পূজার সময়</button><button class="add" id="addL">+ পাঠের সময়</button></div>
-    ${NATIVE&&(!exactOK||alarmState.perm!=="granted")?`<button class="cta" id="fixPerm" style="font-size:1rem">অ্যালার্মের অনুমতি দাও</button>`:""}
-    ${NATIVE?`<div id="alSt">${alarmStatusHTML()}</div><button class="cta blue" id="testAl" style="font-size:1rem">১ মিনিট পরে পরীক্ষা অ্যালার্ম</button>`:""}</div></div>
-  <div class="sh"><h2>ভক্তি ধ্বনি</h2><span>শুনুন ও সঙ্গে গাও</span></div>
-  <div class="tlist">${Object.entries(TONES).map(([k,v])=>`<div class="tcard" style="background:${v.col}">
-    <div class="h"><div class="ic">${TICON[k]}</div><div style="min-width:0"><b>${v.name}</b><span>${v.kind}</span></div><button class="play" data-play="${k}" aria-pressed="false">▶ শুনুন</button></div>
-    ${mtHTML(k)}</div>`).join("")}</div>
-  <p class="sample">${NATIVE?"অ্যাপ বন্ধ থাকলেও ফোন নির্ধারিত সময়ে অ্যালার্ম বাজাবে। নোটিফিকেশন ছুঁলে অ্যাপ খুলে পূজা বা পাঠ শুরু হবে।":"ব্রাউজারে অ্যাপটি খোলা থাকলে অ্যালার্ম বাজবে। ফোনে ইনস্টল করা অ্যাপে বন্ধ থাকলেও বাজবে।"} সুরগুলো এই অ্যাপের নিজস্ব।</p>`;
-  el.querySelectorAll(".arow").forEach(r=>{const id=r.dataset.a,a=S.alarms.find(x=>x.id===id);
-    const upd=()=>{a.time=$("#t-"+id).value||a.time;a.label=$("#l-"+id).value.trim()||"পূজা";a.on=$("#o-"+id).checked;a.tone=$("#s-"+id).value;save();nativeSchedule();const c=$("#cd");if(c)c.textContent=cdText()};
-    r.querySelectorAll("input,select").forEach(i=>i.addEventListener("change",upd));
-    $("#o-"+id).addEventListener("change",()=>{upd();renderPuja();toast(a.on?a.label+" চালু হলো":a.label+" বন্ধ হলো")});
-    r.querySelector(".del").onclick=()=>{S.alarms=S.alarms.filter(x=>x.id!==id);save();nativeSchedule();renderPuja();toast("অ্যালার্ম মুছে ফেলা হলো")};
-  });
-  $("#addA").onclick=()=>{S.alarms.push({id:"a"+Date.now(),label:"পূজা",time:"12:00",tone:"bell",on:true,kind:"puja"});save();nativeSchedule();renderPuja()};
-  $("#addL").onclick=()=>{S.alarms.push({id:"a"+Date.now(),label:"গীতা পাঠের সময়",time:"17:00",tone:"bell",on:true,kind:"learn"});save();nativeSchedule();renderPuja();toast("পাঠের অ্যালার্ম যোগ হলো")};
-  const fx=$("#fixPerm");if(fx)fx.onclick=fixAlarmPermission;
-  const ta=$("#testAl");if(ta)ta.onclick=testAlarm;
-  el.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>{player&&player.id===b.dataset.play?stopTone():playTone(b.dataset.play)});
-  const tr=$("#testRing");if(tr)tr.onclick=()=>ring(nx.a);
-  $("#pujaDone").onclick=e=>markPuja(e);
-  updatePlay();
-}
-function markPuja(e){
-  const k=todayKey();if(S.pujaDays.includes(k)){toast("আজকের পূজা আগেই হয়ে গেছে");return}
-  S.pujaDays.push(k);const r=e&&e.currentTarget?e.currentTarget.getBoundingClientRect():{right:innerWidth/2+40,top:innerHeight/2};
-  const up=addXP(5,r.right-40,r.top);toast("জয় শ্রীকৃষ্ণ! আজকের পূজা হলো");renderPuja();renderHome();
-  if(up!=null)setTimeout(()=>celebrate("নতুন পদমর্যাদা!",RANKS[up][1],"তুমি এখন একজন "+RANKS[up][1]+"।"),900);
-}
-let snooze=null;const fired=new Set();
-function ring(a){
-  const old=$("#ringer");if(old)old.remove();
-  const o=document.createElement("div");o.className="ringer";o.id="ringer";o.setAttribute("role","alertdialog");o.setAttribute("aria-label",a.label);
-  o.innerHTML=`<svg class="bigbell" viewBox="0 0 32 32" fill="#FFB020" stroke="#fff" stroke-width="1.5"><path d="M9 22V15a7 7 0 0 1 14 0v7l2 2H7z"/><circle cx="16" cy="27" r="2"/><path d="M16 4v4" fill="none"/></svg>
-    <h2>${a.label}-র সময় হয়েছে</h2><div class="tm">${fmtTime(a.time)}</div><div>${TONES[a.tone].name}</div>${mtHTML(a.tone)}
-    <button class="cta green" id="rStart">${a.kind==="learn"?"পাঠ শুরু করি":"পূজা শুরু করি"}</button>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center"><button class="soft" id="rSnooze">৫ মিনিট পরে</button><button class="soft" id="rSound">শব্দ শুনতে চাপো</button></div>`;
-  document.body.appendChild(o);playTone(a.tone);
-  const close=()=>{stopTone();o.remove()};
-  $("#rStart").onclick=e=>{close();if(a.kind==="learn"){const n=L.find(l=>!S.done[l.n]);n?openLesson(n.n):goPage(1)}else markPuja(e)};
-  $("#rSnooze").onclick=()=>{close();snooze={a,t:Date.now()+300000};toast("৫ মিনিট পরে আবার মনে করাব")};
-  $("#rSound").onclick=()=>playTone(a.tone);
-}
-setInterval(()=>{
-  const n=new Date(),hm=String(n.getHours()).padStart(2,"0")+":"+String(n.getMinutes()).padStart(2,"0");
-  S.alarms.forEach(a=>{const k=a.id+todayKey()+a.time;if(a.on&&a.time===hm&&!fired.has(k)){fired.add(k);ring(a)}});
-  if(snooze&&Date.now()>=snooze.t){const a=snooze.a;snooze=null;ring(a)}
-  const c=$("#cd");if(c)c.textContent=cdText();
-},10000);
+// events
+document.addEventListener('click',e=>{const b=e.target.closest('[data-go],[data-ch],[data-open]');if(!b)return;
+  if(b.dataset.go)show(b.dataset.go);else if(b.dataset.ch){const c=+b.dataset.ch;const f=byCh[c].findIndex(v=>!S.lit[c+'.'+v[1]]);open(c,f<0?0:f)}
+  else{const[c,i]=b.dataset.open.split(',').map(Number);open(c,i)}});
+$('obf').addEventListener('submit',e=>{e.preventDefault();S.name=$('nm').value.trim();S.age=+$('ag').value;if(kid()&&!S.goalSet)S.goal=3;save();applyLook();show('home')});
+$('cont').onclick=()=>open(S.pos[0],S.pos[1]);
+$('rback').onclick=()=>show('list');$('prev').onclick=()=>step(-1);$('next').onclick=()=>step(1);
+$('rfav').onclick=()=>{const v=byCh[cur.ch][cur.i],k=v[0]+'.'+v[1],i=S.fav.indexOf(k);i<0?S.fav.push(k):S.fav.splice(i,1);save();$('rfav').classList.toggle('on',i<0);toast(i<0?'প্রিয়তে রাখা হল':'প্রিয় থেকে সরানো হল')};
+$('share').onclick=makeCard;$('closeM').onclick=()=>$('modal').classList.remove('on');
+$('copyT').onclick=async()=>{const v=byCh[cur.ch][cur.i];try{await navigator.clipboard.writeText(v[2].join('\n')+'\n\n'+v[3]+'\n— গীতা '+v[0]+'.'+v[1]);toast('কপি হয়েছে')}catch(e){toast('কপি করা গেল না')}};
+let sx=0,sy=0,down=false;const st=$('stage');
+st.addEventListener('pointerdown',e=>{down=true;sx=e.clientX;sy=e.clientY});
+st.addEventListener('pointerup',e=>{if(!down)return;down=false;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy))step(dx<0?1:-1);else if(Math.abs(dx)<10&&Math.abs(dy)<10)flipCard()});
+document.addEventListener('keydown',e=>{if(!$('v-read').classList.contains('on'))return;if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1);if(e.key===' '){e.preventDefault();flipCard()}});
+['fsSeg','thSeg','glSeg'].forEach(id=>$(id).addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const v=b.dataset.v;
+  if(id==='fsSeg')S.fs=+v;if(id==='thSeg')S.theme=v;if(id==='glSeg'){S.goal=+v;S.goalSet=1}save();applyLook();sets()}));
+$('reprof').onclick=()=>{$('nm').value=S.name||'';$('ag').value=S.age||'';show('ob')};
+addEventListener('resize',()=>{if($('v-home').classList.contains('on'))map()});
 
-/* ---------- pages ---------- */
-const pagesEl=$("#pages");
-function goPage(i){pagesEl.scrollTo({left:i*pagesEl.clientWidth,behavior:"smooth"})}
-document.querySelectorAll(".nb").forEach(b=>b.onclick=()=>goPage(+b.dataset.p));
-pagesEl.addEventListener("scroll",()=>{const i=Math.round(pagesEl.scrollLeft/pagesEl.clientWidth);
-  document.querySelectorAll(".nb").forEach((b,k)=>b.setAttribute("aria-current",k===i))},{passive:true});
-function refresh(){
-  const nb1=document.querySelector('.nb[data-p="1"]');if(nb1)nb1.lastChild.textContent=isFullMode()?"গ্রন্থ":"যাত্রা";
-  renderHome();renderMap();renderPuja();renderRew()}
-
-/* ---------- welcome ---------- */
-function welcome(){
-  const w=document.createElement("div");w.className="welcome";
-  w.innerHTML=`${mascot()}
-  <h1>গীতা পাঠশালা</h1>
-  <p>আমি পেখম! ছোটদের জন্য গল্প আর খেলায় গীতা, বড়দের জন্য সম্পূর্ণ শ্রীমদ্ভগবদ্গীতা।</p>
-  <div class="feat"><span>১২-র কম: শিশু পাঠ</span><span>১২+: সম্পূর্ণ গীতা</span><span>প্রিয় শ্লোক</span></div>
-  ${S.invite?"":`<input id="wcode" placeholder="আমন্ত্রণ কোড (যেমন GITA-XXXX)" aria-label="আমন্ত্রণ কোড" maxlength="12" style="text-transform:uppercase">`}<input id="wname" placeholder="তোমার নাম লেখো" value="${S.name}" aria-label="তোমার নাম" maxlength="20">
-  <input id="wage" placeholder="বয়স (যেমন ৯ বা ৩৫)" value="${S.age?BN(S.age):""}" aria-label="বয়স" inputmode="numeric" maxlength="3">
-  <button class="cta" id="wgo">${S.name?"আবার শুরু করি":"চলো শুরু করি"}</button>`;
-  document.body.appendChild(w);
-  $("#wgo").onclick=()=>{if(!S.invite){const c=($("#wcode").value||"").trim().toUpperCase();if(!INVITE_CODES.includes(c)){toast("কোডটি সঠিক নয়। যিনি অ্যাপ দিয়েছেন তাঁর কাছ থেকে কোড নাও।");return}S.invite=c}S.name=$("#wname").value.trim()||S.name;const ag=parseInt(toENd($("#wage").value));
-    if(!S.name){toast("তোমার নাম লেখো");return}
-    if(!ag||ag<3||ag>110){toast("সঠিক বয়স লেখো (৩ থেকে ১১০)");return}
-    if(ag!==S.age||!S.mode){S.age=ag;S.mode=ag<12?"kids":"full"}const k=todayKey();if(!S.days.includes(k))S.days.push(k);save();w.remove();refresh()};
+fetch('gita.json').then(r=>r.json()).then(d=>{G=d;d.forEach(v=>(byCh[v[0]]=byCh[v[0]]||[]).push(v));applyLook();show(S.name?'home':'ob');nSetup()})
+ .catch(()=>{document.querySelector('.wrap').innerHTML='<div class="empty">শ্লোকগুলো লোড করা গেল না। পাতাটি আবার খুলুন।</div>'});
 }
-
-initDeck();FULL=fallbackData();buildIndex();refresh();welcome();nativeSetup();loadFull();
 </script>
-
-<script>if("serviceWorker" in navigator&&!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()))addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
 </body>
 </html>

@@ -121,6 +121,9 @@ nav svg{width:24px;height:24px}
 .sheet{text-align:left!important}.shead{display:flex;gap:10px;align-items:center;margin-bottom:10px}.shead b{font-size:20px;line-height:1.3}
 .vn{flex:none;background:var(--teal);color:#fff;font-weight:700;font-size:14px;border-radius:10px;padding:2px 10px}
 #sbody p{font-size:calc(18px * var(--fs,1));line-height:1.8;margin:0 0 12px}
+.fab{position:fixed;right:14px;bottom:calc(76px + env(safe-area-inset-bottom));z-index:6;display:flex;align-items:center;gap:6px;min-height:52px;padding:0 16px 0 12px;border-radius:999px;background:var(--teal);color:#fff;font-weight:700;box-shadow:var(--shadow)}
+.fab.on{background:var(--lotus);animation:pulse 1.6s infinite}
+.speaking{outline:3px solid var(--gold);outline-offset:4px;border-radius:12px}
 .petal{position:fixed;top:-20px;width:14px;height:20px;border-radius:50% 50% 50% 0;background:var(--lotus);z-index:10;animation:fall 2.6s ease-in forwards}
 @keyframes fall{to{transform:translateY(105vh) rotate(540deg);opacity:.2}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -129,6 +132,7 @@ body.kid .tr{font-size:calc(21px * var(--fs,1))}body.kid .face{border:4px dashed
 </head>
 <body>
 <div class="toast" id="toast"></div>
+<button class="fab" id="fab" aria-label="পাতাটি শুনুন"><svg id="fabI" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg><span id="fabT">শুনুন</span></button>
 <div class="wrap">
 
 <section class="view" id="v-ob"><div class="ob">
@@ -189,6 +193,8 @@ body.kid .tr{font-size:calc(21px * var(--fs,1))}body.kid .face{border:4px dashed
 <section class="view" id="v-set"><h1>সেটিংস</h1>
   <div class="row"><b>লেখার আকার</b><div class="seg" id="fsSeg"><button data-v="0.9">ছোট</button><button data-v="1">মাঝারি</button><button data-v="1.2">বড়</button></div></div>
   <div class="row"><b>রং</b><div class="seg" id="thSeg"><button data-v="">পদ্ম</button><button data-v="saffron">গেরুয়া</button><button data-v="night">রাত</button></div></div>
+  <div class="row"><b>শোনার গতি</b><div class="seg" id="spSeg"><button data-v="0.8">ধীরে</button><button data-v="1">স্বাভাবিক</button><button data-v="1.2">দ্রুত</button></div></div>
+  <div class="row"><div><b>পরপর শুনুন</b><div class="muted">একটি শ্লোক শেষ হলে পরেরটি নিজে থেকে শুরু হবে</div></div><label class="sw"><input type="checkbox" id="autoNext" aria-label="পরপর শুনুন"><i></i></label></div>
   <div class="row"><b>দৈনিক লক্ষ্য</b><div class="seg" id="glSeg"><button data-v="3">৩</button><button data-v="5">৫</button><button data-v="10">১০</button></div></div>
   <div class="row"><div><b id="who"></b><div class="muted" id="mode"></div></div><button class="btn ghost" id="reprof">বদলাই</button></div>
   <div class="row"><div><b>পুরনো সংস্করণ</b><div class="muted">আগের পাঠ, কুইজ ও প্রুফরিডিং</div></div><a class="btn ghost" href="v1.html" style="text-decoration:none">খুলুন</a></div>
@@ -217,7 +223,7 @@ const LEVELS=[[0,'নবীন পাঠক'],[25,'জিজ্ঞাসু'],[7
 const BN=n=>String(n).replace(/\d/g,d=>'০১২৩৪৫৬৭৮৯'[d]);
 const $=id=>document.getElementById(id);
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
-let STORY={},G=[],byCh={},S={lit:{},fav:[],days:{},pos:[1,0],fs:1,theme:'',goal:5,pujaDays:[],
+let STORY={},G=[],byCh={},S={speed:1,autoNext:false,lit:{},fav:[],days:{},pos:[1,0],fs:1,theme:'',goal:5,pujaDays:[],
   alarms:[{id:'a1',label:'সকালের পূজা',time:'06:30',tone:'om',on:true,kind:'puja'},{id:'a2',label:'সন্ধ্যা আরতি',time:'18:30',tone:'aarti',on:true,kind:'puja'},{id:'a3',label:'গীতা পাঠের সময়',time:'20:00',tone:'bell',on:false,kind:'learn'}]};
 try{if(!localStorage.getItem('gitaPathshala')){const o=JSON.parse(localStorage.getItem('gita-kids')||'null');
   if(o){if(o.name)S.name=o.name;if(o.age)S.age=o.age;if(o.fav)S.fav=o.fav.slice();(o.readV||[]).forEach(k=>S.lit[k]=1);
@@ -229,9 +235,9 @@ let cur={ch:1,i:0},timer=null;
 
 function toast(t){const e=$('toast');e.innerHTML=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),1600)}
 const diya='<svg width="22" height="22" viewBox="0 0 24 24"><path d="M12 3c2 3 2 5 0 7-2-2-2-4 0-7z" fill="#f5a524"/><path d="M3 13h18c-1 4-5 6-9 6s-8-2-9-6z" fill="#e8558a"/></svg>';
-function show(v){document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
+function show(v){if(typeof stopSpeak==='function')stopSpeak();document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===v||(v==='read'&&b.dataset.go==='list')));
-  $('nav').style.display=v==='ob'?'none':'flex';window.scrollTo(0,0);
+  $('nav').style.display=v==='ob'?'none':'flex';$('fab').style.display=v==='ob'?'none':'flex';window.scrollTo(0,0);
   if(v==='home')home();if(v==='list')list();if(v==='fav')favs();if(v==='set')sets();if(v==='puja')puja()}
 function applyLook(){document.body.className=(S.theme||'')+(kid()?' kid':'');document.documentElement.style.setProperty('--fs',S.fs)}
 const litIn=c=>byCh[c].filter(v=>S.lit[c+'.'+v[1]]).length;
@@ -265,7 +271,7 @@ function list(){$('chlist').innerHTML=NAMES.map((n,i)=>{const c=i+1,l=litIn(c),t
 function favs(){$('favlist').innerHTML=S.fav.length?S.fav.map(k=>{const[c,v]=k.split('.').map(Number),x=byCh[c].find(y=>y[1]===v);
   return `<button class="ch" data-open="${c},${byCh[c].indexOf(x)}"><span class="n">${BN(c)}.${BN(v)}</span><span class="x"><span>${x[3].slice(0,90)}…</span></span></button>`}).join(''):'<div class="empty">এখনও কোনো প্রিয় শ্লোক নেই।<br>পড়ার সময় হৃদয় চিহ্ন ছুঁয়ে রাখুন।</div>'}
 function sets(){const mark=(id,v)=>document.querySelectorAll('#'+id+' button').forEach(b=>b.classList.toggle('on',b.dataset.v==String(v)));
-  mark('fsSeg',S.fs);mark('thSeg',S.theme||'');mark('glSeg',S.goal);$('who').textContent=S.name+' · '+BN(S.age)+' বছর';$('mode').textContent=kid()?'শিশু-সংস্করণ চালু':'পূর্ণ সংস্করণ'}
+  mark('fsSeg',S.fs);mark('thSeg',S.theme||'');mark('glSeg',S.goal);mark('spSeg',S.speed);$('autoNext').checked=!!S.autoNext;$('who').textContent=S.name+' · '+BN(S.age)+' বছর';$('mode').textContent=kid()?'শিশু-সংস্করণ চালু':'পূর্ণ সংস্করণ'}
 
 function open(ch,i){if(!unlocked(ch)){toast('আগের অধ্যায়টি শেষ করুন');return}cur={ch,i:Math.max(0,Math.min(i,byCh[ch].length-1))};S.pos=[ch,cur.i];save();show('read');render()}
 function render(){const v=byCh[cur.ch][cur.i],k=v[0]+'.'+v[1],tot=byCh[cur.ch].length;
@@ -368,6 +374,7 @@ async function renderCard(k,mode){const v=byCh[cur.ch][cur.i],c=document.createE
  return c.toDataURL('image/png')}
 let cardFrame=0,cardMode='tr';
 window.previewCard=(ch,i,k,m)=>{cur={ch,i};return renderCard(k,m)};
+window.previewSpeech=()=>pageText();
 async function makeCard(){cardFrame=cur.ch;cardMode='tr';frameChips();await refreshCard();$('modal').classList.add('on')}
 async function refreshCard(){$('cardImg').style.opacity=.4;$('cardImg').src=await renderCard(cardFrame,cardMode);$('cardImg').style.opacity=1;
  document.querySelectorAll('#frames button').forEach(b=>b.classList.toggle('on',+b.dataset.f===cardFrame));document.querySelectorAll('#cmode button').forEach(b=>b.classList.toggle('on',b.dataset.m===cardMode))}
@@ -433,13 +440,47 @@ $('v-puja').addEventListener('click',async e=>{const t=e.target.closest('button'
   else if(t.id==='fixPerm'&&LN){try{await LN.requestPermissions();await LN.changeExactNotificationSetting();const ex=await LN.checkExactNotificationSetting();exactOK=ex.exact_alarm==='granted';await nSched();puja()}catch(err){toast('ফোনের সেটিংসে নোটিফিকেশন চালু করুন')}}
   else if(t.id==='testAl'&&LN){try{const a=S.alarms[0]||{id:'t',tone:'bell'};await LN.schedule({notifications:[{id:999,title:'পরীক্ষামূলক অ্যালার্ম',body:'অ্যালার্ম ঠিকমতো কাজ করছে',channelId:'alarm_'+a.tone,sound:a.tone+'.wav',smallIcon:'ic_stat_bell',iconColor:'#E8558A',schedule:{at:new Date(Date.now()+6e4),allowWhileIdle:true},extra:{alarmId:a.id}}]});toast('১ মিনিট পরে বাজবে। অ্যাপ বন্ধ করে দেখুন।')}catch(err){toast('পরীক্ষা ব্যর্থ: অনুমতি দেখুন')}}});
 
+/* ---------- read aloud: phone's Bengali voice in the installed app, browser voice elsewhere ---------- */
+const TTS=NATIVE&&window.Capacitor.nativePromise?(m,o)=>window.Capacitor.nativePromise('TextToSpeech',m,o||{}):null;
+let speakOn=false,speakId=0,ttsLang=null;
+const clean=t=>t.replace(/॥[^॥]*॥/g,'।').replace(/[|]/g,'।').replace(/\s+/g,' ').trim();
+function chunks(t){const out=[];t.split(/(?<=[।?!])\s+/).forEach(p=>{if(!p.trim())return;if(out.length&&(out[out.length-1]+' '+p).length<220)out[out.length-1]+=' '+p;else out.push(p)});return out}
+async function pickLang(){if(ttsLang)return ttsLang;for(let t=0;t<3;t++){for(const l of['bn-BD','bn-IN','bn']){try{const r=await TTS('isLanguageSupported',{lang:l});if(r&&r.supported){ttsLang=l;return l}}catch(e){}}await new Promise(r=>setTimeout(r,700))}return null}
+function webSay(t){return new Promise(res=>{const u=new SpeechSynthesisUtterance(t),vs=speechSynthesis.getVoices(),v=vs.find(v=>/^bn/i.test(v.lang));u.lang=v?v.lang:'bn-IN';if(v)u.voice=v;u.rate=S.speed;let d=0;const fin=()=>{if(!d){d=1;res()}};u.onend=u.onerror=fin;setTimeout(fin,Math.max(3000,t.length*220/S.speed));speechSynthesis.speak(u)})}
+async function say(text){const id=++speakId,parts=chunks(clean(text));
+  if(TTS){const lang=await pickLang();if(!lang){toast('ফোনে বাংলা কণ্ঠ নেই');try{await TTS('openInstall')}catch(e){}return false}
+    for(const p of parts){if(id!==speakId)return false;try{await TTS('speak',{text:p,lang,rate:S.speed,pitch:1,volume:1,category:'playback'})}catch(e){return false}}return id===speakId}
+  if(!('speechSynthesis' in window)){toast('এই ডিভাইসে শোনার সুবিধা নেই');return false}
+  for(const p of parts){if(id!==speakId)return false;await webSay(p)}return id===speakId}
+function stopSpeak(){speakId++;speakOn=false;try{TTS?TTS('stop'):speechSynthesis.cancel()}catch(e){}fabUI();document.querySelectorAll('.speaking').forEach(e=>e.classList.remove('speaking'))}
+function fabUI(){const f=$('fab');if(!f)return;f.classList.toggle('on',speakOn);$('fabT').textContent=speakOn?'থামুন':'শুনুন';f.setAttribute('aria-label',speakOn?'শোনা বন্ধ করুন':'পাতাটি শুনুন')}
+function verseText(){const v=byCh[cur.ch][cur.i];return `অধ্যায় ${BN(v[0])}, শ্লোক ${BN(v[1])}। `+v[2].join(' ')+' । অনুবাদ। '+v[3]}
+function pageText(){const on=document.querySelector('.view.on');if(!on)return'';
+  if($('smodal').classList.contains('on')){const st=STORY[byCh[cur.ch][cur.i][0]+'.'+byCh[cur.ch][cur.i][1]];return st?st[0]+'। '+st[1].join(' '):''}
+  if(on.id==='v-read')return verseText();
+  if(on.id==='v-home')return $('hello').textContent+' '+$('goalT').textContent+'। '+$('goalS').textContent+' আজকের শ্লোক। '+($('vod').querySelector('.tr')||{textContent:''}).textContent;
+  if(on.id==='v-puja')return 'পূজার সময়। '+$('pnext').innerText.replace('এখনই বাজিয়ে দেখি','')+'। '+S.alarms.filter(a=>a.on).map(a=>a.label+', '+fmt(a.time)).join('। ');
+  const c=on.cloneNode(true);c.querySelectorAll('button.icon,.seg,.sw,input,select,svg').forEach(e=>e.remove());return c.innerText}
+async function playPage(){const ctx=$('smodal').classList.contains('on')?'story':document.querySelector('.view.on').id;
+  speakOn=true;fabUI();
+  for(;;){const target=ctx==='story'?$('smodal').querySelector('.card'):ctx==='v-read'?$('flip'):null;if(target)target.classList.add('speaking');
+    const done=await say(pageText());if(target)target.classList.remove('speaking');
+    if(!done||!speakOn)break;
+    if(ctx==='v-read'||ctx==='story'){const v=byCh[cur.ch][cur.i];light(v[0]+'.'+v[1]);if(!S.autoNext)break;const before=cur.ch+'.'+cur.i;step(1);if(cur.ch+'.'+cur.i===before)break;if(ctx==='story')story();continue}
+    break}
+  speakOn=false;fabUI()}
+$('fab').onclick=()=>speakOn?stopSpeak():playPage();
+$('spSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.speed=+b.dataset.v;save();sets()});
+$('autoNext').onchange=e=>{S.autoNext=e.target.checked;save()};
+['closeM','sClose','rback'].forEach(id=>$(id).addEventListener('click',()=>{if(speakOn)stopSpeak()}));
+
 // events
 document.addEventListener('click',e=>{const b=e.target.closest('[data-go],[data-ch],[data-open]');if(!b)return;
   if(b.dataset.go)show(b.dataset.go);else if(b.dataset.ch){const c=+b.dataset.ch;const f=byCh[c].findIndex(v=>!S.lit[c+'.'+v[1]]);open(c,f<0?0:f)}
   else{const[c,i]=b.dataset.open.split(',').map(Number);open(c,i)}});
 $('obf').addEventListener('submit',e=>{e.preventDefault();S.name=$('nm').value.trim();S.age=+$('ag').value;if(kid()&&!S.goalSet)S.goal=3;save();applyLook();show('home')});
 $('cont').onclick=()=>open(S.pos[0],S.pos[1]);
-$('rback').onclick=()=>show('list');$('prev').onclick=()=>step(-1);$('next').onclick=()=>step(1);
+$('rback').onclick=()=>show('list');$('prev').onclick=()=>{if(speakOn)stopSpeak();step(-1)};$('next').onclick=()=>{if(speakOn)stopSpeak();step(1)};
 $('rfav').onclick=()=>{const v=byCh[cur.ch][cur.i],k=v[0]+'.'+v[1],i=S.fav.indexOf(k);i<0?S.fav.push(k):S.fav.splice(i,1);save();$('rfav').classList.toggle('on',i<0);toast(i<0?'প্রিয়তে রাখা হল':'প্রিয় থেকে সরানো হল')};
 $('share').onclick=makeCard;
 $('cmode').addEventListener('click',e=>{const b=e.target.closest('button');if(b){cardMode=b.dataset.m;refreshCard()}});
@@ -448,11 +489,11 @@ function story(){const v=byCh[cur.ch][cur.i],k=v[0]+'.'+v[1],st=STORY[k];if(!st)
   $('snum').textContent=BN(v[0])+'.'+BN(v[1]);$('stitle').textContent=st[0];$('sbody').innerHTML=st[1].map(p=>`<p>${p}</p>`).join('');
   $('smodal').classList.add('on');$('smodal').querySelector('.card').scrollTop=0;light(k)}
 $('storyB').onclick=story;$('sClose').onclick=()=>$('smodal').classList.remove('on');
-$('sNext').onclick=()=>{step(1);story()};$('sPrev').onclick=()=>{step(-1);story()};$('closeM').onclick=()=>$('modal').classList.remove('on');
+$('sNext').onclick=()=>{if(speakOn)stopSpeak();step(1);story()};$('sPrev').onclick=()=>{if(speakOn)stopSpeak();step(-1);story()};$('closeM').onclick=()=>$('modal').classList.remove('on');
 $('copyT').onclick=async()=>{const v=byCh[cur.ch][cur.i];try{await navigator.clipboard.writeText(v[2].join('\n')+'\n\n'+v[3]+'\n— গীতা '+v[0]+'.'+v[1]);toast('কপি হয়েছে')}catch(e){toast('কপি করা গেল না')}};
 let sx=0,sy=0,down=false;const st=$('stage');
 st.addEventListener('pointerdown',e=>{down=true;sx=e.clientX;sy=e.clientY});
-st.addEventListener('pointerup',e=>{if(!down)return;down=false;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy))step(dx<0?1:-1);else if(Math.abs(dx)<10&&Math.abs(dy)<10)flipCard()});
+st.addEventListener('pointerup',e=>{if(!down)return;down=false;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)){if(speakOn)stopSpeak();step(dx<0?1:-1)}else if(Math.abs(dx)<10&&Math.abs(dy)<10)flipCard()});
 document.addEventListener('keydown',e=>{if(!$('v-read').classList.contains('on'))return;if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1);if(e.key===' '){e.preventDefault();flipCard()}});
 ['fsSeg','thSeg','glSeg'].forEach(id=>$(id).addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const v=b.dataset.v;
   if(id==='fsSeg')S.fs=+v;if(id==='thSeg')S.theme=v;if(id==='glSeg'){S.goal=+v;S.goalSet=1}save();applyLook();sets()}));
